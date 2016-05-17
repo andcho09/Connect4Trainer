@@ -1,5 +1,7 @@
 package connect4;
 
+import java.util.Arrays;
+
 /**
  * <p>
  * Represents the board.
@@ -40,6 +42,16 @@ public class Board {
 	}
 
 	/**
+	 * Copy constructor.
+	 * @param board the board to copy
+	 */
+	public Board(final Board board) {
+		this.nCols = board.nCols;
+		this.nRows = board.nRows;
+		this.board = Arrays.copyOf(board.board, board.board.length);
+	}
+
+	/**
 	 * Get the disk at the specified position.
 	 * @param col the col index (0-based)
 	 * @param row the row index (0-based)
@@ -54,7 +66,7 @@ public class Board {
 		}
 
 		int column = board[col];
-		column = column >>> (row * 2);
+		column = column >>> row * 2;
 		final int mask = 0x3;
 		return Disc.getDisc((byte) (column & mask));
 	}
@@ -74,10 +86,10 @@ public class Board {
 			throw new IllegalMoveException("Disc must not be null");
 		}
 
-		int column = board[col];
+		final int column = board[col];
 		for (int r = 0; r < nRows; r++) {
-			if (column >>> (r * 2) == 0) {
-				board[col] = column | (disc.getValue() << (r * 2));
+			if (column >>> r * 2 == 0) {
+				board[col] = column | disc.getValue() << r * 2;
 				return r;
 			}
 		}
@@ -99,5 +111,19 @@ public class Board {
 			sb.append('\n');
 		}
 		return sb.toString();
+	}
+
+	/**
+	 * @return the number of columns this board has
+	 */
+	public int getNumCols() {
+		return nCols;
+	}
+
+	/**
+	 * @return the number of rows this board has
+	 */
+	public int getNumRows() {
+		return nRows;
 	}
 }
