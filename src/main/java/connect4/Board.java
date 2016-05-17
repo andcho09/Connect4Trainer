@@ -43,9 +43,9 @@ public class Board {
 	 * Get the disk at the specified position.
 	 * @param col the col index (0-based)
 	 * @param row the row index (0-based)
-	 * @return the {@link Disc}
+	 * @return the {@link Disc} or <code>null</code> if no disc is present
 	 */
-	public byte getDisk(int col, int row) {
+	public Disc getDisk(final int col, final int row) {
 		if (col < 0 || col >= nCols) {
 			throw new IllegalArgumentException("Column position " + col + " is out of bounds");
 		}
@@ -54,19 +54,35 @@ public class Board {
 		}
 
 		int column = board[col];
-		column = column >>> row;
-		int mask = 0x3;
-		return (byte) (column & mask);
+		column = column >>> (row * 2);
+		final int mask = 0x3;
+		return Disc.getDisc((byte) (column & mask));
 	}
 
 	/**
 	 * Puts a disk at the specified column.
 	 * @param col the column position (0-based)
 	 * @param disc the disc
+	 * @return the row number at which the disc was placed (0-based)
 	 * @throws IllegalMoveException if the move is illegal
 	 */
-	public void putDisc(int col, byte disc) throws IllegalMoveException {
+	public int putDisc(final int col, final Disc disc) throws IllegalMoveException {
+		if (col < 0 || col >= nCols) {
+			throw new IllegalMoveException("Column position " + col + " is out of bounds");
+		}
+		if (disc == null) {
+			throw new IllegalMoveException("Disc must not be null");
+		}
 
+		int column = board[col];
+		for (int r = 0; r < nRows; r++) {
+			if (column >>> (r * 2) == 0) {
+				board[col] = column | (disc.getValue() << (r * 2));
+				return r;
+			}
+		}
+
+		throw new IllegalMoveException("Cannot place disc at column " + col + " because it is full");
 	}
 
 	/**
@@ -74,10 +90,11 @@ public class Board {
 	 */
 	@Override
 	public String toString() {
-		final StringBuilder sb = new StringBuilder(nCols * (nRows + 1));
-		for (int i = 0; i < nRows; i++) {
-			for (int j = 0; j < nCols; j++) {
-				sb.append(Disc.toString(getDisk(j, i)));
+		final StringBuilder sb = new StringBuilder((nCols + 1) * nRows);
+		for (int r = nRows - 1; r >= 0; r--) {
+			for (int c = 0; c < nCols; c++) {
+				final Disc disc = getDisk(c, r);
+				sb.append(Disc.toSymbol(disc));
 			}
 			sb.append('\n');
 		}

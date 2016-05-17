@@ -3,30 +3,51 @@ package connect4;
 /**
  * A disc that is placed onto the board. Discs are just bytes. This is really just a helper class.
  */
-public class Disc {
+public enum Disc {
 
-	public static final byte EMPTY = 0;
-	public static final byte RED = 1;
-	public static final byte YELLOW = 2;
+	RED((byte) 1, 'r'), YELLOW((byte) 2, 'y');
 
-	private Disc() {
+	private final byte value;
+	private final char symbol;
+
+	private Disc(final byte value, final char symbol) {
+		this.value = value;
+		this.symbol = symbol;
+	}
+
+	public byte getValue() {
+		return value;
+	}
+
+	public char getSymbol() {
+		return symbol;
 	}
 
 	/**
 	 * Converts a disc byte to a human readable symbol.
 	 * @param disc the disc
-	 * @return '.' for empty, 'r' for red, 'y' for yellow and '?' for everything else
+	 * @return 'r' for red, 'y' for yellow and '.' for everything else
 	 */
-	public static final char toString(byte disc) {
-		switch (disc) {
-			case EMPTY:
-				return '.';
-			case RED:
-				return 'r';
-			case YELLOW:
-				return 'y';
+	public static final char toSymbol(final Disc disc) {
+		if (disc == null) {
+			return '.';
+		}
+		return disc.symbol;
+	}
+
+	/**
+	 * Gets the disc from the value.
+	 * @param value the value
+	 * @return a disc or null if the value couldn't be understood
+	 */
+	public static final Disc getDisc(byte value) {
+		switch (value) {
+			case 1:
+				return RED;
+			case 2:
+				return YELLOW;
 			default:
-				return '?';
+				return null;
 		}
 	}
 }

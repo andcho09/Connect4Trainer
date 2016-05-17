@@ -25,9 +25,9 @@ public class BoardTest {
 		final Board board = new Board(7, 6);
 		Assert.assertEquals(".......\n.......\n.......\n.......\n.......\n.......\n",
 				board.toString());
-		Assert.assertEquals(Disc.EMPTY, board.getDisk(0, 0));
-		Assert.assertEquals(Disc.EMPTY, board.getDisk(6, 0));
-		Assert.assertEquals(Disc.EMPTY, board.getDisk(0, 5));
+		Assert.assertNull(board.getDisk(0, 0));
+		Assert.assertNull(board.getDisk(6, 0));
+		Assert.assertNull(board.getDisk(0, 5));
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -48,5 +48,76 @@ public class BoardTest {
 	@Test(expected = IllegalArgumentException.class)
 	public void testGetIllegalDisc4() {
 		new Board(7, 6).getDisk(0, 6);
+	}
+
+	@Test
+	public void testPutDisk1() throws IllegalMoveException {
+		final Board board = new Board(7, 6);
+
+		// Place red disk in col 0
+		Assert.assertEquals(0, board.putDisc(0, Disc.RED));
+		Assert.assertEquals(Disc.RED, board.getDisk(0, 0));
+		Assert.assertEquals(null, board.getDisk(0, 1));
+		Assert.assertEquals(null, board.getDisk(1, 0));
+		Assert.assertEquals(".......\n.......\n.......\n.......\n.......\nr......\n",
+				board.toString());
+
+		// Place yellow disk in col 6
+		Assert.assertEquals(0, board.putDisc(6, Disc.YELLOW));
+		Assert.assertEquals(Disc.YELLOW, board.getDisk(6, 0));
+		Assert.assertEquals(null, board.getDisk(6, 1));
+		Assert.assertEquals(null, board.getDisk(5, 0));
+
+		Assert.assertEquals(Disc.RED, board.getDisk(0, 0)); // Check red still there
+		Assert.assertEquals(null, board.getDisk(0, 1));
+		Assert.assertEquals(null, board.getDisk(1, 0));
+		Assert.assertEquals(".......\n.......\n.......\n.......\n.......\nr.....y\n",
+				board.toString());
+
+		// Place red disk in col 6
+		Assert.assertEquals(1, board.putDisc(6, Disc.RED));
+		Assert.assertEquals(Disc.RED, board.getDisk(6, 1));
+		Assert.assertEquals(null, board.getDisk(6, 2));
+		Assert.assertEquals(null, board.getDisk(5, 1));
+
+		Assert.assertEquals(Disc.YELLOW, board.getDisk(6, 0)); // Check yellow still there
+		Assert.assertEquals(null, board.getDisk(5, 0));
+
+		Assert.assertEquals(Disc.RED, board.getDisk(0, 0)); // Check first red still there
+		Assert.assertEquals(null, board.getDisk(0, 1));
+		Assert.assertEquals(null, board.getDisk(1, 0));
+		Assert.assertEquals(".......\n.......\n.......\n.......\n......r\nr.....y\n",
+				board.toString());
+
+		// Place red disk in col 6
+		Assert.assertEquals(2, board.putDisc(6, Disc.RED));
+		Assert.assertEquals(Disc.RED, board.getDisk(6, 2));
+		Assert.assertEquals(Disc.RED, board.getDisk(6, 1));
+		Assert.assertEquals(Disc.YELLOW, board.getDisk(6, 0));
+		Assert.assertEquals(null, board.getDisk(6, 3));
+		Assert.assertEquals(".......\n.......\n.......\n......r\n......r\nr.....y\n",
+				board.toString());
+	}
+
+	@Test(expected = IllegalMoveException.class)
+	public void testPutBadDisk1() throws IllegalMoveException {
+		final Board board = new Board(7, 3);
+		Assert.assertEquals(0, board.putDisc(3, Disc.RED));
+		Assert.assertEquals(1, board.putDisc(3, Disc.RED));
+		Assert.assertEquals(2, board.putDisc(3, Disc.RED));
+		Assert.assertEquals("...r...\n...r...\n...r...\n", board.toString());
+		board.putDisc(3, Disc.RED);
+	}
+
+	@Test(expected = IllegalMoveException.class)
+	public void testPutBadDisk2() throws IllegalMoveException {
+		final Board board = new Board(7, 6);
+		board.putDisc(7, Disc.RED);
+	}
+
+	@Test(expected = IllegalMoveException.class)
+	public void testPutBadDisk3() throws IllegalMoveException {
+		final Board board = new Board(7, 6);
+		board.putDisc(-1, Disc.RED);
 	}
 }
