@@ -4,7 +4,6 @@ import java.io.Console;
 
 import connect4.Board;
 import connect4.Disc;
-import connect4.Player;
 
 /**
  * A human player who inputs commands via the console.

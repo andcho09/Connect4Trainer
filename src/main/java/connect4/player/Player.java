@@ -1,4 +1,7 @@
-package connect4;
+package connect4.player;
+
+import connect4.Board;
+import connect4.Disc;
 
 /**
  * Represents a player.

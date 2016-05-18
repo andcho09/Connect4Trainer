@@ -38,13 +38,29 @@ public enum Disc {
 	/**
 	 * Gets the disc from the value.
 	 * @param value the value
-	 * @return a disc or null if the value couldn't be understood
+	 * @return a disc or <code>null</code> if the value couldn't be understood
 	 */
-	public static final Disc getDisc(byte value) {
+	public static final Disc getDisc(final byte value) {
 		switch (value) {
 			case 1:
 				return RED;
 			case 2:
+				return YELLOW;
+			default:
+				return null;
+		}
+	}
+
+	/**
+	 * Gets the disc from the value.
+	 * @param value the value
+	 * @return a disc or <code>null</code> if the value couldn't be understood
+	 */
+	public static final Disc getDisc(final char value) {
+		switch (value) {
+			case 'r':
+				return RED;
+			case 'y':
 				return YELLOW;
 			default:
 				return null;

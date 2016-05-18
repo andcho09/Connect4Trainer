@@ -94,7 +94,8 @@ public class Board {
 			}
 		}
 
-		throw new IllegalMoveException("Cannot place disc at column " + col + " because it is full");
+		throw new IllegalMoveException(
+				"Cannot place disc at column " + col + " because it is full");
 	}
 
 	/**
@@ -125,5 +126,12 @@ public class Board {
 	 */
 	public int getNumRows() {
 		return nRows;
+	}
+
+	/**
+	 * @return the int[] backing this board. Only meant to be called by helper classes
+	 */
+	int[] getDelegateBoard() {
+		return board;
 	}
 }

@@ -1,6 +1,7 @@
 package connect4;
 
 import connect4.player.ConsoleHumanPlayer;
+import connect4.player.Player;
 
 /**
  * Start that sucker!
