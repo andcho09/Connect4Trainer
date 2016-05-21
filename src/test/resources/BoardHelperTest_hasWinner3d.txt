@@ -1,7 +1,7 @@
 7 6
-..rr..r
+..ry..r
 ..yrryy
-..yryyr
-r.ryryr
+ yyryyr
+yrryryr
 ryrryry
-yyryyrr
+yyryyry

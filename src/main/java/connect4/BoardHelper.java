@@ -74,7 +74,7 @@ public class BoardHelper {
 			}
 		}
 
-		// anchors are
+		// check diagonal wins in SW to NE direction
 		int cAnchor = 0;
 		int rAnchor = 0;
 		for (; cAnchor < b.getNumCols() - 3; cAnchor++) {
@@ -89,6 +89,7 @@ public class BoardHelper {
 			}
 		}
 
+		// check diagonal wins in SE to NW direction
 		cAnchor = 3;
 		rAnchor = 0;
 		for (; cAnchor < b.getNumCols(); cAnchor++) {

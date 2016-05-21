@@ -41,6 +41,7 @@ public class BoardHelperTest {
 		assertHasWinner(Disc.YELLOW, "BoardHelperTest_hasWinner3d.txt");
 
 		// Different types of diagonal wins (se to nw)
+		assertHasWinner(Disc.RED, "BoardHelperTest_hasWinner4a.txt");
 	}
 
 	private static void assertHasWinner(final Disc expectedWinner, final String inputFile)
