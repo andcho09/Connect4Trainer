@@ -52,12 +52,12 @@ public class Board {
 	}
 
 	/**
-	 * Get the disk at the specified position.
+	 * Get the disc at the specified position. (0,0) is bottom-left
 	 * @param col the col index (0-based)
 	 * @param row the row index (0-based)
 	 * @return the {@link Disc} or <code>null</code> if no disc is present
 	 */
-	public Disc getDisk(final int col, final int row) {
+	public Disc getDisc(final int col, final int row) {
 		if (col < 0 || col >= nCols) {
 			throw new IllegalArgumentException("Column position " + col + " is out of bounds");
 		}
@@ -65,10 +65,20 @@ public class Board {
 			throw new IllegalArgumentException("Row position " + row + " is out of bounds");
 		}
 
+		return Disc.getDisc((byte) (getDiscByte(col, row)));
+	}
+
+	/**
+	 * Get the disc at the specified position. There is no validation like the public
+	 * {@link #getDisc(int, int)} method
+	 * @param col the col index (0-based)
+	 * @param row the row index (0-based)
+	 * @return the value of the disc or 0 if there is no disc
+	 */
+	int getDiscByte(final int col, final int row) {
 		int column = board[col];
-		column = column >>> row * 2;
-		final int mask = 0x3;
-		return Disc.getDisc((byte) (column & mask));
+		column = column >>> (row * 2);
+		return (column & 0x3);
 	}
 
 	/**
@@ -106,7 +116,7 @@ public class Board {
 		final StringBuilder sb = new StringBuilder((nCols + 1) * nRows);
 		for (int r = nRows - 1; r >= 0; r--) {
 			for (int c = 0; c < nCols; c++) {
-				final Disc disc = getDisk(c, r);
+				final Disc disc = getDisc(c, r);
 				sb.append(Disc.toSymbol(disc));
 			}
 			sb.append('\n');

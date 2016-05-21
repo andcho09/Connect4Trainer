@@ -1,0 +1,7 @@
+7 6
+..rr..y
+..yrr.r
+..yrr.r
+r.ryr.r
+rryry.y
+yyryy.r

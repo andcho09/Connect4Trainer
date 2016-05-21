@@ -25,29 +25,29 @@ public class BoardTest {
 		final Board board = new Board(7, 6);
 		Assert.assertEquals(".......\n.......\n.......\n.......\n.......\n.......\n",
 				board.toString());
-		Assert.assertNull(board.getDisk(0, 0));
-		Assert.assertNull(board.getDisk(6, 0));
-		Assert.assertNull(board.getDisk(0, 5));
+		Assert.assertNull(board.getDisc(0, 0));
+		Assert.assertNull(board.getDisc(6, 0));
+		Assert.assertNull(board.getDisc(0, 5));
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testGetIllegalDisc1() {
-		new Board(7, 6).getDisk(-1, 0);
+		new Board(7, 6).getDisc(-1, 0);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testGetIllegalDisc2() {
-		new Board(7, 6).getDisk(0, -1);
+		new Board(7, 6).getDisc(0, -1);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testGetIllegalDisc3() {
-		new Board(7, 6).getDisk(7, 0);
+		new Board(7, 6).getDisc(7, 0);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testGetIllegalDisc4() {
-		new Board(7, 6).getDisk(0, 6);
+		new Board(7, 6).getDisc(0, 6);
 	}
 
 	@Test
@@ -56,45 +56,45 @@ public class BoardTest {
 
 		// Place red disk in col 0
 		Assert.assertEquals(0, board.putDisc(0, Disc.RED));
-		Assert.assertEquals(Disc.RED, board.getDisk(0, 0));
-		Assert.assertEquals(null, board.getDisk(0, 1));
-		Assert.assertEquals(null, board.getDisk(1, 0));
+		Assert.assertEquals(Disc.RED, board.getDisc(0, 0));
+		Assert.assertEquals(null, board.getDisc(0, 1));
+		Assert.assertEquals(null, board.getDisc(1, 0));
 		Assert.assertEquals(".......\n.......\n.......\n.......\n.......\nr......\n",
 				board.toString());
 
 		// Place yellow disk in col 6
 		Assert.assertEquals(0, board.putDisc(6, Disc.YELLOW));
-		Assert.assertEquals(Disc.YELLOW, board.getDisk(6, 0));
-		Assert.assertEquals(null, board.getDisk(6, 1));
-		Assert.assertEquals(null, board.getDisk(5, 0));
+		Assert.assertEquals(Disc.YELLOW, board.getDisc(6, 0));
+		Assert.assertEquals(null, board.getDisc(6, 1));
+		Assert.assertEquals(null, board.getDisc(5, 0));
 
-		Assert.assertEquals(Disc.RED, board.getDisk(0, 0)); // Check red still there
-		Assert.assertEquals(null, board.getDisk(0, 1));
-		Assert.assertEquals(null, board.getDisk(1, 0));
+		Assert.assertEquals(Disc.RED, board.getDisc(0, 0)); // Check red still there
+		Assert.assertEquals(null, board.getDisc(0, 1));
+		Assert.assertEquals(null, board.getDisc(1, 0));
 		Assert.assertEquals(".......\n.......\n.......\n.......\n.......\nr.....y\n",
 				board.toString());
 
 		// Place red disk in col 6
 		Assert.assertEquals(1, board.putDisc(6, Disc.RED));
-		Assert.assertEquals(Disc.RED, board.getDisk(6, 1));
-		Assert.assertEquals(null, board.getDisk(6, 2));
-		Assert.assertEquals(null, board.getDisk(5, 1));
+		Assert.assertEquals(Disc.RED, board.getDisc(6, 1));
+		Assert.assertEquals(null, board.getDisc(6, 2));
+		Assert.assertEquals(null, board.getDisc(5, 1));
 
-		Assert.assertEquals(Disc.YELLOW, board.getDisk(6, 0)); // Check yellow still there
-		Assert.assertEquals(null, board.getDisk(5, 0));
+		Assert.assertEquals(Disc.YELLOW, board.getDisc(6, 0)); // Check yellow still there
+		Assert.assertEquals(null, board.getDisc(5, 0));
 
-		Assert.assertEquals(Disc.RED, board.getDisk(0, 0)); // Check first red still there
-		Assert.assertEquals(null, board.getDisk(0, 1));
-		Assert.assertEquals(null, board.getDisk(1, 0));
+		Assert.assertEquals(Disc.RED, board.getDisc(0, 0)); // Check first red still there
+		Assert.assertEquals(null, board.getDisc(0, 1));
+		Assert.assertEquals(null, board.getDisc(1, 0));
 		Assert.assertEquals(".......\n.......\n.......\n.......\n......r\nr.....y\n",
 				board.toString());
 
 		// Place red disk in col 6
 		Assert.assertEquals(2, board.putDisc(6, Disc.RED));
-		Assert.assertEquals(Disc.RED, board.getDisk(6, 2));
-		Assert.assertEquals(Disc.RED, board.getDisk(6, 1));
-		Assert.assertEquals(Disc.YELLOW, board.getDisk(6, 0));
-		Assert.assertEquals(null, board.getDisk(6, 3));
+		Assert.assertEquals(Disc.RED, board.getDisc(6, 2));
+		Assert.assertEquals(Disc.RED, board.getDisc(6, 1));
+		Assert.assertEquals(Disc.YELLOW, board.getDisc(6, 0));
+		Assert.assertEquals(null, board.getDisc(6, 3));
 		Assert.assertEquals(".......\n.......\n.......\n......r\n......r\nr.....y\n",
 				board.toString());
 	}

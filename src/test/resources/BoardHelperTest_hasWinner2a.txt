@@ -1,0 +1,7 @@
+7 6
+..rr..y
+..yr..r
+..yy..r
+r.yy..r
+rrrr..y
+ryyy..r
