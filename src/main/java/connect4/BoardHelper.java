@@ -181,7 +181,7 @@ public class BoardHelper {
 		final int r = rAnchor - shiftSw;
 
 		final int shiftNe = Math.min(3,
-				Math.min(b.getNumCols() - cAnchor, b.getNumRows() - rAnchor));
+				Math.min(b.getNumCols() - 1 - cAnchor, b.getNumRows() - 1 - rAnchor));
 		final int cMax = cAnchor + shiftNe;
 		final int rMax = rAnchor + shiftNe;
 

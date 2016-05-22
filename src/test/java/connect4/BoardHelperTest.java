@@ -49,6 +49,7 @@ public class BoardHelperTest {
 		// Different types of diagonal wins (se to nw)
 		assertHasWinner(Disc.RED, "BoardHelperTest_hasWinner4a.txt");
 		assertHasWinner(null, "BoardHelperTest_hasWinner4b.txt");
+		assertHasWinner(Disc.YELLOW, "BoardHelperTest_hasWinner4c.txt");
 	}
 
 	/**
@@ -84,6 +85,18 @@ public class BoardHelperTest {
 		// Different types of diagonal wins (se to nw)
 		assertHasWinner(Disc.RED, 3, 3, "BoardHelperTest_hasWinner4a.txt");
 		assertNoWinner(Disc.RED, 2, 0, "BoardHelperTest_hasWinner4b.txt");
+		assertHasWinner(Disc.YELLOW, 4, 0, "BoardHelperTest_hasWinner4c.txt");
+	}
+
+	/**
+	 * Test winners with last move optimisation boundary conditions
+	 */
+	@Test
+	public void testHasWinner4() {
+		Assert.assertNull(BoardHelper.hasWinner(new Board(7, 6), new Move(Disc.RED, 0, 0)));
+		Assert.assertNull(BoardHelper.hasWinner(new Board(7, 6), new Move(Disc.RED, 6, 0)));
+		Assert.assertNull(BoardHelper.hasWinner(new Board(7, 6), new Move(Disc.RED, 0, 5)));
+		Assert.assertNull(BoardHelper.hasWinner(new Board(7, 6), new Move(Disc.RED, 5, 6)));
 	}
 
 	private static void assertHasWinner(final Disc expectedWinner, final String inputFile)
