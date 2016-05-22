@@ -56,7 +56,7 @@ public class BoardHelper {
 	 * @param disc the winner to check for
 	 * @return <code>true</code> if the disc has one, else <code>false</code>
 	 */
-	static boolean hasWinner(final Board b, final Disc disc) {
+	private static boolean hasWinner(final Board b, final Disc disc) {
 		// check vertical wins
 		// this does bit shifting and masking to figure out if the column equals the magic win mask
 		final int verticalWinMask = Disc.RED == disc ? WIN_MASK_VERT_RED : WIN_MASK_VERT_YELLOW;
@@ -203,6 +203,10 @@ public class BoardHelper {
 	 */
 	private static boolean hasWinnerDiagonalSwNe(final Board b, final Disc disc, final int cMin,
 			final int rMin, final int cMax, final int rMax) {
+		if (rMax - rMin < 3) {
+			return false; // can't win, not enough space
+		}
+
 		int counter = 0;
 
 		int c = cMin;
@@ -267,6 +271,10 @@ public class BoardHelper {
 	 */
 	private static boolean hasWinnerDiagonalSeNw(final Board b, final Disc disc, final int cMax,
 			final int rMin, final int cMin, final int rMax) {
+		if (rMax - rMin < 3) {
+			return false; // can't win, not enough space
+		}
+
 		int counter = 0;
 
 		int c = cMax;

@@ -1,7 +1,14 @@
 package connect4;
 
+import static connect4.BoardHelperTest.RESOURCES_DIR;
+
+import java.io.File;
+import java.io.IOException;
+
 import org.junit.Assert;
 import org.junit.Test;
+
+import connect4.loader.BoardLoader;
 
 public class BoardTest {
 
@@ -28,6 +35,7 @@ public class BoardTest {
 		Assert.assertNull(board.getDisc(0, 0));
 		Assert.assertNull(board.getDisc(6, 0));
 		Assert.assertNull(board.getDisc(0, 5));
+		Assert.assertFalse(board.isFull());
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -120,4 +128,15 @@ public class BoardTest {
 		final Board board = new Board(7, 6);
 		board.putDisc(-1, Disc.RED);
 	}
+
+	@Test
+	public void testIsFull() throws IOException {
+		Assert.assertFalse(
+				BoardLoader.readBoard(new File(RESOURCES_DIR + "BoardTest_isFull1.txt")).isFull());
+		Assert.assertTrue(
+				BoardLoader.readBoard(new File(RESOURCES_DIR + "BoardTest_isFull2.txt")).isFull());
+		Assert.assertFalse(
+				BoardLoader.readBoard(new File(RESOURCES_DIR + "BoardTest_isFull3.txt")).isFull());
+	}
+
 }

@@ -3,7 +3,6 @@ package connect4;
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -49,6 +48,7 @@ public class BoardHelperTest {
 
 		// Different types of diagonal wins (se to nw)
 		assertHasWinner(Disc.RED, "BoardHelperTest_hasWinner4a.txt");
+		assertHasWinner(null, "BoardHelperTest_hasWinner4b.txt");
 	}
 
 	/**
@@ -82,14 +82,13 @@ public class BoardHelperTest {
 		assertHasWinner(Disc.YELLOW, 3, 5, "BoardHelperTest_hasWinner3d.txt");
 
 		// Different types of diagonal wins (se to nw)
-		assertHasWinner(Disc.RED, "BoardHelperTest_hasWinner4a.txt");
+		assertHasWinner(Disc.RED, 3, 3, "BoardHelperTest_hasWinner4a.txt");
+		assertNoWinner(Disc.RED, 2, 0, "BoardHelperTest_hasWinner4b.txt");
 	}
 
 	private static void assertHasWinner(final Disc expectedWinner, final String inputFile)
 			throws IOException {
-		final String inputBoardString = FileUtils
-				.readFileToString(new File(RESOURCES_DIR + inputFile));
-		final Board board = BoardLoader.readBoard(inputBoardString);
+		final Board board = BoardLoader.readBoard(new File(RESOURCES_DIR + inputFile));
 		if (expectedWinner == null) {
 			Assert.assertNull(BoardHelper.hasWinner(board));
 		} else {
@@ -99,10 +98,15 @@ public class BoardHelperTest {
 
 	private static void assertHasWinner(final Disc expectedWinner, final int lastMoveCol,
 			final int lastMoveRow, final String inputFile) throws IOException {
-		final String inputBoardString = FileUtils
-				.readFileToString(new File(RESOURCES_DIR + inputFile));
-		final Board board = BoardLoader.readBoard(inputBoardString);
+		final Board board = BoardLoader.readBoard(new File(RESOURCES_DIR + inputFile));
 		Assert.assertEquals(expectedWinner,
 				BoardHelper.hasWinner(board, new Move(expectedWinner, lastMoveCol, lastMoveRow)));
+	}
+
+	private static void assertNoWinner(final Disc lastMoveDisc, final int lastMoveCol,
+			final int lastMoveRow, final String inputFile) throws IOException {
+		final Board board = BoardLoader.readBoard(new File(RESOURCES_DIR + inputFile));
+		Assert.assertNull(
+				BoardHelper.hasWinner(board, new Move(lastMoveDisc, lastMoveCol, lastMoveRow)));
 	}
 }

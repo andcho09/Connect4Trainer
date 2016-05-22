@@ -1,5 +1,9 @@
 package connect4.loader;
 
+import java.io.File;
+import java.io.IOException;
+
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 
 import connect4.Board;
@@ -94,5 +98,16 @@ public class BoardLoader {
 		}
 
 		return result;
+	}
+
+	/**
+	 * Reads a board from a file.
+	 * @param inputFile the file containing the board
+	 * @return the {@link Board}
+	 * @throws IOException if the file cannot be read
+	 */
+	public static Board readBoard(File inputFile) throws IOException {
+		final String inputBoardString = FileUtils.readFileToString(inputFile);
+		return BoardLoader.readBoard(inputBoardString);
 	}
 }
