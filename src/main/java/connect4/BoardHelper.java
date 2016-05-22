@@ -203,6 +203,8 @@ public class BoardHelper {
 	 */
 	private static boolean hasWinnerDiagonalSwNe(final Board b, final Disc disc, final int cMin,
 			final int rMin, final int cMax, final int rMax) {
+		int counter = 0;
+
 		int c = cMin;
 		int r = rMin;
 		// this optimisation checks the disc at 3 rows up and 3 right (i.e. the end of the
@@ -210,9 +212,10 @@ public class BoardHelper {
 		if (b.getDiscByte(cMin + 3, rMin + 3) != disc.getValue()) {
 			c += 4;
 			r += 4;
+		} else {
+			counter = 1;
 		}
 
-		int counter = 0;
 		// early termination possible here, e.g. only 3 cols left but counter = 0
 		for (; c <= cMax && r <= rMax; c++, r++) {
 			if (b.getDiscByte(c, r) == disc.getValue()) {
@@ -264,6 +267,8 @@ public class BoardHelper {
 	 */
 	private static boolean hasWinnerDiagonalSeNw(final Board b, final Disc disc, final int cMax,
 			final int rMin, final int cMin, final int rMax) {
+		int counter = 0;
+
 		int c = cMax;
 		int r = rMin;
 		// this optimisation checks the disc at 3 rows up and 3 left (i.e. the end of the
@@ -271,9 +276,10 @@ public class BoardHelper {
 		if (b.getDiscByte(cMax - 3, rMin + 3) != disc.getValue()) {
 			c -= 4;
 			r += 4;
+		} else {
+			counter = 1;
 		}
 
-		int counter = 0;
 		// early termination possible here, e.g. only 3 cols left but counter = 0
 		for (; c >= cMin && r <= rMax; c--, r++) {
 			if (b.getDiscByte(c, r) == disc.getValue()) {
