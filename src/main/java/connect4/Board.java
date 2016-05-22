@@ -109,6 +109,18 @@ public class Board {
 	}
 
 	/**
+	 * @return <code>true</code> if there are no more moves to be played, else <code>false</code>
+	 */
+	public boolean isFull() {
+		for (int c = 0; c < nCols; c++) {
+			if (getDiscByte(c, nRows - 1) == 0) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
 	 * Prints the board
 	 */
 	@Override

@@ -18,11 +18,47 @@ public class Controller {
 	}
 
 	public void startGame() {
-		// while not in win condition
-		// - check ends conditions (someone won, or no more moves)
-		// - player 1 or 2 go
-		// - check win conditions
-		// - flop current player
+		Disc winner = BoardHelper.hasWinner(board);
+		Player currentPlayer = player1;
+		Move lastMove;
 
+		// while game not over (no winner and still moves left)
+		while (winner == null && !board.isFull()) {
+			// move
+			lastMove = playPlayerMove(currentPlayer);
+
+			// Is there a winner now?
+			winner = BoardHelper.hasWinner(board, lastMove);
+			if (winner != null) {
+				break;
+			}
+
+			// switch players
+			currentPlayer = currentPlayer == player1 ? player2 : player1;
+		}
+
+		System.out.println(board.toString());
+		if (winner == null) {
+			System.out.println("It's a draw!");
+		} else {
+			System.out.println("Player " + winner.name() + " won!");
+		}
+	}
+
+	/**
+	 * Hassles the player until the make a valid move.
+	 * @param player the player's move to get
+	 * @return the {@link Move}
+	 */
+	private Move playPlayerMove(final Player player) {
+		final Move move = null;
+		while (move == null) {
+			final int col = player.nextMove(board);
+			try {
+				final int row = board.putDisc(col, player.getDisc());
+				return new Move(player.getDisc(), col, row);
+			} catch (final IllegalMoveException ignored) {}
+		}
+		return move;
 	}
 }

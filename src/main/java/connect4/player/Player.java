@@ -11,7 +11,7 @@ public abstract class Player {
 	protected final String name;
 	protected final Disc disc;
 
-	public Player(final String name, Disc disc) {
+	public Player(final String name, final Disc disc) {
 		if (name == null) {
 			throw new NullPointerException("The player's name must not be null");
 		}
