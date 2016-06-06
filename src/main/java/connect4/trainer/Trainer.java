@@ -51,7 +51,7 @@ public class Trainer {
 	 * Analyses the board and recommends where to play
 	 * @param board the {@link Board} to analyse
 	 * @param currentPlayer the {@link Disc} of the current player
-	 * @return
+	 * @return the column the trainer recommends to play (0-based)
 	 */
 	public int analyse(final Board board, final Disc currentPlayer) {
 		// Analysis phase
