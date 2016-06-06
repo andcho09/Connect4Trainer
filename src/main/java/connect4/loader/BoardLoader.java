@@ -106,7 +106,7 @@ public class BoardLoader {
 	 * @return the {@link Board}
 	 * @throws IOException if the file cannot be read
 	 */
-	public static Board readBoard(File inputFile) throws IOException {
+	public static Board readBoard(final File inputFile) throws IOException {
 		final String inputBoardString = FileUtils.readFileToString(inputFile);
 		return BoardLoader.readBoard(inputBoardString);
 	}

@@ -49,7 +49,7 @@ public class Trainer {
 
 	/**
 	 * Analyses the board and recommends where to play
-	 * @param board the {@link Board} to analyse
+	 * @param board the {@link Board} to analyse.
 	 * @param currentPlayer the {@link Disc} of the current player
 	 * @return the column the trainer recommends to play (0-based)
 	 */
@@ -57,6 +57,7 @@ public class Trainer {
 		// Analysis phase
 		final List<ColumnAnalysis> analysisList = new LinkedList<ColumnAnalysis>();
 		for (int c = 0; c < board.getNumCols(); c++) {
+			// optimise this to skip columns that are unplayabe?
 			analysisList.add(analyse(board, currentPlayer, c));
 		}
 

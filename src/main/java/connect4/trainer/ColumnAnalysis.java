@@ -58,8 +58,22 @@ public class ColumnAnalysis {
 		return column;
 	}
 
+	/**
+	 * An analyser which looks at the playing in an individual column.
+	 */
 	static interface ColumnAnalyser {
 
+		/**
+		 * Flags the given column position with various facts (flags). For example, will playing in
+		 * the column win the game? Or will playing in the column let opponent play ontop of my disc
+		 * and win? The flags have no meaning, they're scored by the {@link ScoringAlgorithm} later.
+		 * @param board the {@link Board} to analyse. This is the real board so if the
+		 *        {@link ColumnAnalyser} needs to modify it, it should do so using
+		 *        {@link Board#Board(Board)} (i.e. the clone constructor)
+		 * @param currentPlayer the {@link Disc} of the current player
+		 * @param column the column (0-based) we're analysing
+		 * @return what conditions have been found by playing at this position
+		 */
 		public int flag(final Board board, final Disc currentPlayer, final int column);
 	}
 
@@ -106,6 +120,15 @@ public class ColumnAnalysis {
 					return ColumnAnalysis.FLAG_BLOCK_LOSS_1;
 				}
 				return FLAG_NO_OPINION;
+			}
+		});
+
+		ANALYSERS.add(new ColumnAnalyser() {
+			// Playing here gives us two different columns to win (i.e. execute a trap)
+			@Override
+			public int flag(final Board board, final Disc currentPlayer, final int column) {
+
+				return 0;
 			}
 		});
 	}

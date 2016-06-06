@@ -11,13 +11,13 @@ public class TrainedComputerPlayer extends Player {
 
 	private final Trainer trainer;
 
-	public TrainedComputerPlayer(String name, Disc disc) {
+	public TrainedComputerPlayer(final String name, final Disc disc) {
 		super(name, disc);
 		this.trainer = new Trainer();
 	}
 
 	@Override
-	public int nextMove(Board board) {
+	public int nextMove(final Board board) {
 		return trainer.analyse(board, getDisc());
 	}
 
