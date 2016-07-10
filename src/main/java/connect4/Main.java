@@ -2,7 +2,7 @@ package connect4;
 
 import connect4.player.ConsoleHumanPlayer;
 import connect4.player.Player;
-import connect4.player.RandomComputerPlayer;
+import connect4.player.TrainedComputerPlayer;
 
 /**
  * Start that sucker!
@@ -16,7 +16,7 @@ public class Main {
 		final Board board = new Board(DEFAULT_COLS, DEFAULT_ROWS);
 		// final Player player1 = new ConsoleHumanPlayer("Player 1", Disc.RED, System.out,
 		// System.in);
-		final Player player1 = new RandomComputerPlayer("Random 1", Disc.RED);
+		final Player player1 = new TrainedComputerPlayer("Trained 1", Disc.RED);
 		final Player player2 = new ConsoleHumanPlayer("Player 2", Disc.YELLOW, System.out,
 				System.in);
 

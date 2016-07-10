@@ -8,7 +8,7 @@ public class InvalidBoardFormatException extends RuntimeException {
 		super(message);
 	}
 
-	public InvalidBoardFormatException(final String message, Throwable t) {
+	public InvalidBoardFormatException(final String message, final Throwable t) {
 		super(message, t);
 	}
 }
