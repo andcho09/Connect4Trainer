@@ -305,6 +305,26 @@ public class BoardHelper {
 	}
 
 	/**
+	 * Calculates the left-most column-position that playing in column (0-based) could span
+	 * @param board the {@link Board}
+	 * @param column the column to play
+	 * @return the left-most column position (0-based)
+	 */
+	public static int getMinColumnSpan(final Board board, final int column) {
+		return Math.max(0, column - 3);
+	}
+
+	/**
+	 * Calculates the right-most column-position that playing in column (0-based) could span
+	 * @param board the {@link Board}
+	 * @param column the column to play
+	 * @return the right-most column position (0-based)
+	 */
+	public static int getMaxColumnSpan(final Board board, final int column) {
+		return Math.min(board.getNumCols() - 1, column + 3);
+	}
+
+	/**
 	 * Calculates the mask required to find discs at the specified row in a column
 	 * @param columnValue
 	 * @param row the row to mask for (0-based)

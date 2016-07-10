@@ -27,6 +27,12 @@ public class ScoringAlgorithm {
 		if (analysis.hasCondition(ColumnAnalysis.FLAG_BLOCK_LOSS_1)) {
 			return Integer.MAX_VALUE - 1;
 		}
+		if (analysis.hasCondition(ColumnAnalysis.FLAG_ENABLE_OPPONENT_WIN)) {
+			return Integer.MIN_VALUE + 1;
+		}
+		if (analysis.hasCondition(ColumnAnalysis.FLAG_TRAP_MORE_THAN_ONE)) {
+			return Integer.MAX_VALUE - 2;
+		}
 		return 0; // No opinion
 	}
 }

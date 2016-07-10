@@ -99,6 +99,30 @@ public class BoardHelperTest {
 		Assert.assertNull(BoardHelper.hasWinner(new Board(7, 6), new Move(Disc.RED, 5, 6)));
 	}
 
+	@Test
+	public void testGetMinColumnSpan() {
+		Board board = new Board(7, 1);
+		Assert.assertEquals(0, BoardHelper.getMinColumnSpan(board, 0));
+		Assert.assertEquals(0, BoardHelper.getMinColumnSpan(board, 1));
+		Assert.assertEquals(0, BoardHelper.getMinColumnSpan(board, 2));
+		Assert.assertEquals(0, BoardHelper.getMinColumnSpan(board, 3));
+		Assert.assertEquals(1, BoardHelper.getMinColumnSpan(board, 4));
+		Assert.assertEquals(2, BoardHelper.getMinColumnSpan(board, 5));
+		Assert.assertEquals(3, BoardHelper.getMinColumnSpan(board, 6));
+	}
+
+	@Test
+	public void testGetMaxColumnSpan() {
+		Board board = new Board(7, 1);
+		Assert.assertEquals(3, BoardHelper.getMaxColumnSpan(board, 0));
+		Assert.assertEquals(4, BoardHelper.getMaxColumnSpan(board, 1));
+		Assert.assertEquals(5, BoardHelper.getMaxColumnSpan(board, 2));
+		Assert.assertEquals(6, BoardHelper.getMaxColumnSpan(board, 3));
+		Assert.assertEquals(6, BoardHelper.getMaxColumnSpan(board, 4));
+		Assert.assertEquals(6, BoardHelper.getMaxColumnSpan(board, 5));
+		Assert.assertEquals(6, BoardHelper.getMaxColumnSpan(board, 6));
+	}
+
 	private static void assertHasWinner(final Disc expectedWinner, final String inputFile)
 			throws IOException {
 		final Board board = BoardLoader.readBoard(new File(RESOURCES_DIR + inputFile));

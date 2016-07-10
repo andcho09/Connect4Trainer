@@ -67,9 +67,11 @@ public class Trainer {
 		int bestScore = Integer.MIN_VALUE;
 		for (final ColumnAnalysis analysis : analysisList) {
 			final int score = scoringAlgorithm.score(analysis);
-			if (score >= bestScore) {
+			if (score > bestScore) {
 				bestScore = score;
 				bestColumnAnalysis.clear();
+				bestColumnAnalysis.add(analysis);
+			} else if (score == bestScore) {
 				bestColumnAnalysis.add(analysis);
 			}
 		}
