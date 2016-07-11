@@ -42,6 +42,9 @@ public class Trainer {
 	private final ScoringAlgorithm scoringAlgorithm;
 	private final Random random;
 
+	private List<ColumnAnalysis> lastBestColumnAnalysis;
+	private List<ColumnAnalysis> lastColumnAnalysis;
+
 	public Trainer() {
 		scoringAlgorithm = new ScoringAlgorithm();
 		this.random = new Random();
@@ -54,6 +57,8 @@ public class Trainer {
 	 * @return the column the trainer recommends to play (0-based)
 	 */
 	public int analyse(final Board board, final Disc currentPlayer) {
+		resetLast();
+
 		// Analysis phase
 		final List<ColumnAnalysis> analysisList = new LinkedList<ColumnAnalysis>();
 		for (int c = 0; c < board.getNumCols(); c++) {
@@ -75,6 +80,9 @@ public class Trainer {
 			}
 		}
 
+		lastBestColumnAnalysis = bestColumnAnalysis;
+		lastColumnAnalysis = analysisList;
+
 		// Tie breaking phase
 		if (bestColumnAnalysis.size() == 1) {
 			return bestColumnAnalysis.get(0).getColumn();
@@ -94,5 +102,28 @@ public class Trainer {
 			}
 		}
 		return analysis;
+	}
+
+	/**
+	 * Reset the last analysis.
+	 */
+	protected void resetLast() {
+		lastBestColumnAnalysis = null;
+		lastColumnAnalysis = null;
+	}
+
+	/**
+	 * @return the best column analysis for the recent analysis. Could be more than one best column.
+	 */
+	protected List<ColumnAnalysis> getLastBestColumnAnalysis() {
+		return lastBestColumnAnalysis;
+	}
+
+	/**
+	 * @return the column analysis for the most recent analysis. This is a list. The first item in
+	 *         the list is for the first column, the second item for the second column, etc.
+	 */
+	protected List<ColumnAnalysis> getLastColumnAnalysis() {
+		return lastColumnAnalysis;
 	}
 }
