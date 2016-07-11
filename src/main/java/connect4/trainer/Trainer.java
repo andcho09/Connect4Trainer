@@ -57,7 +57,6 @@ public class Trainer {
 		// Analysis phase
 		final List<ColumnAnalysis> analysisList = new LinkedList<ColumnAnalysis>();
 		for (int c = 0; c < board.getNumCols(); c++) {
-			// optimise this to skip columns that are unplayabe?
 			analysisList.add(analyse(board, currentPlayer, c));
 		}
 
@@ -88,7 +87,11 @@ public class Trainer {
 	private ColumnAnalysis analyse(final Board board, final Disc currentPlayer, final int column) {
 		final ColumnAnalysis analysis = new ColumnAnalysis(column);
 		for (final ColumnAnalyser columnAnalyser : ColumnAnalysis.ANALYSERS) {
-			analysis.addCondition(columnAnalyser.flag(board, currentPlayer, column));
+			final int flag = columnAnalyser.flag(board, currentPlayer, column);
+			analysis.addCondition(flag);
+			if (analysis.hasCondition(ColumnAnalysis.FLAG_UNPLAYABLE)) {
+				continue;
+			}
 		}
 		return analysis;
 	}
