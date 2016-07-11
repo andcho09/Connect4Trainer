@@ -66,4 +66,18 @@ public enum Disc {
 				return null;
 		}
 	}
+
+	/**
+	 * @param disc the disc
+	 * @return the opposite of the specified disc or null if disc is null
+	 */
+	public static final Disc getOpposite(final Disc disc) {
+		if (null == disc) {
+			return null;
+		} else if (RED.equals(disc)) {
+			return YELLOW;
+		} else {
+			return RED;
+		}
+	}
 }
