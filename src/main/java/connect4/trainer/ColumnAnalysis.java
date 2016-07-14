@@ -42,6 +42,11 @@ public class ColumnAnalysis {
 	 */
 	public static final int FLAG_TRAP_MORE_THAN_ONE = 1 << 4;
 
+	/**
+	 * Playing in this column opens up two columns to win on the next move
+	 */
+	public static final int FLAG_BLOCK_TRAP_MORE_THAN_ONE = 1 << 5;
+
 	private final int column;
 	private int flags;
 
@@ -114,7 +119,7 @@ public class ColumnAnalysis {
 			// Playing here blocks opponent from winning in their next move
 			@Override
 			public int flag(final Board board, final Disc currentPlayer, final int column) {
-				final Disc opponentDisc = currentPlayer == Disc.RED ? Disc.YELLOW : Disc.RED;
+				final Disc opponentDisc = Disc.getOpposite(currentPlayer);
 
 				final Board newBoard = new Board(board);
 				int row;
@@ -144,7 +149,7 @@ public class ColumnAnalysis {
 					return FLAG_UNPLAYABLE;
 				}
 
-				final Disc oponentPlayer = currentPlayer == Disc.RED ? Disc.YELLOW : Disc.RED;
+				final Disc oponentPlayer = Disc.getOpposite(currentPlayer);
 				int row;
 				try {
 					row = newBoard.putDisc(column, oponentPlayer);
@@ -190,6 +195,44 @@ public class ColumnAnalysis {
 
 				if (winCounter > 1) {
 					return FLAG_TRAP_MORE_THAN_ONE;
+				}
+				return FLAG_NO_OPINION;
+			}
+		});
+
+		ANALYSERS.add(new ColumnAnalyser() {
+			// Playing here blocks the opponent gaining more than one different column to win (i.e.
+			// execute a trap)
+			@Override
+			public int flag(final Board board, final Disc currentPlayer, final int column) {
+				final Disc opponentDisc = Disc.getOpposite(currentPlayer);
+
+				final Board newBoard = new Board(board);
+				try {
+					newBoard.putDisc(column, opponentDisc);
+				} catch (final IllegalMoveException e) {
+					return FLAG_UNPLAYABLE;
+				}
+
+				int winCounter = 0;
+				final int startColumn = BoardHelper.getMinColumnSpan(board, column);
+				final int endColumn = BoardHelper.getMaxColumnSpan(board, column);
+				for (int i = startColumn; i <= endColumn; i++) {
+					final Board newBoard2Ahead = new Board(newBoard); // A board two moves ahead
+					int row;
+					try {
+						row = newBoard2Ahead.putDisc(i, opponentDisc);
+					} catch (final IllegalMoveException e) {
+						continue;
+					}
+					if (opponentDisc.equals(BoardHelper.hasWinner(newBoard2Ahead,
+							new Move(opponentDisc, i, row)))) {
+						winCounter++;
+					}
+				}
+
+				if (winCounter > 1) {
+					return FLAG_BLOCK_TRAP_MORE_THAN_ONE;
 				}
 				return FLAG_NO_OPINION;
 			}

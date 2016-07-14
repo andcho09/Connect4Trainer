@@ -89,5 +89,32 @@ public class TrainerTest {
 				.hasCondition(ColumnAnalysis.FLAG_TRAP_MORE_THAN_ONE));
 		Assert.assertTrue(trainer.getLastBestColumnAnalysis().get(1)
 				.hasCondition(ColumnAnalysis.FLAG_TRAP_MORE_THAN_ONE));
+
+		Assert.assertEquals(2, trainer.analyse(board, Disc.RED));
+		Assert.assertEquals(1, trainer.getLastBestColumnAnalysis().size());
+		Assert.assertTrue(trainer.getLastBestColumnAnalysis().get(0)
+				.hasCondition(ColumnAnalysis.FLAG_TRAP_MORE_THAN_ONE));
+	}
+
+	@Test
+	public void testBlockTrapWin() throws IOException {
+		Board board = BoardLoader
+				.readBoard(new File(RESOURCES_DIR + "TrainerTest_EnableTrapWin_1.txt"));
+		Assert.assertNull(BoardHelper.hasWinner(board));
+		final Trainer trainer = new Trainer();
+		final int column = trainer.analyse(board, Disc.RED);
+		Assert.assertTrue(column == 1 || column == 4);
+		Assert.assertEquals(2, trainer.getLastBestColumnAnalysis().size());
+		Assert.assertTrue(trainer.getLastBestColumnAnalysis().get(0)
+				.hasCondition(ColumnAnalysis.FLAG_BLOCK_TRAP_MORE_THAN_ONE));
+		Assert.assertTrue(trainer.getLastBestColumnAnalysis().get(1)
+				.hasCondition(ColumnAnalysis.FLAG_BLOCK_TRAP_MORE_THAN_ONE));
+
+		board = BoardLoader.readBoard(new File(RESOURCES_DIR + "TrainerTest_EnableTrapWin_2.txt"));
+		Assert.assertNull(BoardHelper.hasWinner(board));
+		Assert.assertEquals(3, trainer.analyse(board, Disc.RED));
+		Assert.assertEquals(1, trainer.getLastBestColumnAnalysis().size());
+		Assert.assertTrue(trainer.getLastBestColumnAnalysis().get(0)
+				.hasCondition(ColumnAnalysis.FLAG_BLOCK_TRAP_MORE_THAN_ONE));
 	}
 }
