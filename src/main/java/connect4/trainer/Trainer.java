@@ -7,7 +7,7 @@ import java.util.Random;
 
 import connect4.Board;
 import connect4.Disc;
-import connect4.trainer.ColumnAnalysis.ColumnAnalyser;
+import connect4.trainer.ColumnAnalyserFactory.ColumnAnalyser;
 
 /**
  * <p>
@@ -94,9 +94,8 @@ public class Trainer {
 
 	private ColumnAnalysis analyse(final Board board, final Disc currentPlayer, final int column) {
 		final ColumnAnalysis analysis = new ColumnAnalysis(column);
-		for (final ColumnAnalyser columnAnalyser : ColumnAnalysis.ANALYSERS) {
-			final int flag = columnAnalyser.flag(board, currentPlayer, column);
-			analysis.addCondition(flag);
+		for (final ColumnAnalyser columnAnalyser : ColumnAnalyserFactory.getAnalysers()) {
+			columnAnalyser.flag(board, currentPlayer, column, analysis);
 			if (analysis.hasCondition(ColumnAnalysis.FLAG_UNPLAYABLE)) {
 				continue;
 			}
