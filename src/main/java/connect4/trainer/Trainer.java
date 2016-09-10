@@ -51,7 +51,7 @@ public class Trainer {
 	}
 
 	/**
-	 * Analyses the board and recommends where to play
+	 * Analyses the board and recommends where to play.
 	 * @param board the {@link Board} to analyse.
 	 * @param currentPlayer the {@link Disc} of the current player
 	 * @return the column the trainer recommends to play (0-based)
@@ -96,8 +96,9 @@ public class Trainer {
 		final ColumnAnalysis analysis = new ColumnAnalysis(column);
 		for (final ColumnAnalyser columnAnalyser : ColumnAnalyserFactory.getAnalysers()) {
 			columnAnalyser.flag(board, currentPlayer, column, analysis);
-			if (analysis.hasCondition(ColumnAnalysis.FLAG_UNPLAYABLE)) {
-				continue;
+			if (analysis.hasCondition(ColumnAnalysis.FLAG_UNPLAYABLE)
+					|| analysis.hasCondition(ColumnAnalysis.FLAG_WIN_1)) {
+				break;
 			}
 		}
 		return analysis;

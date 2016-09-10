@@ -1,0 +1,77 @@
+.......
+.......
+.......
+.......
+.......
+......r
+Player 2 (YELLOW), which column to play? [1-7]: 4
+.......
+.......
+.......
+.......
+......r
+...y..r
+Player 2 (YELLOW), which column to play? [1-7]: 4
+.......
+.......
+.......
+......r
+...y..r
+...y..r
+Player 2 (YELLOW), which column to play? [1-7]: 7
+.......
+......r
+......y
+......r
+...y..r
+...y..r
+Player 2 (YELLOW), which column to play? [1-7]: 4
+.......
+......r
+...r..y
+...y..r
+...y..r
+...y..r
+Player 2 (YELLOW), which column to play? [1-7]: 5
+......r
+......r
+...r..y
+...y..r
+...y..r
+...yy.r
+Player 2 (YELLOW), which column to play? [1-7]: 5
+......r
+......r
+...r..y
+...y..r
+...yy.r
+...yyrr
+Player 2 (YELLOW), which column to play? [1-7]: 3
+......r
+......r
+...r..y
+...y..r
+...yy.r
+.ryyyrr
+Player 2 (YELLOW), which column to play? [1-7]: 3
+......r
+......r
+...r..y
+...y..r
+..yyyrr
+.ryyyrr
+Player 2 (YELLOW), which column to play? [1-7]: 6
+......r
+......r
+...r..y
+...y.yr
+..yyyrr
+.ryyyrr
+
+Player YELLOW won!
+
+At 49, yellow forces red (gg at this point)
+At 50, red forced to defend
+At 56, yellow countinues gg
+At 57, red forced to 6
+At 63, yellow exploits this to win at 6

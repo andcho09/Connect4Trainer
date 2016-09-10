@@ -117,4 +117,15 @@ public class TrainerTest {
 		Assert.assertTrue(trainer.getLastBestColumnAnalysis().get(0)
 				.hasCondition(ColumnAnalysis.FLAG_BLOCK_TRAP_MORE_THAN_ONE));
 	}
+
+	@Test
+	public void testEnableMultiTrapWin() throws IOException {
+		Board board = BoardLoader
+				.readBoard(new File(RESOURCES_DIR + "TrainerTest_EnableMultiTrapWin_1.txt"));
+		Assert.assertNull(BoardHelper.hasWinner(board));
+		final Trainer trainer = new Trainer();
+		final int column = trainer.analyse(board, Disc.YELLOW);
+		Assert.assertTrue(column == 0 || column == 3 || column == 6); // this test is terrible
+		Assert.assertEquals(1, trainer.getLastBestColumnAnalysis().size());
+	}
 }

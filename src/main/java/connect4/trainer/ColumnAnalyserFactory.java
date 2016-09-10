@@ -33,8 +33,8 @@ public class ColumnAnalyserFactory {
 				final ColumnAnalysis currentAnalysis);
 	}
 
+	/** Unplayable or win now */
 	public static final ColumnAnalyser WIN_NOW = new ColumnAnalyser() {
-		// Unplayable or win now
 		@Override
 		public ColumnAnalysis flag(final Board board, final Disc currentPlayer, final int column,
 				final ColumnAnalysis currentAnalysis) {
@@ -57,8 +57,8 @@ public class ColumnAnalyserFactory {
 		}
 	};
 
+	/** Playing here blocks opponent from winning in their next move */
 	public static final ColumnAnalyser BLOCK_LOSS_1 = new ColumnAnalyser() {
-		// Playing here blocks opponent from winning in their next move
 		@Override
 		public ColumnAnalysis flag(final Board board, final Disc currentPlayer, final int column,
 				final ColumnAnalysis currentAnalysis) {
@@ -83,8 +83,8 @@ public class ColumnAnalyserFactory {
 		}
 	};
 
+	/** Playing here allows the opponent to win by playing above us */
 	public static final ColumnAnalyser ENABLE_OPPONENT_WIN = new ColumnAnalyser() {
-		// Playing here allows the opponent to win by playing above us
 		@Override
 		public ColumnAnalysis flag(final Board board, final Disc currentPlayer, final int column,
 				final ColumnAnalysis currentAnalysis) {
@@ -113,8 +113,8 @@ public class ColumnAnalyserFactory {
 		}
 	};
 
+	/** Playing here gives us more than one different column to win (i.e. execute a trap) */
 	public static final ColumnAnalyser TRAP_MORE_THAN_ONE = new ColumnAnalyser() {
-		// Playing here gives us more than one different column to win (i.e. execute a trap)
 		@Override
 		public ColumnAnalysis flag(final Board board, final Disc currentPlayer, final int column,
 				final ColumnAnalysis currentAnalysis) {
@@ -151,9 +151,11 @@ public class ColumnAnalyserFactory {
 		}
 	};
 
+	/**
+	 * Playing here blocks the opponent gaining more than one different column to win (i.e. execute
+	 * a trap)
+	 */
 	public static final ColumnAnalyser BLOCK_TRAP_MORE_THAN_ONE = new ColumnAnalyser() {
-		// Playing here blocks the opponent gaining more than one different column to win (i.e.
-		// execute a trap)
 		@Override
 		public ColumnAnalysis flag(final Board board, final Disc currentPlayer, final int column,
 				final ColumnAnalysis currentAnalysis) {
@@ -193,9 +195,11 @@ public class ColumnAnalyserFactory {
 	};
 
 	// Detect forced moves (or flag it as above)
-	// e.g. 3 in a row
+	// e.g. 3 in a row so opponent has to block it
 	// stop a trap
-	// algorithm play - and if opponent forced, keep playing, and if that results in WIN or
+	// algorithm
+	// play
+	// - and if opponent forced (reanalyse everything), keep playing, and if that results in WIN or
 	// TRAP, pick that
 
 	// board
@@ -207,38 +211,46 @@ public class ColumnAnalyserFactory {
 		@Override
 		public ColumnAnalysis flag(final Board board, final Disc currentPlayer, final int column,
 				final ColumnAnalysis currentAnalysis) {
-			final Disc opponentDisc = Disc.getOpposite(currentPlayer);
+			if (currentAnalysis.hasCondition(ColumnAnalysis.FLAG_WIN_1)
+					|| currentAnalysis.hasCondition(ColumnAnalysis.FLAG_TRAP_MORE_THAN_ONE)) {
+				return currentAnalysis; // We won, don't need anymore analysis
+			}
 
 			final Board newBoard = new Board(board);
 			try {
-				newBoard.putDisc(column, opponentDisc);
+				newBoard.putDisc(column, currentPlayer);
 			} catch (final IllegalMoveException e) {
 				currentAnalysis.addCondition(ColumnAnalysis.FLAG_UNPLAYABLE);
 				return currentAnalysis;
 			}
 
-			int winCounter = 0;
-			final int startColumn = BoardHelper.getMinColumnSpan(board, column);
-			final int endColumn = BoardHelper.getMaxColumnSpan(board, column);
-			for (int i = startColumn; i <= endColumn; i++) {
-				final Board newBoard2Ahead = new Board(newBoard); // A board two moves ahead
-				int row;
-				try {
-					row = newBoard2Ahead.putDisc(i, opponentDisc);
-				} catch (final IllegalMoveException e) {
-					continue;
-				}
-				if (opponentDisc.equals(
-						BoardHelper.hasWinner(newBoard2Ahead, new Move(opponentDisc, i, row)))) {
-					winCounter++;
+			final ColumnAnalysis opponentColumnAnalysis = new ColumnAnalysis(column);
+			for (final ColumnAnalyser columnAnalyser : ANALYSERS) {
+				columnAnalyser.flag(board, currentPlayer, column, opponentColumnAnalysis);
+				if (opponentColumnAnalysis.hasCondition(ColumnAnalysis.FLAG_UNPLAYABLE)
+						|| columnAnalyser == FORCED_MOVES) {
+					continue; // is this meant to be 'break'?
 				}
 			}
 
-			if (winCounter > 1) {
-				currentAnalysis.addCondition(ColumnAnalysis.FLAG_BLOCK_TRAP_MORE_THAN_ONE);
-				return currentAnalysis;
+			if (hasForcedMove(opponentColumnAnalysis)) {
+				// let opponent play that column we forced them to play
+				final Disc opponentDisc = Disc.getOpposite(currentPlayer);
+				try {
+					newBoard.putDisc(opponentColumnAnalysis.getColumn(), opponentDisc);
+				} catch (final IllegalMoveException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
+
 			return currentAnalysis;
+		}
+
+		private boolean hasForcedMove(final ColumnAnalysis columnAnalysis) {
+			return columnAnalysis.hasCondition(ColumnAnalysis.FLAG_BLOCK_LOSS_1)
+					|| columnAnalysis.hasCondition(ColumnAnalysis.FLAG_BLOCK_TRAP_MORE_THAN_ONE);
+			// TODO not all players will detect blocking the trap as a forced move
 		}
 	};
 
@@ -249,7 +261,7 @@ public class ColumnAnalyserFactory {
 		ANALYSERS.add(ENABLE_OPPONENT_WIN);
 		ANALYSERS.add(TRAP_MORE_THAN_ONE);
 		ANALYSERS.add(BLOCK_TRAP_MORE_THAN_ONE);
-		ANALYSERS.add(FORCED_MOVES);
+		// ANALYSERS.add(FORCED_MOVES);
 	}
 
 	public static List<ColumnAnalyser> getAnalysers() {
