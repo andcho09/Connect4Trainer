@@ -65,7 +65,7 @@ public class Board {
 			throw new IllegalArgumentException("Row position " + row + " is out of bounds");
 		}
 
-		return Disc.getDisc((byte) (getDiscByte(col, row)));
+		return Disc.getDisc((byte) getDiscByte(col, row));
 	}
 
 	/**
@@ -77,8 +77,8 @@ public class Board {
 	 */
 	int getDiscByte(final int col, final int row) {
 		int column = board[col];
-		column = column >>> (row * 2);
-		return (column & 0x3);
+		column = column >>> row * 2;
+		return column & 0x3;
 	}
 
 	/**

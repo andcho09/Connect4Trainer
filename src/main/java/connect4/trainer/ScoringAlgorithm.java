@@ -33,6 +33,12 @@ public class ScoringAlgorithm {
 		if (analysis.hasCondition(ColumnAnalysis.FLAG_TRAP_MORE_THAN_ONE)) {
 			return Integer.MAX_VALUE - 2;
 		}
+		if (analysis.hasCondition(ColumnAnalysis.FLAG_BLOCK_TRAP_MORE_THAN_ONE)) {
+			return Integer.MAX_VALUE - 3;
+		}
+		if (analysis.hasCondition(ColumnAnalysis.FLAG_FORCED_WIN)) {
+			return Integer.MAX_VALUE - 4;
+		}
 		return 0; // No opinion
 	}
 }
