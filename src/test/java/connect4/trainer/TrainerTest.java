@@ -142,12 +142,12 @@ public class TrainerTest {
 		// .hasCondition(ColumnAnalysis.FLAG_BLOCK_TRAP_MORE_THAN_ONE));
 	}
 
-	// @Test
+	@Test
 	public void testForceTrapWin1() throws IOException {
 		Board board = BoardLoader.readBoard(new File(RESOURCES_DIR + "TrainerTest_ForceWin_1.txt"));
 		Assert.assertNull(BoardHelper.hasWinner(board));
 		final int column = trainer.recommend(board, Disc.YELLOW);
-		Assert.assertTrue(column == 0);
+		Assert.assertTrue(column == 3);
 		Assert.assertEquals(1, trainer.getLastBestColumnAnalysis().size());
 		Assert.assertTrue(trainer.getLastBestColumnAnalysis().get(0)
 				.hasCondition(ColumnAnalysis.FLAG_FORCED_WIN));
@@ -155,12 +155,12 @@ public class TrainerTest {
 
 	@Test
 	public void testForceTrapWin2() throws IOException {
+		// No opinion. This is testing a bug
 		Board board = BoardLoader.readBoard(new File(RESOURCES_DIR + "TrainerTest_ForceWin_2.txt"));
 		Assert.assertNull(BoardHelper.hasWinner(board));
-		final int column = trainer.recommend(board, Disc.YELLOW);
-		Assert.assertTrue(column == 0);
-		Assert.assertEquals(1, trainer.getLastBestColumnAnalysis().size());
-		Assert.assertTrue(trainer.getLastBestColumnAnalysis().get(0)
-				.hasCondition(ColumnAnalysis.FLAG_FORCED_WIN));
+		trainer.recommend(board, Disc.YELLOW);
+		Assert.assertEquals(7, trainer.getLastBestColumnAnalysis().size());
+		Assert.assertEquals(ColumnAnalysis.FLAG_NO_OPINION,
+				trainer.getLastBestColumnAnalysis().get(0).getFlags());
 	}
 }

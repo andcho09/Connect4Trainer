@@ -45,6 +45,7 @@ public class BoardAnalyser {
 	 *         won, including traps, we're forced into a block)
 	 */
 	public boolean isAnalysisDone(final ColumnAnalysis analysis) {
+		// TODO this is a good candidate for a column analysis(s) class
 		if (analysis.hasCondition(ColumnAnalysis.FLAG_UNPLAYABLE)
 				|| analysis.hasCondition(ColumnAnalysis.FLAG_WIN_1)
 				|| analysis.hasCondition(ColumnAnalysis.FLAG_BLOCK_LOSS_1)
@@ -62,6 +63,7 @@ public class BoardAnalyser {
 	 * @return a {@link List} of {@link ColumnAnalysis} where we won or can win. Could be empty.
 	 */
 	public List<ColumnAnalysis> getWinColumns(final List<ColumnAnalysis> currentAnalysis) {
+		// TODO this is a good candidate for a column analysis(s) class
 		final List<ColumnAnalysis> result = new ArrayList<ColumnAnalysis>();
 		for (final ColumnAnalysis columnAnalysis : currentAnalysis) {
 			if (columnAnalysis.hasCondition(ColumnAnalysis.FLAG_WIN_1)
@@ -78,10 +80,30 @@ public class BoardAnalyser {
 	 * @return a {@link List} of {@link ColumnAnalysis} where we are forced to play. Could be empty
 	 */
 	public List<ColumnAnalysis> getForcedColumns(final List<ColumnAnalysis> currentAnalysis) {
+		// TODO is this used?
+		// TODO this is a good candidate for a column analysis(s) class
 		final List<ColumnAnalysis> result = new ArrayList<ColumnAnalysis>();
 		for (final ColumnAnalysis columnAnalysis : currentAnalysis) {
 			if (columnAnalysis.hasCondition(ColumnAnalysis.FLAG_BLOCK_LOSS_1)
 					|| columnAnalysis.hasCondition(ColumnAnalysis.FLAG_BLOCK_TRAP_MORE_THAN_ONE)) {
+				result.add(columnAnalysis);
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Get columns with the following condition
+	 * @param currentAnalysis the analysis
+	 * @param flag the condition to return for
+	 * @return a {@link List} of {@link ColumnAnalysis} which have the flag. Could be empty
+	 */
+	public List<ColumnAnalysis> getColumnsWithCondition(final List<ColumnAnalysis> currentAnalysis,
+			final int flag) {
+		// TODO this is a good candidate for a column analysis(s) class
+		final List<ColumnAnalysis> result = new ArrayList<ColumnAnalysis>();
+		for (final ColumnAnalysis columnAnalysis : currentAnalysis) {
+			if (columnAnalysis.hasCondition(flag)) {
 				result.add(columnAnalysis);
 			}
 		}
