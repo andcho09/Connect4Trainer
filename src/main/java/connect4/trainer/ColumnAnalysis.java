@@ -34,9 +34,21 @@ public class ColumnAnalysis {
 	public static final int FLAG_TRAP_MORE_THAN_ONE = 1 << 4;
 
 	/**
-	 * Playing in this column opens up two columns to win on the next move
+	 * Playing in this column blocks the opponent from opening up two columns to win on their next
+	 * move
 	 */
 	public static final int FLAG_BLOCK_TRAP_MORE_THAN_ONE = 1 << 5;
+
+	/**
+	 * Playing in this column forces the opponent to play in a space where we'll eventually win
+	 */
+	public static final int FLAG_FORCED_WIN = 1 << 10;
+
+	/**
+	 * Playing in this column forces the opponent to play in a space where we'll eventually be
+	 * forced
+	 */
+	public static final int FLAG_FORCED_FORCED = 1 << 11;
 
 	private final int column;
 	private int flags;
@@ -62,5 +74,10 @@ public class ColumnAnalysis {
 
 	public int getColumn() {
 		return column;
+	}
+
+	@Override
+	public String toString() {
+		return String.format("ColumnAnalysis (col=%d, flags=%d)", column, flags);
 	}
 }

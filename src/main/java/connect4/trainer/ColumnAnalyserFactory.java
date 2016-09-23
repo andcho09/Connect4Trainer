@@ -194,66 +194,6 @@ public class ColumnAnalyserFactory {
 		}
 	};
 
-	// Detect forced moves (or flag it as above)
-	// e.g. 3 in a row so opponent has to block it
-	// stop a trap
-	// algorithm
-	// play
-	// - and if opponent forced (reanalyse everything), keep playing, and if that results in WIN or
-	// TRAP, pick that
-
-	// board
-	// analyse first round
-	// do any columns have a force moved?
-	// -play that column
-	public static final ColumnAnalyser FORCED_MOVES = new ColumnAnalyser() {
-		// Keep analyising for forced moves until we find a s
-		@Override
-		public ColumnAnalysis flag(final Board board, final Disc currentPlayer, final int column,
-				final ColumnAnalysis currentAnalysis) {
-			if (currentAnalysis.hasCondition(ColumnAnalysis.FLAG_WIN_1)
-					|| currentAnalysis.hasCondition(ColumnAnalysis.FLAG_TRAP_MORE_THAN_ONE)) {
-				return currentAnalysis; // We won, don't need anymore analysis
-			}
-
-			final Board newBoard = new Board(board);
-			try {
-				newBoard.putDisc(column, currentPlayer);
-			} catch (final IllegalMoveException e) {
-				currentAnalysis.addCondition(ColumnAnalysis.FLAG_UNPLAYABLE);
-				return currentAnalysis;
-			}
-
-			final ColumnAnalysis opponentColumnAnalysis = new ColumnAnalysis(column);
-			for (final ColumnAnalyser columnAnalyser : ANALYSERS) {
-				columnAnalyser.flag(board, currentPlayer, column, opponentColumnAnalysis);
-				if (opponentColumnAnalysis.hasCondition(ColumnAnalysis.FLAG_UNPLAYABLE)
-						|| columnAnalyser == FORCED_MOVES) {
-					continue; // is this meant to be 'break'?
-				}
-			}
-
-			if (hasForcedMove(opponentColumnAnalysis)) {
-				// let opponent play that column we forced them to play
-				final Disc opponentDisc = Disc.getOpposite(currentPlayer);
-				try {
-					newBoard.putDisc(opponentColumnAnalysis.getColumn(), opponentDisc);
-				} catch (final IllegalMoveException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-
-			return currentAnalysis;
-		}
-
-		private boolean hasForcedMove(final ColumnAnalysis columnAnalysis) {
-			return columnAnalysis.hasCondition(ColumnAnalysis.FLAG_BLOCK_LOSS_1)
-					|| columnAnalysis.hasCondition(ColumnAnalysis.FLAG_BLOCK_TRAP_MORE_THAN_ONE);
-			// TODO not all players will detect blocking the trap as a forced move
-		}
-	};
-
 	private static final List<ColumnAnalyser> ANALYSERS = new LinkedList<ColumnAnalyser>();
 	static {
 		ANALYSERS.add(WIN_NOW);
@@ -261,7 +201,6 @@ public class ColumnAnalyserFactory {
 		ANALYSERS.add(ENABLE_OPPONENT_WIN);
 		ANALYSERS.add(TRAP_MORE_THAN_ONE);
 		ANALYSERS.add(BLOCK_TRAP_MORE_THAN_ONE);
-		// ANALYSERS.add(FORCED_MOVES);
 	}
 
 	public static List<ColumnAnalyser> getAnalysers() {

@@ -1,13 +1,10 @@
 package connect4.trainer;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Random;
 
 import connect4.Board;
 import connect4.Disc;
-import connect4.trainer.ColumnAnalyserFactory.ColumnAnalyser;
 
 /**
  * <p>
@@ -37,18 +34,9 @@ import connect4.trainer.ColumnAnalyserFactory.ColumnAnalyser;
  * </ol>
  * </p>
  */
-public class Trainer {
+public class Trainer extends Recommender {
 
-	private final ScoringAlgorithm scoringAlgorithm;
-	private final Random random;
-
-	private List<ColumnAnalysis> lastBestColumnAnalysis;
-	private List<ColumnAnalysis> lastColumnAnalysis;
-
-	public Trainer() {
-		scoringAlgorithm = new ScoringAlgorithm();
-		this.random = new Random();
-	}
+	private static final BoardAnalyser BOARD_ANALYSER = new BoardAnalyser();
 
 	/**
 	 * Analyses the board and recommends where to play.
@@ -56,14 +44,12 @@ public class Trainer {
 	 * @param currentPlayer the {@link Disc} of the current player
 	 * @return the column the trainer recommends to play (0-based)
 	 */
-	public int analyse(final Board board, final Disc currentPlayer) {
+	@Override
+	public int recommend(final Board board, final Disc currentPlayer) {
 		resetLast();
 
 		// Analysis phase
-		final List<ColumnAnalysis> analysisList = new LinkedList<ColumnAnalysis>();
-		for (int c = 0; c < board.getNumCols(); c++) {
-			analysisList.add(analyse(board, currentPlayer, c));
-		}
+		final List<ColumnAnalysis> analysisList = BOARD_ANALYSER.analyse(board, currentPlayer);
 
 		// Scoring phase
 		final List<ColumnAnalysis> bestColumnAnalysis = new ArrayList<ColumnAnalysis>(
@@ -80,8 +66,7 @@ public class Trainer {
 			}
 		}
 
-		lastBestColumnAnalysis = bestColumnAnalysis;
-		lastColumnAnalysis = analysisList;
+		setLastAnalysis(bestColumnAnalysis, analysisList);
 
 		// Tie breaking phase
 		if (bestColumnAnalysis.size() == 1) {
@@ -90,40 +75,5 @@ public class Trainer {
 			final int randomInt = random.nextInt(bestColumnAnalysis.size());
 			return bestColumnAnalysis.get(randomInt).getColumn();
 		}
-	}
-
-	private ColumnAnalysis analyse(final Board board, final Disc currentPlayer, final int column) {
-		final ColumnAnalysis analysis = new ColumnAnalysis(column);
-		for (final ColumnAnalyser columnAnalyser : ColumnAnalyserFactory.getAnalysers()) {
-			columnAnalyser.flag(board, currentPlayer, column, analysis);
-			if (analysis.hasCondition(ColumnAnalysis.FLAG_UNPLAYABLE)
-					|| analysis.hasCondition(ColumnAnalysis.FLAG_WIN_1)) {
-				break;
-			}
-		}
-		return analysis;
-	}
-
-	/**
-	 * Reset the last analysis.
-	 */
-	protected void resetLast() {
-		lastBestColumnAnalysis = null;
-		lastColumnAnalysis = null;
-	}
-
-	/**
-	 * @return the best column analysis for the recent analysis. Could be more than one best column.
-	 */
-	protected List<ColumnAnalysis> getLastBestColumnAnalysis() {
-		return lastBestColumnAnalysis;
-	}
-
-	/**
-	 * @return the column analysis for the most recent analysis. This is a list. The first item in
-	 *         the list is for the first column, the second item for the second column, etc.
-	 */
-	protected List<ColumnAnalysis> getLastColumnAnalysis() {
-		return lastColumnAnalysis;
 	}
 }
