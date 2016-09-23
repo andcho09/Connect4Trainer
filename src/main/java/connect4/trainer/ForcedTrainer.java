@@ -3,6 +3,7 @@ package connect4.trainer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -50,7 +51,7 @@ public class ForcedTrainer extends Recommender {
 				}
 			}
 			for (final ForcedAnalysisResult forcedAnalysisWinResult : shortestForcedAnalysisWinResults) {
-				apply(analysisList, forcedAnalysisWinResult.getAnalysis(),
+				apply(analysisList, forcedAnalysisWinResult.getEarliestMove(),
 						ColumnAnalysis.FLAG_FORCED_WIN);
 			}
 		}
@@ -108,9 +109,7 @@ public class ForcedTrainer extends Recommender {
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Detected win scenario, returning");
 			}
-			for (final ColumnAnalysis analysis : winColumns) {
-				resultInWins.add(new ForcedAnalysisResult(depth, analysis));
-			}
+			resultInWins.add(new ForcedAnalysisResult(depth));
 			return resultInWins;
 		} else if (forcedColumns.size() > 0) {
 			// TODO we shouldn't return here, just cut down on where we play, play that, and
@@ -194,10 +193,12 @@ public class ForcedTrainer extends Recommender {
 									+ " which creates board:\n" + opponentBoard.toString()
 									+ "\nRecursively calling forced analysis again...");
 				}
-				// TODO ****** this needs to add the current column, because if we forced two moves
-				// ahead the column analysis is completely different ****
-				resultInWins.addAll(
-						forcedAnalysis(opponentBoard, currentPlayer, forcedAnalyses, depth + 1));
+				final List<ForcedAnalysisResult> results = forcedAnalysis(opponentBoard,
+						currentPlayer, forcedAnalyses, depth + 1);
+				for (final ForcedAnalysisResult result : results) {
+					result.pushMove(analysis.getColumn());
+					resultInWins.add(result);
+				}
 			} else {
 				if (LOGGER.isDebugEnabled()) {
 					LOGGER.debug("Opponent " + opponentPlayer.toString() + " wasn't forced");
@@ -213,16 +214,19 @@ public class ForcedTrainer extends Recommender {
 	 * Applies the flag to the originalAnalysis where there are shared columns with
 	 * additionalAnalysis
 	 * @param originalAnalysis the {@link ColumnAnalysis} list to modify
-	 * @param additionalAnalysis only modify if columns are shared with these
+	 * @param column the column to apply the flag to
 	 * @param flag the flag to apply to the original list
 	 */
-	private void apply(final List<ColumnAnalysis> originalAnalysis,
-			final ColumnAnalysis additionalAnalysis, final int flag) {
+	private void apply(final List<ColumnAnalysis> originalAnalysis, final Integer column,
+			final int flag) {
+		if (column == null) {
+			return;
+		}
 		// TODO candidate for analysis(s) class
 		for (final ColumnAnalysis original : originalAnalysis) {
-			if (additionalAnalysis.getColumn() == original.getColumn()) {
+			if (column == original.getColumn()) {
 				original.addCondition(flag);
-				break;
+				return;
 			}
 		}
 	}
@@ -247,52 +251,51 @@ public class ForcedTrainer extends Recommender {
 	}
 
 	/**
-	 * Represents the outcome after applying forced analysis.
+	 * Records win scenarios during forced analysis.
 	 */
-	private static enum ResultType {
-		/**
-		 * We're going to win.
-		 */
-		WIN,
-		/**
-		 * We're forced to make a move to prevent the opponent from winning.
-		 */
-		FORCED,
-		/**
-		 * It's impossible to play here.
-		 */
-		UNPLAYABLE,
-		/**
-		 * No idea what this move will lead to.
-		 */
-		NO_IDEA
-	}
-
-	/**
-	 * Records win scenarios during forced analyisis.
-	 */
-	private static class ForcedAnalysisResult {// TODO need depth to pick shortest path
-		private final ColumnAnalysis analysis;
+	private static class ForcedAnalysisResult {
 		private final int depth;
+		private final LinkedList<Integer> moves;
 
 		/**
 		 * Records a win scenario.
 		 * @param depth the depth of the win (shorter is more desirable)
-		 * @param analysis the {@link ColumnAnalysis} associated with the win. TODO this is kinda
-		 *        dumb as if we're 10 deep the column analysis is irrelevant (unless we're recording
-		 *        steps)
 		 */
-		public ForcedAnalysisResult(final int depth, final ColumnAnalysis analysis) {
+		public ForcedAnalysisResult(final int depth) {
 			this.depth = depth;
-			this.analysis = analysis;
+			this.moves = new LinkedList<Integer>();
 		}
 
+		/**
+		 * @return how many moves deep the win is
+		 */
 		int getDepth() {
 			return depth;
 		}
 
-		ColumnAnalysis getAnalysis() {
-			return analysis;
+		/**
+		 * Add a move onto the sequence of how we win.
+		 * @param column the column of the move
+		 */
+		void pushMove(final int column) {
+			moves.add(column);
+		}
+
+		/**
+		 * @return the earliest move in the win sequence. Could be <code>null</code> if we already
+		 *         won without forcing the opponent
+		 */
+		Integer getEarliestMove() {
+			if (moves.isEmpty()) {
+				return null;
+			}
+			moves.getLast();
+			return moves.get(moves.size() - 1);
+		}
+
+		@Override
+		public String toString() {
+			return "Sequence of moves: " + StringUtils.join(moves.descendingIterator(), ",");
 		}
 	}
 }

@@ -80,7 +80,6 @@ public class BoardAnalyser {
 	 * @return a {@link List} of {@link ColumnAnalysis} where we are forced to play. Could be empty
 	 */
 	public List<ColumnAnalysis> getForcedColumns(final List<ColumnAnalysis> currentAnalysis) {
-		// TODO is this used?
 		// TODO this is a good candidate for a column analysis(s) class
 		final List<ColumnAnalysis> result = new ArrayList<ColumnAnalysis>();
 		for (final ColumnAnalysis columnAnalysis : currentAnalysis) {
