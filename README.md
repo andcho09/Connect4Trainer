@@ -74,3 +74,13 @@ Forced moves are moves we expect the opponent to play because if they don't they
 				recursive 
 		end if
 	end for
+	
+	
+The other version...
+
+	want to go down each column
+	then
+	return the best column(s) or nothing if no recommendations
+		where best is: has a win condition (win now, failing that a trap)
+		
+	

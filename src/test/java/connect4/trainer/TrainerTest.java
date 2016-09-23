@@ -132,7 +132,7 @@ public class TrainerTest {
 
 	@Test
 	public void testEnableMultiTrapWin1() throws IOException {
-		Board board = BoardLoader
+		final Board board = BoardLoader
 				.readBoard(new File(RESOURCES_DIR + "TrainerTest_EnableMultiTrapWin_1.txt"));
 		Assert.assertNull(BoardHelper.hasWinner(board));
 		final int column = trainer.recommend(board, Disc.YELLOW);
@@ -144,7 +144,8 @@ public class TrainerTest {
 
 	@Test
 	public void testForceTrapWin1() throws IOException {
-		Board board = BoardLoader.readBoard(new File(RESOURCES_DIR + "TrainerTest_ForceWin_1.txt"));
+		final Board board = BoardLoader
+				.readBoard(new File(RESOURCES_DIR + "TrainerTest_ForceWin_1.txt"));
 		Assert.assertNull(BoardHelper.hasWinner(board));
 		final int column = trainer.recommend(board, Disc.YELLOW);
 		Assert.assertTrue(column == 3);
@@ -156,7 +157,8 @@ public class TrainerTest {
 	@Test
 	public void testForceTrapWin2() throws IOException {
 		// No opinion. This is testing a bug
-		Board board = BoardLoader.readBoard(new File(RESOURCES_DIR + "TrainerTest_ForceWin_2.txt"));
+		final Board board = BoardLoader
+				.readBoard(new File(RESOURCES_DIR + "TrainerTest_ForceWin_2.txt"));
 		Assert.assertNull(BoardHelper.hasWinner(board));
 		trainer.recommend(board, Disc.YELLOW);
 		Assert.assertEquals(7, trainer.getLastBestColumnAnalysis().size());
