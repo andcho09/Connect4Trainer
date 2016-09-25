@@ -4,7 +4,6 @@ import static connect4.BoardHelperTest.RESOURCES_DIR;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -21,7 +20,7 @@ public class TrainerTest {
 
 	@Before
 	public void setup() {
-		trainer = new ForcedTrainer();
+		trainer = new Trainer();
 	}
 
 	@Test

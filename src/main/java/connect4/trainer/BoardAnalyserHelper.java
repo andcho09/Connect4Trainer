@@ -7,7 +7,10 @@ import connect4.trainer.ColumnAnalyserFactory.ColumnAnalyser;
 /**
  * Uses {@link ColumnAnalyser} to analyse a {@link Board}. This class is stateless.
  */
-public class BoardAnalyser {
+public class BoardAnalyserHelper {
+
+	private BoardAnalyserHelper() {
+	}
 
 	/**
 	 * Run analyses against the board.
@@ -15,7 +18,7 @@ public class BoardAnalyser {
 	 * @param currentPlayer the {@link Disc} of the player we're analysing for
 	 * @return
 	 */
-	public BoardAnalysis analyse(final Board board, final Disc currentPlayer) {
+	public static BoardAnalysis analyse(final Board board, final Disc currentPlayer) {
 		final BoardAnalysis boardAnalysis = new BoardAnalysis();
 		for (int c = 0; c < board.getNumCols(); c++) {
 			boardAnalysis.add(analyse(board, currentPlayer, c));
@@ -23,7 +26,8 @@ public class BoardAnalyser {
 		return boardAnalysis;
 	}
 
-	private ColumnAnalysis analyse(final Board board, final Disc currentPlayer, final int column) {
+	private static ColumnAnalysis analyse(final Board board, final Disc currentPlayer,
+			final int column) {
 		final ColumnAnalysis analysis = new ColumnAnalysis(column);
 		for (final ColumnAnalyser columnAnalyser : ColumnAnalyserFactory.getAnalysers()) {
 			columnAnalyser.flag(board, currentPlayer, column, analysis);
@@ -40,7 +44,7 @@ public class BoardAnalyser {
 	 * @return <code>true</code> if analysis should continue, else <code>false</code> (we won, they
 	 *         won, including traps, we're forced into a block)
 	 */
-	private boolean isAnalysisDone(final ColumnAnalysis analysis) {
+	private static boolean isAnalysisDone(final ColumnAnalysis analysis) {
 		if (analysis.hasCondition(ColumnAnalysis.FLAG_UNPLAYABLE)
 				|| analysis.hasCondition(ColumnAnalysis.FLAG_WIN_1)
 				|| analysis.hasCondition(ColumnAnalysis.FLAG_BLOCK_LOSS_1)
