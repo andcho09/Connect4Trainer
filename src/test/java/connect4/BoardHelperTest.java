@@ -101,7 +101,7 @@ public class BoardHelperTest {
 
 	@Test
 	public void testGetMinColumnSpan() {
-		Board board = new Board(7, 1);
+		final Board board = new Board(7, 1);
 		Assert.assertEquals(0, BoardHelper.getMinColumnSpan(board, 0));
 		Assert.assertEquals(0, BoardHelper.getMinColumnSpan(board, 1));
 		Assert.assertEquals(0, BoardHelper.getMinColumnSpan(board, 2));
@@ -113,7 +113,7 @@ public class BoardHelperTest {
 
 	@Test
 	public void testGetMaxColumnSpan() {
-		Board board = new Board(7, 1);
+		final Board board = new Board(7, 1);
 		Assert.assertEquals(3, BoardHelper.getMaxColumnSpan(board, 0));
 		Assert.assertEquals(4, BoardHelper.getMaxColumnSpan(board, 1));
 		Assert.assertEquals(5, BoardHelper.getMaxColumnSpan(board, 2));

@@ -1,6 +1,5 @@
 package connect4.trainer;
 
-import java.util.List;
 import java.util.Random;
 
 import connect4.Board;
@@ -14,8 +13,8 @@ public abstract class Recommender {
 	final ScoringAlgorithm scoringAlgorithm;
 	final Random random;
 
-	private List<ColumnAnalysis> lastBestColumnAnalysis;
-	private List<ColumnAnalysis> lastColumnAnalysis;
+	private BoardAnalysis lastBestBoardAnalysis;
+	private BoardAnalysis lastBoardAnalysis;
 
 	public Recommender() {
 		scoringAlgorithm = new ScoringAlgorithm();
@@ -34,31 +33,32 @@ public abstract class Recommender {
 	 * Reset the last analysis.
 	 */
 	protected void resetLast() {
-		lastBestColumnAnalysis = null;
-		lastColumnAnalysis = null;
+		lastBestBoardAnalysis = null;
+		lastBoardAnalysis = null;
 	}
 
 	/**
 	 * Sets the last analysis.
 	 */
-	void setLastAnalysis(final List<ColumnAnalysis> lastBestColumnAnalysis,
-			final List<ColumnAnalysis> lastColumnAnalysis) {
-		this.lastBestColumnAnalysis = lastBestColumnAnalysis;
-		this.lastColumnAnalysis = lastColumnAnalysis;
+	void setLastAnalysis(final BoardAnalysis lastBestBoardAnalysis,
+			final BoardAnalysis lastBoardAnalysis) {
+		this.lastBestBoardAnalysis = lastBestBoardAnalysis;
+		this.lastBoardAnalysis = lastBoardAnalysis;
 	}
 
 	/**
-	 * @return the best column analysis for the recent analysis. Could be more than one best column.
+	 * @return the best {@link BoardAnalysis} for the recent analysis. Could be more than one best
+	 *         column.
 	 */
-	protected List<ColumnAnalysis> getLastBestColumnAnalysis() {
-		return lastBestColumnAnalysis;
+	protected BoardAnalysis getLastBestBoardAnalysis() {
+		return lastBestBoardAnalysis;
 	}
 
 	/**
-	 * @return the column analysis for the most recent analysis. This is a list. The first item in
-	 *         the list is for the first column, the second item for the second column, etc.
+	 * @return the {@link BoardAnalysis} for the most recent analysis. This is a list. The first
+	 *         item in the list is for the first column, the second item for the second column, etc.
 	 */
-	protected List<ColumnAnalysis> getLastColumnAnalysis() {
-		return lastColumnAnalysis;
+	protected BoardAnalysis getLastBoardAnalysis() {
+		return lastBoardAnalysis;
 	}
 }
