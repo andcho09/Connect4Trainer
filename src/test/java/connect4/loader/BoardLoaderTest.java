@@ -16,7 +16,8 @@ public class BoardLoaderTest {
 		String inputBoardString = FileUtils
 				.readFileToString(new File("src/test/resources/BoardLoaderTest_1.txt"));
 		final Board board = BoardLoader.readBoard(inputBoardString);
-		inputBoardString = inputBoardString.substring(inputBoardString.indexOf('\n')).trim().replace("\r\n", "\n");
+		inputBoardString = inputBoardString.substring(inputBoardString.indexOf('\n')).trim()
+				.replace("\r\n", "\n");
 		Assert.assertEquals(inputBoardString, board.toString().trim());
 	}
 

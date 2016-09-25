@@ -1,8 +1,5 @@
 package connect4.trainer;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import connect4.Board;
 import connect4.Disc;
 
@@ -49,31 +46,30 @@ public class Trainer extends Recommender {
 		resetLast();
 
 		// Analysis phase
-		final List<ColumnAnalysis> analysisList = BOARD_ANALYSER.analyse(board, currentPlayer);
+		final BoardAnalysis analyses = BOARD_ANALYSER.analyse(board, currentPlayer);
 
 		// Scoring phase
-		final List<ColumnAnalysis> bestColumnAnalysis = new ArrayList<ColumnAnalysis>(
-				board.getNumCols());
+		final BoardAnalysis bestBoardAnalysis = new BoardAnalysis();
 		int bestScore = Integer.MIN_VALUE;
-		for (final ColumnAnalysis analysis : analysisList) {
+		for (final ColumnAnalysis analysis : analyses) {
 			final int score = scoringAlgorithm.score(analysis);
 			if (score > bestScore) {
 				bestScore = score;
-				bestColumnAnalysis.clear();
-				bestColumnAnalysis.add(analysis);
+				bestBoardAnalysis.clear();
+				bestBoardAnalysis.add(analysis);
 			} else if (score == bestScore) {
-				bestColumnAnalysis.add(analysis);
+				bestBoardAnalysis.add(analysis);
 			}
 		}
 
-		setLastAnalysis(bestColumnAnalysis, analysisList);
+		setLastAnalysis(bestBoardAnalysis, analyses);
 
 		// Tie breaking phase
-		if (bestColumnAnalysis.size() == 1) {
-			return bestColumnAnalysis.get(0).getColumn();
+		if (bestBoardAnalysis.size() == 1) {
+			return bestBoardAnalysis.get(0).getColumn();
 		} else {
-			final int randomInt = random.nextInt(bestColumnAnalysis.size());
-			return bestColumnAnalysis.get(randomInt).getColumn();
+			final int randomInt = random.nextInt(bestBoardAnalysis.size());
+			return bestBoardAnalysis.get(randomInt).getColumn();
 		}
 	}
 }

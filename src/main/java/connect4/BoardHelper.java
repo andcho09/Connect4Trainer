@@ -191,8 +191,7 @@ public class BoardHelper {
 	/**
 	 * Checks for wins in a diagonal SW to NE direction. It searches by starting in the specified
 	 * start position (cMin, rMin) and progressing diagonally to the NE until position (cMax, rMax)
-	 * is reached.
-	 * It does not search backwards (i.e. in the SW direction).
+	 * is reached. It does not search backwards (i.e. in the SW direction).
 	 * @param b the board to check
 	 * @param disc the disc to check
 	 * @param cMin the starting column position (0-based)

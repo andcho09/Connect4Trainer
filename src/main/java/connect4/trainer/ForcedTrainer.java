@@ -32,11 +32,11 @@ public class ForcedTrainer extends Recommender {
 		resetLast();
 
 		// Analysis phase
-		final List<ColumnAnalysis> analysisList = BOARD_ANALYSER.analyse(board, currentPlayer);
+		final BoardAnalysis boardAnalysis = BOARD_ANALYSER.analyse(board, currentPlayer);
 
 		// Check 'forced'
 		final List<ForcedAnalysisResult> forcedAnalysisWinResults = forcedAnalysis(board,
-				currentPlayer, analysisList, 0);
+				currentPlayer, boardAnalysis, 0);
 		if (!forcedAnalysisWinResults.isEmpty()) {
 			// Found some wins, now find the shortest depth
 			int shortestDepth = Integer.MAX_VALUE;
@@ -51,34 +51,33 @@ public class ForcedTrainer extends Recommender {
 				}
 			}
 			for (final ForcedAnalysisResult forcedAnalysisWinResult : shortestForcedAnalysisWinResults) {
-				apply(analysisList, forcedAnalysisWinResult.getEarliestMove(),
+				boardAnalysis.apply(forcedAnalysisWinResult.getEarliestMove(),
 						ColumnAnalysis.FLAG_FORCED_WIN);
 			}
 		}
 
 		// Scoring phase
-		final List<ColumnAnalysis> bestColumnAnalysis = new ArrayList<ColumnAnalysis>(
-				board.getNumCols());
+		final BoardAnalysis bestBoardAnalysis = new BoardAnalysis();
 		int bestScore = Integer.MIN_VALUE;
-		for (final ColumnAnalysis analysis : analysisList) {
+		for (final ColumnAnalysis analysis : boardAnalysis) {
 			final int score = scoringAlgorithm.score(analysis);
 			if (score > bestScore) {
 				bestScore = score;
-				bestColumnAnalysis.clear();
-				bestColumnAnalysis.add(analysis);
+				bestBoardAnalysis.clear();
+				bestBoardAnalysis.add(analysis);
 			} else if (score == bestScore) {
-				bestColumnAnalysis.add(analysis);
+				bestBoardAnalysis.add(analysis);
 			}
 		}
 
-		setLastAnalysis(bestColumnAnalysis, analysisList);
+		setLastAnalysis(bestBoardAnalysis, boardAnalysis);
 
 		// Tie breaking phase
-		if (bestColumnAnalysis.size() == 1) {
-			return bestColumnAnalysis.get(0).getColumn();
+		if (bestBoardAnalysis.size() == 1) {
+			return bestBoardAnalysis.get(0).getColumn();
 		} else {
-			final int randomInt = random.nextInt(bestColumnAnalysis.size());
-			return bestColumnAnalysis.get(randomInt).getColumn();
+			final int randomInt = random.nextInt(bestBoardAnalysis.size());
+			return bestBoardAnalysis.get(randomInt).getColumn();
 		}
 	}
 
@@ -86,25 +85,27 @@ public class ForcedTrainer extends Recommender {
 	 * Perform 'forced' analysis, i.e. recursively analyse if the opponent is forced into a move.
 	 * @param board the {@link Board} to analse
 	 * @param currentPlayer the {@link Disc} of the current player
-	 * @param currentAnalysis the freshly analysed columns
+	 * @param boardAnalysis the freshly analysed board
 	 * @param depth how far down the rabbit hole we've gone
 	 * @return recommendations of where to play and why. If empty, no analysis (opponent not forced
 	 *         before end condition). Could be wining columns (if we can win), or forced columns
 	 *         (we're forced to play there).
 	 */
 	private List<ForcedAnalysisResult> forcedAnalysis(final Board board, final Disc currentPlayer,
-			final List<ColumnAnalysis> currentAnalysis, final int depth) {
+			final BoardAnalysis boardAnalysis, final int depth) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Beginning forced analysis for player " + currentPlayer.toString()
 					+ " for board:\n" + board.toString() + " with analysis: "
-					+ StringUtils.join(currentAnalysis.iterator(), ", "));
+					+ StringUtils.join(boardAnalysis.iterator(), ", "));
 		}
 
 		final List<ForcedAnalysisResult> resultInWins = new ArrayList<ForcedAnalysisResult>();
 
 		// Check exit conditions
-		final List<ColumnAnalysis> winColumns = BOARD_ANALYSER.getWinColumns(currentAnalysis);
-		final List<ColumnAnalysis> forcedColumns = BOARD_ANALYSER.getForcedColumns(currentAnalysis);
+		final BoardAnalysis winColumns = boardAnalysis.getColumnsWithConditions(
+				ColumnAnalysis.FLAG_WIN_1, ColumnAnalysis.FLAG_TRAP_MORE_THAN_ONE);
+		final BoardAnalysis forcedColumns = boardAnalysis.getColumnsWithConditions(
+				ColumnAnalysis.FLAG_BLOCK_LOSS_1, ColumnAnalysis.FLAG_BLOCK_TRAP_MORE_THAN_ONE);
 		if (winColumns.size() > 0) {
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Detected win scenario, returning");
@@ -122,7 +123,7 @@ public class ForcedTrainer extends Recommender {
 
 		// Begin 'forced' analysis
 
-		for (final ColumnAnalysis analysis : currentAnalysis) {
+		for (final ColumnAnalysis analysis : boardAnalysis) {
 			if (analysis.hasCondition(ColumnAnalysis.FLAG_UNPLAYABLE)) {
 				if (LOGGER.isDebugEnabled()) {
 					LOGGER.debug("Can't play " + analysis.getColumn() + ", skipping");
@@ -142,32 +143,31 @@ public class ForcedTrainer extends Recommender {
 			}
 
 			final Disc opponentPlayer = Disc.getOpposite(currentPlayer);
-			final List<ColumnAnalysis> opponentAnalyses = BOARD_ANALYSER.analyse(newBoard,
-					opponentPlayer);
+			final BoardAnalysis opponentAnalyses = BOARD_ANALYSER.analyse(newBoard, opponentPlayer);
 
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Opponent " + opponentPlayer.toString() + "'s analysis is:\n "
 						+ StringUtils.join(opponentAnalyses.iterator(), ", "));
 			}
 
-			List<ColumnAnalysis> opponentForcedColumns = BOARD_ANALYSER
-					.getColumnsWithCondition(opponentAnalyses, ColumnAnalysis.FLAG_BLOCK_LOSS_1);
+			BoardAnalysis opponentForcedColumns = opponentAnalyses
+					.getColumnsWithConditions(ColumnAnalysis.FLAG_BLOCK_LOSS_1);
 			if (opponentForcedColumns.size() > 1) {
 				// TODO if there's two 'must block now' situations then we should have won and
 				// detected this before
 				throwMoreThanForcedMoveError(
 						"I think we missed something. The opponent is forced into blocking more than one column immediately.",
-						board, currentPlayer, currentAnalysis.iterator(), analysis.getColumn(),
+						board, currentPlayer, boardAnalysis.iterator(), analysis.getColumn(),
 						newBoard, opponentForcedColumns.iterator());
 			} else if (opponentForcedColumns.size() == 0) {
-				opponentForcedColumns = BOARD_ANALYSER.getColumnsWithCondition(currentAnalysis,
-						ColumnAnalysis.FLAG_BLOCK_TRAP_MORE_THAN_ONE);
+				opponentForcedColumns = boardAnalysis
+						.getColumnsWithConditions(ColumnAnalysis.FLAG_BLOCK_TRAP_MORE_THAN_ONE);
 				if (opponentForcedColumns.size() > 1) {
 					// TODO if they're blocking two traps we won. We should've detected this
 					// earlier.
 					throwMoreThanForcedMoveError(
 							"I think we missed something. The opponent is forced into blocking more than one trap.",
-							board, currentPlayer, currentAnalysis.iterator(), analysis.getColumn(),
+							board, currentPlayer, boardAnalysis.iterator(), analysis.getColumn(),
 							newBoard, opponentForcedColumns.iterator());
 				}
 			}
@@ -183,7 +183,7 @@ public class ForcedTrainer extends Recommender {
 				// TODO should we check that we didn't just lose right here? Should be eliminated by
 				// the 'are we forced check before'
 
-				final List<ColumnAnalysis> forcedAnalyses = BOARD_ANALYSER.analyse(opponentBoard,
+				final BoardAnalysis forcedAnalyses = BOARD_ANALYSER.analyse(opponentBoard,
 						currentPlayer);
 
 				if (LOGGER.isDebugEnabled()) {
@@ -210,27 +210,6 @@ public class ForcedTrainer extends Recommender {
 		return resultInWins;
 	}
 
-	/**
-	 * Applies the flag to the originalAnalysis where there are shared columns with
-	 * additionalAnalysis
-	 * @param originalAnalysis the {@link ColumnAnalysis} list to modify
-	 * @param column the column to apply the flag to
-	 * @param flag the flag to apply to the original list
-	 */
-	private void apply(final List<ColumnAnalysis> originalAnalysis, final Integer column,
-			final int flag) {
-		if (column == null) {
-			return;
-		}
-		// TODO candidate for analysis(s) class
-		for (final ColumnAnalysis original : originalAnalysis) {
-			if (column == original.getColumn()) {
-				original.addCondition(flag);
-				return;
-			}
-		}
-	}
-
 	private void throwMoreThanForcedMoveError(final String initialMessage, final Board board,
 			final Disc currentPlayer, final Iterator<ColumnAnalysis> currentAnalysis,
 			final int currentColumn, final Board newBoard,
@@ -238,7 +217,6 @@ public class ForcedTrainer extends Recommender {
 		final StringBuilder message = new StringBuilder(initialMessage + "\n");
 		message.append(" We're playing as " + currentPlayer.toString() + " with board:\n"
 				+ board.toString());
-		message.append(" Original board is:\n" + board.toString());
 		message.append(
 				" Original analysis is:\n  " + StringUtils.join(currentAnalysis, ", ") + "\n");
 		message.append(" Candidate column is " + currentColumn + " which creates board:\n"
