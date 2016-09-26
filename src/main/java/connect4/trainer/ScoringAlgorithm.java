@@ -39,6 +39,11 @@ public class ScoringAlgorithm {
 		if (analysis.hasCondition(ColumnAnalysis.FLAG_FORCED_WIN)) {
 			return Integer.MAX_VALUE - 4;
 		}
+		if (analysis.hasCondition(ColumnAnalysis.FLAG_BLOCK_FORCED_WIN)) {
+			return Integer.MAX_VALUE - 5;
+		}
 		return 0; // No opinion
 	}
+
+	// TODO anything to do with flagging (is done, is forced, has won) should be here
 }

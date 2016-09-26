@@ -45,10 +45,9 @@ public class ColumnAnalysis {
 	public static final int FLAG_FORCED_WIN = 1 << 10;
 
 	/**
-	 * Playing in this column forces the opponent to play in a space where we'll eventually be
-	 * forced
+	 * Playing in this column prevents the opponent forcing us into a loss
 	 */
-	public static final int FLAG_FORCED_FORCED = 1 << 11;
+	public static final int FLAG_BLOCK_FORCED_WIN = 1 << 11;
 
 	private final int column;
 	private int flags;

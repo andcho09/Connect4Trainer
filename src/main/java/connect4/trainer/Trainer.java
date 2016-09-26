@@ -51,7 +51,8 @@ public class Trainer extends Recommender {
 		}
 
 		setLastAnalysis(bestBoardAnalysis, boardAnalysis);
-		this.lastForcedAnalysisResults = forcedAnalysisResults;
+		this.lastForcedAnalysisResults = forcedAnalysisResults; // TODO this could be a sequence of
+																// how we lose
 
 		// Tie breaking phase
 		if (bestBoardAnalysis.size() == 1) {

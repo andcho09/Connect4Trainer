@@ -10,7 +10,7 @@ import connect4.IllegalMoveException;
 import connect4.Move;
 
 /**
- * An analyser which looks at the playing in an individual column.
+ * A factory for {@link ColumnAnalyser}s which look at the playing in an individual column.
  */
 public class ColumnAnalyserFactory {
 
