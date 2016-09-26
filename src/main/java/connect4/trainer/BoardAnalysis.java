@@ -67,6 +67,20 @@ public class BoardAnalysis extends AbstractList<ColumnAnalysis> {
 		return columnAnalyses.get(index);
 	}
 
+	/**
+	 * Retrieves the {@link ColumnAnalysis} for the specified column.
+	 * @param column the column (0-based)
+	 * @return the {@link ColumnAnalysis} or <code>null</code> if there's no such analysis
+	 */
+	public ColumnAnalysis getAnalysisAtColumn(final int column) {
+		for (final ColumnAnalysis columnAnalysis : columnAnalyses) {
+			if (column == columnAnalysis.getColumn()) {
+				return columnAnalysis;
+			}
+		}
+		return null;
+	}
+
 	@Override
 	public int size() {
 		return columnAnalyses.size();

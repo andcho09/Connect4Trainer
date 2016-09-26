@@ -1,39 +1,19 @@
 package connect4.trainer;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import connect4.Board;
 import connect4.Disc;
+import connect4.trainer.BoardAnalyserFactory.BoardAnalyser;
+import connect4.trainer.BoardAnalyserFactory.ForcedAnalysisResult;
 
 /**
- * <p>
- * Gives hints for Connect4.
- * </p>
- * <p>
- * It advises along the following guidelines:
- * <ol>
- * <li>Play where you can win in one move
- * <li>Don't play where you lose in the next turn, i.e:
- * <ol>
- * <li>Block the opponent from getting four in a row in their next turn
- * </ol>
- * <li>Play where you have more than one winning moving in your next term (i.e. force a win in two
- * moves)
- * </ol>
- * </p>
- * <p>
- * Decisions are based on scoring each column.
- * <p>
- * It's possible multiple columns may score the same value in which case ties are broken by:
- * <ol>
- * <li>Middle column is worth {@link Board#getNumCols()}
- * <li>Each column away from the middle is worth {@link Board#getNumCols()} - n where n is the
- * number of columns away from the middle
- * <li>Otherwise pick randomly
- * </ol>
- * </p>
+ * Trainer capable of predicting forced moves.
  */
 public class Trainer extends Recommender {
 
-	private static final BoardAnalyser BOARD_ANALYSER = new BoardAnalyser();
+	private List<ForcedAnalysisResult> lastForcedAnalysisResults = new ArrayList<ForcedAnalysisResult>();
 
 	/**
 	 * Analyses the board and recommends where to play.
@@ -46,12 +26,20 @@ public class Trainer extends Recommender {
 		resetLast();
 
 		// Analysis phase
-		final BoardAnalysis analyses = BOARD_ANALYSER.analyse(board, currentPlayer);
+		final BoardAnalysis boardAnalysis = BoardAnalyserHelper.analyse(board, currentPlayer);
+
+		// Check 'forced'
+		final List<ForcedAnalysisResult> forcedAnalysisResults = new ArrayList<ForcedAnalysisResult>();
+		final List<BoardAnalyser> analysers = BoardAnalyserFactory.getAnalysers();
+		for (final BoardAnalyser boardAnalyser : analysers) {
+			forcedAnalysisResults
+					.addAll(boardAnalyser.analyse(boardAnalysis, board, currentPlayer));
+		}
 
 		// Scoring phase
 		final BoardAnalysis bestBoardAnalysis = new BoardAnalysis();
 		int bestScore = Integer.MIN_VALUE;
-		for (final ColumnAnalysis analysis : analyses) {
+		for (final ColumnAnalysis analysis : boardAnalysis) {
 			final int score = scoringAlgorithm.score(analysis);
 			if (score > bestScore) {
 				bestScore = score;
@@ -62,7 +50,9 @@ public class Trainer extends Recommender {
 			}
 		}
 
-		setLastAnalysis(bestBoardAnalysis, analyses);
+		setLastAnalysis(bestBoardAnalysis, boardAnalysis);
+		this.lastForcedAnalysisResults = forcedAnalysisResults; // TODO this could be a sequence of
+																// how we lose
 
 		// Tie breaking phase
 		if (bestBoardAnalysis.size() == 1) {
@@ -71,5 +61,15 @@ public class Trainer extends Recommender {
 			final int randomInt = random.nextInt(bestBoardAnalysis.size());
 			return bestBoardAnalysis.get(randomInt).getColumn();
 		}
+	}
+
+	@Override
+	protected void resetLast() {
+		super.resetLast();
+		this.lastForcedAnalysisResults = null;
+	}
+
+	List<ForcedAnalysisResult> getLastForcedAnalysisResults() {
+		return lastForcedAnalysisResults;
 	}
 }

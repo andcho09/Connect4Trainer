@@ -10,11 +10,11 @@ import connect4.IllegalMoveException;
 import connect4.Move;
 
 /**
- * An analyser which looks at the playing in an individual column.
+ * A factory for {@link ColumnAnalyser}s which look at the playing in an individual column.
  */
 public class ColumnAnalyserFactory {
 
-	public interface ColumnAnalyser {
+	public static abstract class ColumnAnalyser {
 
 		/**
 		 * Flags the given column position with various facts (flags). For example, will playing in
@@ -25,16 +25,16 @@ public class ColumnAnalyserFactory {
 		 *        {@link Board#Board(Board)} (i.e. the clone constructor)
 		 * @param currentPlayer the {@link Disc} of the current player
 		 * @param column the column (0-based) we're analysing
-		 * @param currentAnaylsi the analyis conducted so far. Implementors are expected to modify
+		 * @param currentAnaylsi the analysis conducted so far. Implementors are expected to modify
 		 *        this instance
 		 * @return the new analysis
 		 */
-		public ColumnAnalysis flag(final Board board, final Disc currentPlayer, final int column,
-				final ColumnAnalysis currentAnalysis);
+		public abstract ColumnAnalysis flag(final Board board, final Disc currentPlayer,
+				final int column, final ColumnAnalysis currentAnalysis);
 	}
 
 	/** Unplayable or win now */
-	public static final ColumnAnalyser WIN_NOW = new ColumnAnalyser() {
+	private static final ColumnAnalyser WIN_NOW = new ColumnAnalyser() {
 		@Override
 		public ColumnAnalysis flag(final Board board, final Disc currentPlayer, final int column,
 				final ColumnAnalysis currentAnalysis) {
@@ -58,7 +58,7 @@ public class ColumnAnalyserFactory {
 	};
 
 	/** Playing here blocks opponent from winning in their next move */
-	public static final ColumnAnalyser BLOCK_LOSS_1 = new ColumnAnalyser() {
+	private static final ColumnAnalyser BLOCK_LOSS_1 = new ColumnAnalyser() {
 		@Override
 		public ColumnAnalysis flag(final Board board, final Disc currentPlayer, final int column,
 				final ColumnAnalysis currentAnalysis) {
@@ -84,7 +84,7 @@ public class ColumnAnalyserFactory {
 	};
 
 	/** Playing here allows the opponent to win by playing above us */
-	public static final ColumnAnalyser ENABLE_OPPONENT_WIN = new ColumnAnalyser() {
+	private static final ColumnAnalyser ENABLE_OPPONENT_WIN = new ColumnAnalyser() {
 		@Override
 		public ColumnAnalysis flag(final Board board, final Disc currentPlayer, final int column,
 				final ColumnAnalysis currentAnalysis) {
@@ -114,7 +114,7 @@ public class ColumnAnalyserFactory {
 	};
 
 	/** Playing here gives us more than one different column to win (i.e. execute a trap) */
-	public static final ColumnAnalyser TRAP_MORE_THAN_ONE = new ColumnAnalyser() {
+	private static final ColumnAnalyser TRAP_MORE_THAN_ONE = new ColumnAnalyser() {
 		@Override
 		public ColumnAnalysis flag(final Board board, final Disc currentPlayer, final int column,
 				final ColumnAnalysis currentAnalysis) {
@@ -155,7 +155,7 @@ public class ColumnAnalyserFactory {
 	 * Playing here blocks the opponent gaining more than one different column to win (i.e. execute
 	 * a trap)
 	 */
-	public static final ColumnAnalyser BLOCK_TRAP_MORE_THAN_ONE = new ColumnAnalyser() {
+	private static final ColumnAnalyser BLOCK_TRAP_MORE_THAN_ONE = new ColumnAnalyser() {
 		@Override
 		public ColumnAnalysis flag(final Board board, final Disc currentPlayer, final int column,
 				final ColumnAnalysis currentAnalysis) {
