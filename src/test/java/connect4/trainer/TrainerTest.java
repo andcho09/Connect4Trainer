@@ -4,6 +4,7 @@ import static connect4.BoardHelperTest.RESOURCES_DIR;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -163,5 +164,19 @@ public class TrainerTest {
 		Assert.assertEquals(7, trainer.getLastBestBoardAnalysis().size());
 		Assert.assertEquals(ColumnAnalysis.FLAG_NO_OPINION,
 				trainer.getLastBestBoardAnalysis().get(0).getFlags());
+	}
+
+	@Test
+	public void testForceTrapWin3() throws IOException {
+		// No opinion. This is testing a bug
+		final Board board = BoardLoader
+				.readBoard(new File(RESOURCES_DIR + "TrainerTest_ForceWin_3.txt"));
+		Assert.assertNull(BoardHelper.hasWinner(board));
+		trainer.recommend(board, Disc.YELLOW);
+		Assert.assertEquals(3, trainer.getLastBestBoardAnalysis().size());
+		for (final ColumnAnalysis analysis : trainer.getLastBestBoardAnalysis()) {
+			Assert.assertTrue(analysis.hasCondition(ColumnAnalysis.FLAG_FORCED_WIN));
+			Assert.assertTrue(Arrays.asList(1, 2, 5).contains(analysis.getColumn()));
+		}
 	}
 }

@@ -1,15 +1,19 @@
 package connect4.trainer;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import connect4.Board;
 import connect4.Disc;
 import connect4.trainer.BoardAnalyserFactory.BoardAnalyser;
+import connect4.trainer.BoardAnalyserFactory.ForcedAnalysisResult;
 
 /**
  * Trainer capable of predicting forced moves.
  */
 public class Trainer extends Recommender {
+
+	private List<ForcedAnalysisResult> lastForcedAnalysisResults = new ArrayList<ForcedAnalysisResult>();
 
 	/**
 	 * Analyses the board and recommends where to play.
@@ -25,9 +29,11 @@ public class Trainer extends Recommender {
 		final BoardAnalysis boardAnalysis = BoardAnalyserHelper.analyse(board, currentPlayer);
 
 		// Check 'forced'
+		final List<ForcedAnalysisResult> forcedAnalysisResults = new ArrayList<ForcedAnalysisResult>();
 		final List<BoardAnalyser> analysers = BoardAnalyserFactory.getAnalysers();
 		for (final BoardAnalyser boardAnalyser : analysers) {
-			boardAnalyser.analyse(boardAnalysis, board, currentPlayer);
+			forcedAnalysisResults
+					.addAll(boardAnalyser.analyse(boardAnalysis, board, currentPlayer));
 		}
 
 		// Scoring phase
@@ -45,6 +51,7 @@ public class Trainer extends Recommender {
 		}
 
 		setLastAnalysis(bestBoardAnalysis, boardAnalysis);
+		this.lastForcedAnalysisResults = forcedAnalysisResults;
 
 		// Tie breaking phase
 		if (bestBoardAnalysis.size() == 1) {
@@ -53,5 +60,15 @@ public class Trainer extends Recommender {
 			final int randomInt = random.nextInt(bestBoardAnalysis.size());
 			return bestBoardAnalysis.get(randomInt).getColumn();
 		}
+	}
+
+	@Override
+	protected void resetLast() {
+		super.resetLast();
+		this.lastForcedAnalysisResults = null;
+	}
+
+	List<ForcedAnalysisResult> getLastForcedAnalysisResults() {
+		return lastForcedAnalysisResults;
 	}
 }

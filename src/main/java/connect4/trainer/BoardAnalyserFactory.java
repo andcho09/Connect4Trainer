@@ -19,24 +19,29 @@ public class BoardAnalyserFactory {
 
 	public static interface BoardAnalyser {
 
-		public void analyse(final BoardAnalysis boardAnalysis, final Board board,
-				final Disc currentPlayer);
+		public List<ForcedAnalysisResult> analyse(final BoardAnalysis boardAnalysis,
+				final Board board, final Disc currentPlayer);
 	}
 
 	/**
 	 * Records win scenarios during forced analysis.
 	 */
-	private static class ForcedAnalysisResult {
+	public static class ForcedAnalysisResult {
 		private final int depth;
+		private final BoardAnalysis boardAnalysis;
 		private final LinkedList<Integer> moves;
+		private final LinkedList<Integer> opponentMoves;
 
 		/**
 		 * Records a win scenario.
 		 * @param depth the depth of the win (shorter is more desirable)
+		 * @param boardAnalysis the {@link BoardAnalysis} associated with this win at the win state
 		 */
-		public ForcedAnalysisResult(final int depth) {
+		public ForcedAnalysisResult(final int depth, final BoardAnalysis boardAnalysis) {
 			this.depth = depth;
+			this.boardAnalysis = boardAnalysis;
 			this.moves = new LinkedList<Integer>();
+			this.opponentMoves = new LinkedList<Integer>();
 		}
 
 		/**
@@ -46,12 +51,32 @@ public class BoardAnalyserFactory {
 			return depth;
 		}
 
+		BoardAnalysis getBoardAnalysis() {
+			return boardAnalysis;
+		}
+
 		/**
 		 * Add a move onto the sequence of how we win.
 		 * @param column the column of the move
 		 */
 		void pushMove(final int column) {
 			moves.add(column);
+		}
+
+		/**
+		 * Add an opponent's move to the sequence of how we win.
+		 * @param column the column of the move
+		 */
+		void pushOpponentMove(final int column) {
+			opponentMoves.add(column);
+		}
+
+		LinkedList<Integer> getMoves() {
+			return moves;
+		}
+
+		LinkedList<Integer> getOpponentMoves() {
+			return opponentMoves;
 		}
 
 		/**
@@ -70,15 +95,51 @@ public class BoardAnalyserFactory {
 		public String toString() {
 			return "Sequence of moves: " + StringUtils.join(moves.descendingIterator(), ",");
 		}
+
+		/**
+		 * Replay the following set of moves where the current player wins.
+		 * @param board the board to start at
+		 * @return a {@link String} representing the play
+		 * @throws IllegalMoveException if the analysis is invalid and can't be played
+		 */
+		public String replay(final Board board, final Disc currentPlayer)
+				throws IllegalMoveException {
+			if (moves.isEmpty()) {
+				return null; // Opponent not forced
+			}
+
+			final StringBuilder sb = new StringBuilder();
+			final Board playBoard = new Board(board);
+			final Disc opponent = Disc.getOpposite(currentPlayer);
+			sb.append("As player " + currentPlayer.toString() + " with board:\n" + board);
+			final int numOfMoves = moves.size();
+			for (int i = 0; i < numOfMoves; i++) {
+				// Current
+				Integer column = moves.get(moves.size() - 1 - i);
+				playBoard.putDisc(column, currentPlayer);
+				sb.append(currentPlayer.toString() + " plays column " + (column + 1)
+						+ " creating board:\n" + playBoard);
+				// Opponent
+				column = opponentMoves.get(opponentMoves.size() - 1 - i);
+				playBoard.putDisc(column, opponent);
+				sb.append(opponent.toString() + " plays column " + (column + 1)
+						+ " creating board:\n" + playBoard);
+			}
+			final BoardAnalysis winColumns = boardAnalysis.getColumnsWithConditions(
+					ColumnAnalysis.FLAG_WIN_1, ColumnAnalysis.FLAG_TRAP_MORE_THAN_ONE);
+			sb.append(currentPlayer.toString() + " wins with "
+					+ StringUtils.join(winColumns.iterator(), ", "));
+			return sb.toString();
+		}
 	}
 
 	private static final BoardAnalyser FORCED_ANALYSER = new BoardAnalyser() {
 
 		@Override
-		public void analyse(final BoardAnalysis boardAnalysis, final Board board,
-				final Disc currentPlayer) {
+		public List<ForcedAnalysisResult> analyse(final BoardAnalysis boardAnalysis,
+				final Board board, final Disc currentPlayer) {
 			// Check 'forced'
-			final List<ForcedAnalysisResult> forcedAnalysisWinResults = forcedAnalysis(board,
+			final List<ForcedAnalysisResult> forcedAnalysisWinResults = doForcedAnalysis(board,
 					currentPlayer, boardAnalysis, 0);
 			if (!forcedAnalysisWinResults.isEmpty()) {
 				// Found some wins, now find the shortest depth
@@ -97,6 +158,9 @@ public class BoardAnalyserFactory {
 					boardAnalysis.apply(forcedAnalysisWinResult.getEarliestMove(),
 							ColumnAnalysis.FLAG_FORCED_WIN);
 				}
+				return shortestForcedAnalysisWinResults;
+			} else {
+				return Collections.emptyList();
 			}
 		}
 
@@ -111,7 +175,7 @@ public class BoardAnalyserFactory {
 		 *         forced before end condition). Could be wining columns (if we can win), or forced
 		 *         columns (we're forced to play there).
 		 */
-		private List<ForcedAnalysisResult> forcedAnalysis(final Board board,
+		private List<ForcedAnalysisResult> doForcedAnalysis(final Board board,
 				final Disc currentPlayer, final BoardAnalysis boardAnalysis, final int depth) {
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Beginning forced analysis for player " + currentPlayer.toString()
@@ -130,7 +194,7 @@ public class BoardAnalyserFactory {
 				if (LOGGER.isDebugEnabled()) {
 					LOGGER.debug("Detected win scenario, returning");
 				}
-				resultInWins.add(new ForcedAnalysisResult(depth));
+				resultInWins.add(new ForcedAnalysisResult(depth, winColumns));
 				return resultInWins;
 			} else if (forcedColumns.size() > 0) {
 				// TODO we shouldn't return here, just cut down on where we play, play that, and
@@ -142,7 +206,6 @@ public class BoardAnalyserFactory {
 			}
 
 			// Begin 'forced' analysis
-
 			for (final ColumnAnalysis analysis : boardAnalysis) {
 				if (analysis.hasCondition(ColumnAnalysis.FLAG_UNPLAYABLE)) {
 					if (LOGGER.isDebugEnabled()) {
@@ -194,10 +257,10 @@ public class BoardAnalyserFactory {
 				}
 
 				if (opponentForcedColumns.size() == 1) {
+					final int opponentForcedColumn = opponentForcedColumns.get(0).getColumn();
 					final Board opponentBoard = new Board(newBoard);
 					try {
-						opponentBoard.putDisc(opponentForcedColumns.get(0).getColumn(),
-								opponentPlayer);
+						opponentBoard.putDisc(opponentForcedColumn, opponentPlayer);
 					} catch (final IllegalMoveException e) {
 						continue; // We're forced to play here but can't???
 					}
@@ -214,10 +277,11 @@ public class BoardAnalyserFactory {
 								+ " which creates board:\n" + opponentBoard.toString()
 								+ "\nRecursively calling forced analysis again...");
 					}
-					final List<ForcedAnalysisResult> results = forcedAnalysis(opponentBoard,
+					final List<ForcedAnalysisResult> results = doForcedAnalysis(opponentBoard,
 							currentPlayer, forcedAnalyses, depth + 1);
 					for (final ForcedAnalysisResult result : results) {
 						result.pushMove(analysis.getColumn());
+						result.pushOpponentMove(opponentForcedColumn);
 						resultInWins.add(result);
 					}
 				} else {

@@ -13,10 +13,10 @@ public class BoardAnalyserHelper {
 	}
 
 	/**
-	 * Run analyses against the board.
+	 * Runs basic {@link ColumnAnalyser}s against the board.
 	 * @param board the {@link Board}
 	 * @param currentPlayer the {@link Disc} of the player we're analysing for
-	 * @return
+	 * @return the {@link BoardAnalysis} containing the results of the analysis
 	 */
 	public static BoardAnalysis analyse(final Board board, final Disc currentPlayer) {
 		final BoardAnalysis boardAnalysis = new BoardAnalysis();
