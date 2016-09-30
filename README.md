@@ -13,7 +13,12 @@ This is a training tool for the game [Connect 4](https://en.wikipedia.org/wiki/C
 				break (no point in analysing this column)
 			end if
 		end for
-		
+
+		//perform 'forced' analysis
+		for each forced analyser a
+			run forced analyser
+		end for
+
 		// scoring phase
 		score each column to figure out the best column to play
 		if tie
@@ -32,7 +37,6 @@ Analysers detect facts about the board
 - block a trap (block the opponent's next move having more than one column to win)
 
 **TODO**
-- generic win on top of forced move (see below)
 - enable a column of win (3 on top of each other, 3 diagonal)
 
 ## Forced moves
@@ -47,19 +51,18 @@ Forced moves are moves we expect the opponent to play because if they don't they
 
 **Algorithm:**
 
-	given freshly analysed (but not scored) board b and player p
+	given freshly simple analysed (but not scored) board b and player p at depth d = 0
 	
 	// check end condition, i.e. we won (or can at least execute a trap), or we're forced to play a column
-	for each column c
-		if c has win conditions
-			return p wins at c // end
-		else if p forced to play c
-			return p forced to play c 
-		end if
-	end for
-	
+	if p has won
+		return result: p wins at d
+	end if
+	if p forced 
+		return (empty response implies we did not win)
+	end if
 	
 	// begin forced analysis
+	set forced analysis result
 	for each column c
 		if c unplayable
 			continue
@@ -70,17 +73,14 @@ Forced moves are moves we expect the opponent to play because if they don't they
 		analyse board b' as p'
 		if p' forced into c'
 			play p' into c' to create b''
-			analyse board b'' as p
-				recursive 
+			simply analyse b''
+			recursively perform forced analysis passing board b'', player p, and depth d + 1
+			for each forced analysis result f
+				push column c
+				push p' move
+				push win forced analysis result
+			end for
 		end if
 	end for
-	
-	
-The other version...
 
-	want to go down each column
-	then
-	return the best column(s) or nothing if no recommendations
-		where best is: has a win condition (win now, failing that a trap)
-		
-	
+	return forced analysis results
