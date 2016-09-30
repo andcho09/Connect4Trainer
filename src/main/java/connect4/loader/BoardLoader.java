@@ -107,7 +107,7 @@ public class BoardLoader {
 	 * @throws IOException if the file cannot be read
 	 */
 	public static Board readBoard(final File inputFile) throws IOException {
-		final String inputBoardString = FileUtils.readFileToString(inputFile);
+		final String inputBoardString = FileUtils.readFileToString(inputFile, "UTF-8");
 		return BoardLoader.readBoard(inputBoardString);
 	}
 }
