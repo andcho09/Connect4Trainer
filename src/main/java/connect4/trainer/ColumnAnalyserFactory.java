@@ -25,7 +25,7 @@ public class ColumnAnalyserFactory {
 		 *        {@link Board#Board(Board)} (i.e. the clone constructor)
 		 * @param currentPlayer the {@link Disc} of the current player
 		 * @param column the column (0-based) we're analysing
-		 * @param currentAnaylsi the analysis conducted so far. Implementors are expected to modify
+		 * @param currentAnalysis the analysis conducted so far. Implementors are expected to modify
 		 *        this instance
 		 * @return the new analysis
 		 */
@@ -130,7 +130,8 @@ public class ColumnAnalyserFactory {
 			final int startColumn = BoardHelper.getMinColumnSpan(board, column);
 			final int endColumn = BoardHelper.getMaxColumnSpan(board, column);
 			for (int i = startColumn; i <= endColumn; i++) {
-				final Board newBoard2Ahead = new Board(newBoard); // A board two moves ahead
+				// A board two moves ahead
+				final Board newBoard2Ahead = new Board(newBoard);
 				int row;
 				try {
 					row = newBoard2Ahead.putDisc(i, currentPlayer);
@@ -173,7 +174,8 @@ public class ColumnAnalyserFactory {
 			final int startColumn = BoardHelper.getMinColumnSpan(board, column);
 			final int endColumn = BoardHelper.getMaxColumnSpan(board, column);
 			for (int i = startColumn; i <= endColumn; i++) {
-				final Board newBoard2Ahead = new Board(newBoard); // A board two moves ahead
+				// A board two moves ahead
+				final Board newBoard2Ahead = new Board(newBoard);
 				int row;
 				try {
 					row = newBoard2Ahead.putDisc(i, opponentDisc);
@@ -194,6 +196,117 @@ public class ColumnAnalyserFactory {
 		}
 	};
 
+	/**
+	 * Playing here creates a four in a row setup where the opponent can't block as there's a gap
+	 * below the spot that completes the 4-in-a-row. I.e. someone has to play below that spot first.
+	 * This could set up a win later or at least shut down the column.
+	 */
+	private static final ColumnAnalyser MAKE_3_SETUP = new ColumnAnalyser() {
+		@Override
+		public ColumnAnalysis flag(final Board board, final Disc currentPlayer, final int column,
+				final ColumnAnalysis currentAnalysis) {
+			int row;
+			final Board newBoard = new Board(board);
+			try {
+				row = newBoard.putDisc(column, currentPlayer);
+			} catch (final IllegalMoveException e) {
+				currentAnalysis.addCondition(ColumnAnalysis.FLAG_UNPLAYABLE);
+				return currentAnalysis;
+			}
+
+			{// Horizontal check
+				if (row > 0) {// if we're on the bottom row, there can't be gap below us
+					final int minCol = BoardHelper.getMinColumnSpan(newBoard, column);
+					final int maxCol = BoardHelper.getMaxColumnSpan(newBoard, column);
+					if (maxCol - minCol >= 3) { // has to be at least 4 columns
+						spread: for (int c = minCol; c <= maxCol - 3; c++) {
+							int gapCol = -1;
+							for (int i = 0; i < 4; i++) {
+								final Disc disc = newBoard.getDisc(c + i, row);
+								if (disc == null) {
+									if (gapCol != -1) {
+										continue spread; // Two gaps, can't make 4
+									} else {
+										gapCol = c + i;
+
+									}
+								} else if (!disc.equals(currentPlayer)) {
+									continue spread; // Opponent disc, can't make 4
+								}
+							}
+							currentAnalysis.addCondition(ColumnAnalysis.FLAG_MAKE_3_SETUP);
+							return currentAnalysis;
+						}
+					}
+				}
+			}
+
+			{// Diagonal SW-NE check
+				final List<int[]> spans = BoardHelper.getDiagonalSwNeSpans(newBoard, column, row);
+				final int[] sw = spans.get(0);
+				final int[] ne = spans.get(1);
+				final int minCol = sw[0];
+				final int maxCol = ne[0];
+				if (maxCol - minCol >= 3) { // has to be at least 4 columns
+					spread: for (int c = minCol, r = sw[1]; c <= maxCol - 3; c++, r++) {
+						int gapCol = -1;
+						int gapRow = -1;
+						for (int i = 0; i < 4; i++) {
+							final Disc disc = newBoard.getDisc(c + i, r + i);
+							if (disc == null) {
+								if (gapCol != -1) {
+									continue spread; // Two gaps, can't make 4
+								} else {
+									gapCol = c + i;
+									gapRow = r + i;
+								}
+							} else if (!disc.equals(currentPlayer)) {
+								continue spread; // Opponent disc, can't make 4
+							}
+						}
+						if (gapRow > 0 && newBoard.getDisc(gapCol, gapRow - 1) == null) {
+							currentAnalysis.addCondition(ColumnAnalysis.FLAG_MAKE_3_SETUP);
+							return currentAnalysis;
+						}
+					}
+				}
+			}
+
+			{// Diagonal SW-NE check
+				final List<int[]> spans = BoardHelper.getDiagonalSeNwSpans(newBoard, column, row);
+				final int[] se = spans.get(0);
+				final int[] nw = spans.get(1);
+				final int minCol = nw[0];
+				final int maxCol = se[0];
+				if (maxCol - minCol >= 3) { // has to be at least 4 columns
+					spread: for (int c = minCol, r = nw[1]; c <= maxCol - 3; c++, r--) {
+						int gapCol = -1;
+						int gapRow = -1;
+						for (int i = 0; i < 4; i++) {
+							final Disc disc = newBoard.getDisc(c + i, r - i);
+							if (disc == null) {
+								if (gapCol != -1) {
+									continue spread; // Two gaps, can't make 4
+								} else {
+									gapCol = c + i;
+									gapRow = r - i;
+								}
+							} else if (!disc.equals(currentPlayer)) {
+								continue spread; // Opponent disc, can't make 4
+							}
+						}
+						if (gapRow > 0 && newBoard.getDisc(gapCol, gapRow - 1) == null) {
+							currentAnalysis.addCondition(ColumnAnalysis.FLAG_MAKE_3_SETUP);
+							return currentAnalysis;
+						}
+					}
+				}
+			}
+
+			return currentAnalysis;
+		}
+	};
+
 	private static final List<ColumnAnalyser> ANALYSERS = new LinkedList<ColumnAnalyser>();
 	static {
 		ANALYSERS.add(WIN_NOW);
@@ -201,6 +314,7 @@ public class ColumnAnalyserFactory {
 		ANALYSERS.add(ENABLE_OPPONENT_WIN);
 		ANALYSERS.add(TRAP_MORE_THAN_ONE);
 		ANALYSERS.add(BLOCK_TRAP_MORE_THAN_ONE);
+		ANALYSERS.add(MAKE_3_SETUP);
 	}
 
 	public static List<ColumnAnalyser> getAnalysers() {

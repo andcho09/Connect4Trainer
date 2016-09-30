@@ -42,8 +42,27 @@ public class ScoringAlgorithm {
 		if (analysis.hasCondition(ColumnAnalysis.FLAG_BLOCK_FORCED_WIN)) {
 			return Integer.MAX_VALUE - 5;
 		}
+		if (analysis.hasCondition(ColumnAnalysis.FLAG_MAKE_3_SETUP)) {
+			return 1000; // This is probably a good play
+		}
 		return 0; // No opinion
 	}
 
-	// TODO anything to do with flagging (is done, is forced, has won) should be here
+	/**
+	 * Checks whether there's any point doing any more analysis.
+	 * @param analysis the current analysis
+	 * @return <code>true</code> if analysis should continue, else <code>false</code> (we won, they
+	 *         won, including traps, we're forced into a block)
+	 */
+	public static boolean isAnalysisDone(final ColumnAnalysis analysis) {
+		if (analysis.hasCondition(ColumnAnalysis.FLAG_UNPLAYABLE)
+				|| analysis.hasCondition(ColumnAnalysis.FLAG_WIN_1)
+				|| analysis.hasCondition(ColumnAnalysis.FLAG_BLOCK_LOSS_1)
+				|| analysis.hasCondition(ColumnAnalysis.FLAG_TRAP_MORE_THAN_ONE)
+				|| analysis.hasCondition(ColumnAnalysis.FLAG_BLOCK_TRAP_MORE_THAN_ONE)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 }

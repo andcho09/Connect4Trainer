@@ -49,6 +49,13 @@ public class ColumnAnalysis {
 	 */
 	public static final int FLAG_BLOCK_FORCED_WIN = 1 << 11;
 
+	/**
+	 * Playing in this column creates 3-in-a-row which we can use later on (i.e. can't win after
+	 * this move as someone has to play in column that would make the 4 so we can play ontop (i.e.
+	 * potential {@value #FLAG_ENABLE_OPPONENT_WIN}
+	 */
+	public static final int FLAG_MAKE_3_SETUP = 1 << 12;
+
 	private final int column;
 	private int flags;
 

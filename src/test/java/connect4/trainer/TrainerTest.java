@@ -190,8 +190,24 @@ public class TrainerTest {
 		Assert.assertEquals(0, trainer.getLastBestBoardAnalysis().get(0).getColumn());
 	}
 
+	@Test
+	public void testForceTrapWin5() throws IOException {
+		final Board board = BoardLoader
+				.readBoard(new File(RESOURCES_DIR + "TrainerTest_ForceWin_5.txt"));
+		Assert.assertNull(BoardHelper.hasWinner(board));
+		trainer.recommend(board, Disc.YELLOW);
+		Assert.assertEquals(2, trainer.getLastBestBoardAnalysis().size());
+		Assert.assertTrue(trainer.getLastBestBoardAnalysis().get(0)
+				.hasCondition(ColumnAnalysis.FLAG_FORCED_WIN));
+		Assert.assertTrue(trainer.getLastBestBoardAnalysis().get(1)
+				.hasCondition(ColumnAnalysis.FLAG_FORCED_WIN));
+		Assert.assertEquals(0, trainer.getLastBestBoardAnalysis().get(0).getColumn());
+		Assert.assertEquals(1, trainer.getLastBestBoardAnalysis().get(1).getColumn());
+	}
+
 	// @Test
-	// TODO this test fails
+	// This test fails. It's potentially not a block of a forced play since yellow needs two moves
+	// to set the trap
 	public void testBlockForceTrapWin1() throws IOException {
 		// No opinion. This is testing a bug
 		final Board board = BoardLoader
@@ -213,5 +229,36 @@ public class TrainerTest {
 				.hasCondition(ColumnAnalysis.FLAG_BLOCK_FORCED_WIN));
 		Assert.assertTrue(trainer.getLastBestBoardAnalysis().getAnalysisAtColumn(2)
 				.hasCondition(ColumnAnalysis.FLAG_BLOCK_FORCED_WIN));
+	}
+
+	@Test
+	public void testBlockMake31() throws IOException {
+		final Board board = BoardLoader
+				.readBoard(new File(RESOURCES_DIR + "TrainerTest_Make3_1.txt"));
+		Assert.assertNull(BoardHelper.hasWinner(board));
+		trainer.recommend(board, Disc.YELLOW);
+		Assert.assertEquals(1, trainer.getLastBestBoardAnalysis().size());
+		Assert.assertTrue(trainer.getLastBestBoardAnalysis().get(0)
+				.hasCondition(ColumnAnalysis.FLAG_MAKE_3_SETUP));
+	}
+
+	@Test
+	public void testBlockMake32() throws IOException {
+		final Board board = BoardLoader
+				.readBoard(new File(RESOURCES_DIR + "TrainerTest_Make3_2.txt"));
+		Assert.assertNull(BoardHelper.hasWinner(board));
+		trainer.recommend(board, Disc.YELLOW);
+		Assert.assertEquals(1, trainer.getLastBestBoardAnalysis().size());
+		Assert.assertTrue(trainer.getLastBestBoardAnalysis().getAnalysisAtColumn(4)
+				.hasCondition(ColumnAnalysis.FLAG_MAKE_3_SETUP));
+	}
+
+	@Test
+	public void testBlockMake33() throws IOException {
+		final Board board = BoardLoader
+				.readBoard(new File(RESOURCES_DIR + "TrainerTest_Make3_3.txt"));
+		Assert.assertNull(BoardHelper.hasWinner(board));
+		trainer.recommend(board, Disc.YELLOW);
+		Assert.assertEquals(7, trainer.getLastBestBoardAnalysis().size());
 	}
 }

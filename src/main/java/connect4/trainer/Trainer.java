@@ -5,7 +5,6 @@ import java.util.List;
 
 import connect4.Board;
 import connect4.Disc;
-import connect4.trainer.BoardAnalyserFactory.BoardAnalyser;
 import connect4.trainer.BoardAnalyserFactory.ForcedAnalysisResult;
 
 /**
@@ -30,10 +29,11 @@ public class Trainer extends Recommender {
 
 		// Check 'forced'
 		final List<ForcedAnalysisResult> forcedAnalysisResults = new ArrayList<ForcedAnalysisResult>();
-		final List<BoardAnalyser> analysers = BoardAnalyserFactory.getAnalysers();
-		for (final BoardAnalyser boardAnalyser : analysers) {
+		final List<AbstractForceBoardAnalyser> analysers = BoardAnalyserFactory
+				.getForcedAnalysers();
+		for (final AbstractForceBoardAnalyser forcedBoardAnalyser : analysers) {
 			forcedAnalysisResults
-					.addAll(boardAnalyser.analyse(boardAnalysis, board, currentPlayer));
+					.addAll(forcedBoardAnalyser.analyse(boardAnalysis, board, currentPlayer));
 		}
 
 		// Scoring phase
@@ -51,8 +51,8 @@ public class Trainer extends Recommender {
 		}
 
 		setLastAnalysis(bestBoardAnalysis, boardAnalysis);
-		this.lastForcedAnalysisResults = forcedAnalysisResults; // TODO this could be a sequence of
-																// how we lose
+		// TODO this could be a sequence of how we lose if it's for the opponent
+		this.lastForcedAnalysisResults = forcedAnalysisResults;
 
 		// Tie breaking phase
 		if (bestBoardAnalysis.size() == 1) {
