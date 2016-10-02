@@ -207,7 +207,6 @@ public class TrainerTest {
 	}
 
 	@Test
-	// TODO this fails
 	public void testForceTrapWin6() throws IOException {
 		final Board board = BoardLoader
 				.readBoard(new File(RESOURCES_DIR + "TrainerTest_ForceWin_6.txt"));
