@@ -197,7 +197,7 @@ public class ColumnAnalyserFactory {
 	};
 
 	/**
-	 * Playing here creates a four in a row setup where the opponent can't block as there's a gap
+	 * Playing here creates a three in a row setup where the opponent can't block as there's a gap
 	 * below the spot that completes the 4-in-a-row. I.e. someone has to play below that spot first.
 	 * This could set up a win later or at least shut down the column.
 	 */
@@ -214,96 +214,94 @@ public class ColumnAnalyserFactory {
 				return currentAnalysis;
 			}
 
-			{// Horizontal check
-				if (row > 0) {// if we're on the bottom row, there can't be gap below us
-					final int minCol = BoardHelper.getMinColumnSpan(newBoard, column);
-					final int maxCol = BoardHelper.getMaxColumnSpan(newBoard, column);
-					if (maxCol - minCol >= 3) { // has to be at least 4 columns
-						spread: for (int c = minCol; c <= maxCol - 3; c++) {
-							int gapCol = -1;
-							for (int i = 0; i < 4; i++) {
-								final Disc disc = newBoard.getDisc(c + i, row);
-								if (disc == null) {
-									if (gapCol != -1) {
-										continue spread; // Two gaps, can't make 4
-									} else {
-										gapCol = c + i;
+			List<int[]> spans;
+			int[] leftMost;
+			int[] rightMost;
 
-									}
-								} else if (!disc.equals(currentPlayer)) {
-									continue spread; // Opponent disc, can't make 4
-								}
-							}
-							currentAnalysis.addCondition(ColumnAnalysis.FLAG_MAKE_3_SETUP);
-							return currentAnalysis;
-						}
-					}
+			// Horizontal check
+			if (row > 0) { // On the bottom row the opponent can block next move, that's forced play
+				leftMost = new int[] { BoardHelper.getMinColumnSpan(newBoard, column), row };
+				rightMost = new int[] { BoardHelper.getMaxColumnSpan(newBoard, column), row };
+				if (flagSetups(currentAnalysis, newBoard, currentPlayer, leftMost[0], leftMost[1],
+						rightMost[0], rightMost[1], 1, 0)) {
+					return currentAnalysis;
 				}
 			}
 
-			{// Diagonal SW-NE check
-				final List<int[]> spans = BoardHelper.getDiagonalSwNeSpans(newBoard, column, row);
-				final int[] sw = spans.get(0);
-				final int[] ne = spans.get(1);
-				final int minCol = sw[0];
-				final int maxCol = ne[0];
-				if (maxCol - minCol >= 3) { // has to be at least 4 columns
-					spread: for (int c = minCol, r = sw[1]; c <= maxCol - 3; c++, r++) {
-						int gapCol = -1;
-						int gapRow = -1;
-						for (int i = 0; i < 4; i++) {
-							final Disc disc = newBoard.getDisc(c + i, r + i);
-							if (disc == null) {
-								if (gapCol != -1) {
-									continue spread; // Two gaps, can't make 4
-								} else {
-									gapCol = c + i;
-									gapRow = r + i;
-								}
-							} else if (!disc.equals(currentPlayer)) {
-								continue spread; // Opponent disc, can't make 4
-							}
-						}
-						if (gapRow > 0 && newBoard.getDisc(gapCol, gapRow - 1) == null) {
-							currentAnalysis.addCondition(ColumnAnalysis.FLAG_MAKE_3_SETUP);
-							return currentAnalysis;
-						}
-					}
-				}
+			// Diagonal SW-NE check
+			spans = BoardHelper.getDiagonalSwNeSpans(newBoard, column, row);
+			leftMost = spans.get(0);
+			rightMost = spans.get(1);
+			if (flagSetups(currentAnalysis, newBoard, currentPlayer, leftMost[0], leftMost[1],
+					rightMost[0], rightMost[1], 1, 1)) {
+				return currentAnalysis;
 			}
 
-			{// Diagonal SW-NE check
-				final List<int[]> spans = BoardHelper.getDiagonalSeNwSpans(newBoard, column, row);
-				final int[] se = spans.get(0);
-				final int[] nw = spans.get(1);
-				final int minCol = nw[0];
-				final int maxCol = se[0];
-				if (maxCol - minCol >= 3) { // has to be at least 4 columns
-					spread: for (int c = minCol, r = nw[1]; c <= maxCol - 3; c++, r--) {
-						int gapCol = -1;
-						int gapRow = -1;
-						for (int i = 0; i < 4; i++) {
-							final Disc disc = newBoard.getDisc(c + i, r - i);
-							if (disc == null) {
-								if (gapCol != -1) {
-									continue spread; // Two gaps, can't make 4
-								} else {
-									gapCol = c + i;
-									gapRow = r - i;
-								}
-							} else if (!disc.equals(currentPlayer)) {
-								continue spread; // Opponent disc, can't make 4
-							}
-						}
-						if (gapRow > 0 && newBoard.getDisc(gapCol, gapRow - 1) == null) {
-							currentAnalysis.addCondition(ColumnAnalysis.FLAG_MAKE_3_SETUP);
-							return currentAnalysis;
-						}
-					}
-				}
+			// Diagonal SE-NW check
+			spans = BoardHelper.getDiagonalSeNwSpans(newBoard, column, row);
+			leftMost = spans.get(0);
+			rightMost = spans.get(1);
+			if (flagSetups(currentAnalysis, newBoard, currentPlayer, rightMost[0], rightMost[1],
+					leftMost[0], leftMost[1], 1, -1)) {
+				return currentAnalysis;
 			}
 
 			return currentAnalysis;
+		}
+
+		private boolean flagSetups(final ColumnAnalysis currentAnalysis, final Board board,
+				final Disc currentPlayer, final int colStart, final int rowStart, final int colEnd,
+				final int rowEnd, final int colMod, final int rowMod) {
+			final int minCol = colStart;
+			final int maxCol = colEnd;
+			if (maxCol - minCol >= 3) { // has to be at least 4 columns
+				spread: for (int c = minCol, r = rowStart; c <= maxCol - 3; c = c + colMod, r = r
+						+ rowMod) { // check each span
+					int gapCol = -1;
+					int gapRow = -1;
+					for (int i = 0; i < 4; i++) { // progress the span 4 at at time
+						final Disc disc = board.getDisc(c + i, r + i * rowMod);
+						if (disc == null) {
+							if (gapCol != -1) {
+								continue spread; // Two gaps, can't make 4
+							} else {
+								gapCol = c + i;
+								gapRow = r + i * rowMod;
+							}
+						} else if (!disc.equals(currentPlayer)) {
+							continue spread; // Opponent disc, can't make 4
+						}
+					}
+					if (gapRow > 0 && board.getDisc(gapCol, gapRow - 1) == null) {
+						currentAnalysis.addCondition(ColumnAnalysis.FLAG_MAKE_3_SETUP);
+						if (isDoubleSetup(board, currentPlayer, c, r, gapCol, colMod, rowMod)) {
+							currentAnalysis.addCondition(ColumnAnalysis.FLAG_MAKE_3_DOUBLE_SETUP);
+						}
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+
+		private boolean isDoubleSetup(final Board board, final Disc currentPlayer,
+				final int colStart, final int rowStart, final int gapCol, final int colMod,
+				final int rowMod) {
+			if (rowStart == 0) {
+				return false;
+			}
+			for (int c = colStart, r = rowStart - 1; c < colStart + 4; c = c + colMod, r = r
+					+ rowMod) {
+				if (r < 0) {
+					return false;
+				}
+				if (c != gapCol) {
+					if (!board.getDisc(c, r).equals(currentPlayer)) {
+						return false;
+					}
+				}
+			}
+			return true;
 		}
 	};
 

@@ -50,11 +50,18 @@ public class ColumnAnalysis {
 	public static final int FLAG_BLOCK_FORCED_WIN = 1 << 11;
 
 	/**
-	 * Playing in this column creates 3-in-a-row which we can use later on (i.e. can't win after
-	 * this move as someone has to play in column that would make the 4 so we can play ontop (i.e.
-	 * potential {@value #FLAG_ENABLE_OPPONENT_WIN}
+	 * Playing in this column creates 3-in-a-row setup which the opponent can't block as there's a
+	 * gap below the spot that completes the 4-in-a-row, i.e. someone has to play below that spot
+	 * first (a potential for {@link #FLAG_ENABLE_OPPONENT_WIN}. This could set up a win later or at
+	 * least shut down the column.
 	 */
 	public static final int FLAG_MAKE_3_SETUP = 1 << 12;
+
+	/**
+	 * Playing in this column not only creates 3-in-a-row setup but there's also a 3-in-a-row setup
+	 * directly below the new setup. This effectively creates a {@link #FLAG_FORCED_WIN} later on.
+	 */
+	public static final int FLAG_MAKE_3_DOUBLE_SETUP = 1 << 13;
 
 	private final int column;
 	private int flags;

@@ -261,4 +261,26 @@ public class TrainerTest {
 		trainer.recommend(board, Disc.YELLOW);
 		Assert.assertEquals(7, trainer.getLastBestBoardAnalysis().size());
 	}
+
+	@Test
+	public void testBlockMake3Double1() throws IOException {
+		final Board board = BoardLoader
+				.readBoard(new File(RESOURCES_DIR + "TrainerTest_Make3Double_1.txt"));
+		Assert.assertNull(BoardHelper.hasWinner(board));
+		trainer.recommend(board, Disc.YELLOW);
+		Assert.assertEquals(1, trainer.getLastBestBoardAnalysis().size());
+		Assert.assertTrue(trainer.getLastBestBoardAnalysis().getAnalysisAtColumn(5)
+				.hasCondition(ColumnAnalysis.FLAG_MAKE_3_DOUBLE_SETUP));
+	}
+
+	@Test
+	public void testBlockMake3Double2() throws IOException {
+		final Board board = BoardLoader
+				.readBoard(new File(RESOURCES_DIR + "TrainerTest_Make3Double_2.txt"));
+		Assert.assertNull(BoardHelper.hasWinner(board));
+		trainer.recommend(board, Disc.YELLOW);
+		Assert.assertEquals(1, trainer.getLastBestBoardAnalysis().size());
+		Assert.assertTrue(trainer.getLastBestBoardAnalysis().getAnalysisAtColumn(6)
+				.hasCondition(ColumnAnalysis.FLAG_MAKE_3_DOUBLE_SETUP));
+	}
 }
