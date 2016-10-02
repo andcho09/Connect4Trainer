@@ -63,11 +63,30 @@ public class ColumnAnalysis {
 	 */
 	public static final int FLAG_MAKE_3_DOUBLE_SETUP = 1 << 13;
 
+	/**
+	 * Playing here blocks the opponent from making a 3-in-a-row setup.
+	 */
+	public static final int FLAG_BLOCK_MAKE_3_SETUP = 1 << 14;
+
+	/**
+	 * Playing here blocks the opponent from making a 3-in-a-row double setup.
+	 */
+	public static final int FLAG_BLOCK_MAKE_3_DOUBLE_SETUP = 1 << 15;
+
 	private final int column;
 	private int flags;
 
 	public ColumnAnalysis(final int column) {
 		this.column = column;
+	}
+
+	/**
+	 * Copy constructor.
+	 * @param analysis the {@link ColumnAnalysis} to copy
+	 */
+	public ColumnAnalysis(final ColumnAnalysis analysis) {
+		this.column = analysis.column;
+		this.flags = analysis.flags;
 	}
 
 	/**
@@ -83,6 +102,10 @@ public class ColumnAnalysis {
 
 	public void addCondition(final int flag) {
 		flags = flags | flag;
+	}
+
+	public void removeCondition(final int flag) {
+		flags = flags ^ flag;
 	}
 
 	public int getColumn() {
