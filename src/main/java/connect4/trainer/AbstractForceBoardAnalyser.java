@@ -45,23 +45,35 @@ public abstract class AbstractForceBoardAnalyser {
 				ColumnAnalysis.FLAG_WIN_1, ColumnAnalysis.FLAG_TRAP_MORE_THAN_ONE);
 		final BoardAnalysis forcedColumns = boardAnalysis.getColumnsWithConditions(
 				ColumnAnalysis.FLAG_BLOCK_LOSS_1, ColumnAnalysis.FLAG_BLOCK_TRAP_MORE_THAN_ONE);
+		int forcedColumn = -1;
 		if (winColumns.size() > 0) {
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Detected win scenario, returning");
 			}
 			resultInWins.add(new ForcedAnalysisResult(depth, winColumns));
 			return resultInWins;
-		} else if (forcedColumns.size() > 0) {
-			// TODO we shouldn't return here, just cut down on where we play, play that, and
-			// continue analyising (it's still forced analysis)
+		} else if (forcedColumns.size() > 1) {
 			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Detected we're forced scenario, returning");
+				LOGGER.debug(
+						"Detected we're forced scenario to play more than one column, we probably lost, returning");
 			}
 			return Collections.emptyList();
+		} else if (forcedColumns.size() == 1) {
+			forcedColumn = forcedColumns.get(0).getColumn();
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Detected we're forced into playing column " + forcedColumn);
+			}
 		}
 
 		// Begin 'forced' analysis
 		for (final ColumnAnalysis analysis : boardAnalysis) {
+			if (forcedColumn != -1 && forcedColumn != analysis.getColumn()) {
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("Skipping column " + analysis.getColumn()
+							+ " because we're forced to play column " + forcedColumn + " instead");
+				}
+				continue;
+			}
 			if (analysis.hasCondition(ColumnAnalysis.FLAG_UNPLAYABLE)) {
 				if (LOGGER.isDebugEnabled()) {
 					LOGGER.debug("Can't play " + analysis.getColumn() + ", skipping");

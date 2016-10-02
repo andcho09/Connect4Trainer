@@ -27,16 +27,16 @@ public class ColumnAnalyserFactory {
 		 * @param column the column (0-based) we're analysing
 		 * @param currentAnalysis the analysis conducted so far. Implementors are expected to modify
 		 *        this instance
-		 * @return the new analysis
+		 * @return <code>true</code> if we added a flag, otherwise <code>false</code>
 		 */
-		public abstract ColumnAnalysis flag(final Board board, final Disc currentPlayer,
-				final int column, final ColumnAnalysis currentAnalysis);
+		public abstract boolean flag(final Board board, final Disc currentPlayer, final int column,
+				final ColumnAnalysis currentAnalysis);
 	}
 
 	/** Unplayable or win now */
 	private static final ColumnAnalyser WIN_NOW = new ColumnAnalyser() {
 		@Override
-		public ColumnAnalysis flag(final Board board, final Disc currentPlayer, final int column,
+		public boolean flag(final Board board, final Disc currentPlayer, final int column,
 				final ColumnAnalysis currentAnalysis) {
 			int row = -1;
 			final Board newBoard = new Board(board);
@@ -44,56 +44,45 @@ public class ColumnAnalyserFactory {
 				row = newBoard.putDisc(column, currentPlayer);
 			} catch (final IllegalMoveException e) {
 				currentAnalysis.addCondition(ColumnAnalysis.FLAG_UNPLAYABLE);
-				return currentAnalysis;
+				return true;
 			}
 
 			final Disc winner = BoardHelper.hasWinner(newBoard,
 					new Move(currentPlayer, column, row));
 			if (winner == currentPlayer) {
 				currentAnalysis.addCondition(ColumnAnalysis.FLAG_WIN_1);
-				return currentAnalysis;
+				return true;
 			}
-			return currentAnalysis;
+			return false;
 		}
 	};
 
 	/** Playing here blocks opponent from winning in their next move */
 	private static final ColumnAnalyser BLOCK_LOSS_1 = new ColumnAnalyser() {
 		@Override
-		public ColumnAnalysis flag(final Board board, final Disc currentPlayer, final int column,
+		public boolean flag(final Board board, final Disc currentPlayer, final int column,
 				final ColumnAnalysis currentAnalysis) {
 			final Disc opponentDisc = Disc.getOpposite(currentPlayer);
-
-			final Board newBoard = new Board(board);
-			int row;
-			try {
-				row = newBoard.putDisc(column, opponentDisc);
-			} catch (final IllegalMoveException e) {
-				currentAnalysis.addCondition(ColumnAnalysis.FLAG_UNPLAYABLE);
-				return currentAnalysis;
-			}
-
-			final Disc winner = BoardHelper.hasWinner(newBoard,
-					new Move(opponentDisc, column, row));
-			if (winner == opponentDisc) {
+			final ColumnAnalysis opponentAnalysis = new ColumnAnalysis(currentAnalysis);
+			if (WIN_NOW.flag(board, opponentDisc, column, opponentAnalysis)) {
 				currentAnalysis.addCondition(ColumnAnalysis.FLAG_BLOCK_LOSS_1);
-				return currentAnalysis;
+				return true;
 			}
-			return currentAnalysis;
+			return false;
 		}
 	};
 
 	/** Playing here allows the opponent to win by playing above us */
 	private static final ColumnAnalyser ENABLE_OPPONENT_WIN = new ColumnAnalyser() {
 		@Override
-		public ColumnAnalysis flag(final Board board, final Disc currentPlayer, final int column,
+		public boolean flag(final Board board, final Disc currentPlayer, final int column,
 				final ColumnAnalysis currentAnalysis) {
 			final Board newBoard = new Board(board);
 			try {
 				newBoard.putDisc(column, currentPlayer);
 			} catch (final IllegalMoveException e) {
 				currentAnalysis.addCondition(ColumnAnalysis.FLAG_UNPLAYABLE);
-				return currentAnalysis;
+				return true;
 			}
 
 			final Disc oponentPlayer = Disc.getOpposite(currentPlayer);
@@ -101,29 +90,29 @@ public class ColumnAnalyserFactory {
 			try {
 				row = newBoard.putDisc(column, oponentPlayer);
 			} catch (final IllegalMoveException e) {
-				return currentAnalysis;
+				return true;
 			}
 
 			if (oponentPlayer.equals(
 					BoardHelper.hasWinner(newBoard, new Move(oponentPlayer, column, row)))) {
 				currentAnalysis.addCondition(ColumnAnalysis.FLAG_ENABLE_OPPONENT_WIN);
-				return currentAnalysis;
+				return true;
 			}
-			return currentAnalysis;
+			return false;
 		}
 	};
 
 	/** Playing here gives us more than one different column to win (i.e. execute a trap) */
 	private static final ColumnAnalyser TRAP_MORE_THAN_ONE = new ColumnAnalyser() {
 		@Override
-		public ColumnAnalysis flag(final Board board, final Disc currentPlayer, final int column,
+		public boolean flag(final Board board, final Disc currentPlayer, final int column,
 				final ColumnAnalysis currentAnalysis) {
 			final Board newBoard = new Board(board);
 			try {
 				newBoard.putDisc(column, currentPlayer);
 			} catch (final IllegalMoveException e) {
 				currentAnalysis.addCondition(ColumnAnalysis.FLAG_UNPLAYABLE);
-				return currentAnalysis;
+				return true;
 			}
 
 			int winCounter = 0;
@@ -146,9 +135,9 @@ public class ColumnAnalyserFactory {
 
 			if (winCounter > 1) {
 				currentAnalysis.addCondition(ColumnAnalysis.FLAG_TRAP_MORE_THAN_ONE);
-				return currentAnalysis;
+				return true;
 			}
-			return currentAnalysis;
+			return false;
 		}
 	};
 
@@ -158,52 +147,27 @@ public class ColumnAnalyserFactory {
 	 */
 	private static final ColumnAnalyser BLOCK_TRAP_MORE_THAN_ONE = new ColumnAnalyser() {
 		@Override
-		public ColumnAnalysis flag(final Board board, final Disc currentPlayer, final int column,
+		public boolean flag(final Board board, final Disc currentPlayer, final int column,
 				final ColumnAnalysis currentAnalysis) {
 			final Disc opponentDisc = Disc.getOpposite(currentPlayer);
-
-			final Board newBoard = new Board(board);
-			try {
-				newBoard.putDisc(column, opponentDisc);
-			} catch (final IllegalMoveException e) {
-				currentAnalysis.addCondition(ColumnAnalysis.FLAG_UNPLAYABLE);
-				return currentAnalysis;
-			}
-
-			int winCounter = 0;
-			final int startColumn = BoardHelper.getMinColumnSpan(board, column);
-			final int endColumn = BoardHelper.getMaxColumnSpan(board, column);
-			for (int i = startColumn; i <= endColumn; i++) {
-				// A board two moves ahead
-				final Board newBoard2Ahead = new Board(newBoard);
-				int row;
-				try {
-					row = newBoard2Ahead.putDisc(i, opponentDisc);
-				} catch (final IllegalMoveException e) {
-					continue;
-				}
-				if (opponentDisc.equals(
-						BoardHelper.hasWinner(newBoard2Ahead, new Move(opponentDisc, i, row)))) {
-					winCounter++;
-				}
-			}
-
-			if (winCounter > 1) {
+			final ColumnAnalysis opponentAnalysis = new ColumnAnalysis(currentAnalysis);
+			if (TRAP_MORE_THAN_ONE.flag(board, opponentDisc, column, opponentAnalysis)) {
 				currentAnalysis.addCondition(ColumnAnalysis.FLAG_BLOCK_TRAP_MORE_THAN_ONE);
-				return currentAnalysis;
+				return true;
 			}
-			return currentAnalysis;
+			return false;
 		}
 	};
 
 	/**
 	 * Playing here creates a three in a row setup where the opponent can't block as there's a gap
 	 * below the spot that completes the 4-in-a-row. I.e. someone has to play below that spot first.
-	 * This could set up a win later or at least shut down the column.
+	 * This could set up a win later or at least shut down the column. Also flags double 3-in-a-row
+	 * setups where playing in the column creates one 3-in-a-row setup ontop of another.
 	 */
 	private static final ColumnAnalyser MAKE_3_SETUP = new ColumnAnalyser() {
 		@Override
-		public ColumnAnalysis flag(final Board board, final Disc currentPlayer, final int column,
+		public boolean flag(final Board board, final Disc currentPlayer, final int column,
 				final ColumnAnalysis currentAnalysis) {
 			int row;
 			final Board newBoard = new Board(board);
@@ -211,7 +175,7 @@ public class ColumnAnalyserFactory {
 				row = newBoard.putDisc(column, currentPlayer);
 			} catch (final IllegalMoveException e) {
 				currentAnalysis.addCondition(ColumnAnalysis.FLAG_UNPLAYABLE);
-				return currentAnalysis;
+				return true;
 			}
 
 			List<int[]> spans;
@@ -224,7 +188,7 @@ public class ColumnAnalyserFactory {
 				rightMost = new int[] { BoardHelper.getMaxColumnSpan(newBoard, column), row };
 				if (flagSetups(currentAnalysis, newBoard, currentPlayer, leftMost[0], leftMost[1],
 						rightMost[0], rightMost[1], 1, 0)) {
-					return currentAnalysis;
+					return true;
 				}
 			}
 
@@ -234,7 +198,7 @@ public class ColumnAnalyserFactory {
 			rightMost = spans.get(1);
 			if (flagSetups(currentAnalysis, newBoard, currentPlayer, leftMost[0], leftMost[1],
 					rightMost[0], rightMost[1], 1, 1)) {
-				return currentAnalysis;
+				return true;
 			}
 
 			// Diagonal SE-NW check
@@ -243,10 +207,10 @@ public class ColumnAnalyserFactory {
 			rightMost = spans.get(1);
 			if (flagSetups(currentAnalysis, newBoard, currentPlayer, rightMost[0], rightMost[1],
 					leftMost[0], leftMost[1], 1, -1)) {
-				return currentAnalysis;
+				return true;
 			}
 
-			return currentAnalysis;
+			return false;
 		}
 
 		private boolean flagSetups(final ColumnAnalysis currentAnalysis, final Board board,
@@ -305,6 +269,26 @@ public class ColumnAnalyserFactory {
 		}
 	};
 
+	/**
+	 * Blocks the opponent from setting up a 3-in-a-row.
+	 */
+	private static final ColumnAnalyser BLOCK_MAKE_3_SETUP = new ColumnAnalyser() {
+
+		@Override
+		public boolean flag(final Board board, final Disc currentPlayer, final int column,
+				final ColumnAnalysis currentAnalysis) {
+			final Disc opponentDisc = Disc.getOpposite(currentPlayer);
+			final ColumnAnalysis opponentAnalysis = new ColumnAnalysis(currentAnalysis);
+			if (MAKE_3_SETUP.flag(board, opponentDisc, column, opponentAnalysis)) {
+				currentAnalysis.addCondition(ColumnAnalysis.FLAG_MAKE_3_SETUP);
+				if (opponentAnalysis.hasCondition(ColumnAnalysis.FLAG_MAKE_3_DOUBLE_SETUP)) {
+					currentAnalysis.addCondition(ColumnAnalysis.FLAG_BLOCK_MAKE_3_DOUBLE_SETUP);
+				}
+			}
+			return false;
+		}
+	};
+
 	private static final List<ColumnAnalyser> ANALYSERS = new LinkedList<ColumnAnalyser>();
 	static {
 		ANALYSERS.add(WIN_NOW);
@@ -313,6 +297,7 @@ public class ColumnAnalyserFactory {
 		ANALYSERS.add(TRAP_MORE_THAN_ONE);
 		ANALYSERS.add(BLOCK_TRAP_MORE_THAN_ONE);
 		ANALYSERS.add(MAKE_3_SETUP);
+		ANALYSERS.add(BLOCK_MAKE_3_SETUP);
 	}
 
 	public static List<ColumnAnalyser> getAnalysers() {

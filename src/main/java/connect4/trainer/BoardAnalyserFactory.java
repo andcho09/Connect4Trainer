@@ -97,8 +97,7 @@ public class BoardAnalyserFactory {
 			if (moves.isEmpty()) {
 				return null;
 			}
-			moves.getLast();
-			return moves.get(moves.size() - 1);
+			return moves.getLast();
 		}
 
 		@Override
