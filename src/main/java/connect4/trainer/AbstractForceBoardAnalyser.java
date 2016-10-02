@@ -10,19 +10,14 @@ import org.apache.log4j.Logger;
 import connect4.Board;
 import connect4.Disc;
 import connect4.IllegalMoveException;
-import connect4.trainer.BoardAnalyserFactory.BoardAnalyser;
 import connect4.trainer.BoardAnalyserFactory.ForcedAnalysisResult;
 
-public abstract class AbstractForceBoardAnalyser implements BoardAnalyser {
+public abstract class AbstractForceBoardAnalyser {
 
 	private final Logger LOGGER = Logger.getLogger(getClass());
 
-	@Override
-	public List<ForcedAnalysisResult> analyse(final BoardAnalysis boardAnalysis, final Board board,
-			final Disc currentPlayer) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	public abstract List<ForcedAnalysisResult> analyse(final BoardAnalysis boardAnalysis,
+			final Board board, final Disc currentPlayer);
 
 	/**
 	 * Perform 'forced' analysis, i.e. recursively analyse if the opponent is forced into a move.
@@ -45,6 +40,7 @@ public abstract class AbstractForceBoardAnalyser implements BoardAnalyser {
 		final List<ForcedAnalysisResult> resultInWins = new ArrayList<ForcedAnalysisResult>();
 
 		// Check exit conditions
+		// TODO scoring algorithm
 		final BoardAnalysis winColumns = boardAnalysis.getColumnsWithConditions(
 				ColumnAnalysis.FLAG_WIN_1, ColumnAnalysis.FLAG_TRAP_MORE_THAN_ONE);
 		final BoardAnalysis forcedColumns = boardAnalysis.getColumnsWithConditions(
@@ -139,9 +135,11 @@ public abstract class AbstractForceBoardAnalyser implements BoardAnalyser {
 				final List<ForcedAnalysisResult> results = doForcedAnalysis(opponentBoard,
 						currentPlayer, forcedAnalyses, depth + 1);
 				for (final ForcedAnalysisResult result : results) {
-					result.pushMove(analysis.getColumn());
-					result.pushOpponentMove(opponentForcedColumn);
-					resultInWins.add(result);
+					if (!result.isLoss()) {
+						result.pushMove(analysis.getColumn());
+						result.pushOpponentMove(opponentForcedColumn);
+						resultInWins.add(result);
+					}
 				}
 			} else {
 				if (LOGGER.isDebugEnabled()) {

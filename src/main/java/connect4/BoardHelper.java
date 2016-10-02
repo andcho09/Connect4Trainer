@@ -1,5 +1,8 @@
 package connect4;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Utility/helper class.
  */
@@ -176,16 +179,10 @@ public class BoardHelper {
 	 */
 	private static boolean hasWinnerDiagonalSwNe(final Board b, final Disc disc, final int cAnchor,
 			final int rAnchor) {
-		final int shiftSw = Math.min(3, Math.min(cAnchor, rAnchor));
-		final int c = cAnchor - shiftSw;
-		final int r = rAnchor - shiftSw;
-
-		final int shiftNe = Math.min(3,
-				Math.min(b.getNumCols() - 1 - cAnchor, b.getNumRows() - 1 - rAnchor));
-		final int cMax = cAnchor + shiftNe;
-		final int rMax = rAnchor + shiftNe;
-
-		return hasWinnerDiagonalSwNe(b, disc, c, r, cMax, rMax);
+		final List<int[]> spans = getDiagonalSwNeSpans(b, cAnchor, rAnchor);
+		final int[] sw = spans.get(0);
+		final int[] ne = spans.get(1);
+		return hasWinnerDiagonalSwNe(b, disc, sw[0], sw[1], ne[0], ne[1]);
 	}
 
 	/**
@@ -245,15 +242,10 @@ public class BoardHelper {
 	 */
 	private static boolean hasWinnerDiagonalSeNw(final Board b, final Disc disc, final int cAnchor,
 			final int rAnchor) {
-		final int shiftSe = Math.min(3, Math.min(b.getNumCols() - 1 - cAnchor, rAnchor));
-		final int cMax = cAnchor + shiftSe;
-		final int rMin = rAnchor - shiftSe;
-
-		final int shiftNw = Math.min(3, Math.min(cAnchor, b.getNumRows() - 1 - rAnchor));
-		final int cMin = cAnchor - shiftNw;
-		final int rMax = rAnchor + shiftNw;
-
-		return hasWinnerDiagonalSeNw(b, disc, cMax, rMin, cMin, rMax);
+		final List<int[]> spans = getDiagonalSeNwSpans(b, cAnchor, rAnchor);
+		final int[] se = spans.get(0);
+		final int[] nw = spans.get(1);
+		return hasWinnerDiagonalSeNw(b, disc, se[0], se[1], nw[0], nw[1]);
 	}
 
 	/**
@@ -321,6 +313,57 @@ public class BoardHelper {
 	 */
 	public static int getMaxColumnSpan(final Board board, final int column) {
 		return Math.min(board.getNumCols() - 1, column + 3);
+	}
+
+	/**
+	 * Calculate the coordinates of the end-points (in a SE-NW direction) that playing at column/row
+	 * could span
+	 * @param board the {@link Board}
+	 * @param col the column to play (0-based)
+	 * @param row the row to play (0-based)
+	 * @return a {@link List} of coordinates (int[]). The last has two entries: SE, NW, and each
+	 *         entry is a int[] representing col, row
+	 */
+	public static List<int[]> getDiagonalSeNwSpans(final Board board, final int col,
+			final int row) {
+		final int shiftSe = Math.min(3, Math.min(board.getNumCols() - 1 - col, row));
+		final int cMax = col + shiftSe;
+		final int rMin = row - shiftSe;
+
+		final int shiftNw = Math.min(3, Math.min(col, board.getNumRows() - 1 - row));
+		final int cMin = col - shiftNw;
+		final int rMax = row + shiftNw;
+
+		final List<int[]> result = new ArrayList<int[]>(2);
+		result.add(new int[] { cMax, rMin });
+		result.add(new int[] { cMin, rMax });
+		return result;
+	}
+
+	/**
+	 * Calculate the coordinates of the end-points (in a SW-NE direction) that playing at column/row
+	 * could span
+	 * @param board the {@link Board}
+	 * @param col the column to play (0-based)
+	 * @param row the row to play (0-based)
+	 * @return a {@link List} of coordinates (int[]). The last has two entries: SW, NE, and each
+	 *         entry is a int[] representing col, row
+	 */
+	public static List<int[]> getDiagonalSwNeSpans(final Board board, final int col,
+			final int row) {
+		final int shiftSw = Math.min(3, Math.min(col, row));
+		final int c = col - shiftSw;
+		final int r = row - shiftSw;
+
+		final int shiftNe = Math.min(3,
+				Math.min(board.getNumCols() - 1 - col, board.getNumRows() - 1 - row));
+		final int cMax = col + shiftNe;
+		final int rMax = row + shiftNe;
+
+		final List<int[]> result = new ArrayList<int[]>(2);
+		result.add(new int[] { c, r });
+		result.add(new int[] { cMax, rMax });
+		return result;
 	}
 
 	/**

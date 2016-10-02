@@ -35,9 +35,12 @@ Analysers detect facts about the board
 - enable opponent win (by opponent playing on top of our move)
 - execute a trap (our next move has more than one column to win)
 - block a trap (block the opponent's next move having more than one column to win)
+- set up 3-in-a-row which the opponent can't block in their next move since there's a gap below the row in column that would complete the 4. This can set up a win later on, or at least shutdown the column in our favour (if the opponent plays in the gap, we'll win by playing on top).
+- set up a double 3-in-a-row which is two 3-in-a-row setups, on top of the other. This effectively creates a forced win
 
 **TODO**
-- enable a column of win (3 on top of each other, 3 diagonal)
+- block set up 3 in-a-row
+- block set 3 in-a-row
 
 ## Forced moves
 Forced moves are moves we expect the opponent to play because if they don't they'll lose. Because players have different skill levels, some players may not see the more advanced/obscure moves.

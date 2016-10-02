@@ -12,19 +12,14 @@ import connect4.Disc;
 import connect4.IllegalMoveException;
 
 /**
- * A factory for {@link BoardAnalyser}s which look at the playing the entire board. These analysers differ from the ColumnAnalyser in that:
+ * A factory for {@link BoardAnalyser}s which look at the playing the entire board. These analysers
+ * differ from the ColumnAnalyser in that:
  * <ul>
  * <li>BoardAnalysers run after ColumnAnalyers which allows them to leverage their analysis</b>
  * <li>BoardAnalysers are intended to leverage communicating ForcedAnalysisResult scenarios</b>
  * </ul>
  */
 public class BoardAnalyserFactory {
-
-	public static interface BoardAnalyser {
-
-		public List<ForcedAnalysisResult> analyse(final BoardAnalysis boardAnalysis,
-				final Board board, final Disc currentPlayer);
-	}
 
 	/**
 	 * Records win scenarios during forced analysis.
@@ -59,6 +54,13 @@ public class BoardAnalyserFactory {
 			return boardAnalysis;
 		}
 
+		boolean isLoss() {
+			return isLoss;
+		}
+
+		/**
+		 * @param isLoss <code>true</code> if the forced analysis ends in us losing
+		 */
 		void setIsLoss(final boolean isLoss) {
 			this.isLoss = isLoss;
 		}
@@ -134,6 +136,7 @@ public class BoardAnalyserFactory {
 						+ " creating board:\n" + playBoard);
 			}
 			// TODO show losses
+			// TODO scoring algorithm
 			final BoardAnalysis winColumns = boardAnalysis.getColumnsWithConditions(
 					ColumnAnalysis.FLAG_WIN_1, ColumnAnalysis.FLAG_TRAP_MORE_THAN_ONE);
 			sb.append(currentPlayer.toString() + " wins with "
@@ -142,7 +145,7 @@ public class BoardAnalyserFactory {
 		}
 	}
 
-	private static final BoardAnalyser FORCED_ANALYSER = new AbstractForceBoardAnalyser() {
+	private static final AbstractForceBoardAnalyser FORCED_ANALYSER = new AbstractForceBoardAnalyser() {
 
 		@Override
 		public List<ForcedAnalysisResult> analyse(final BoardAnalysis boardAnalysis,
@@ -175,7 +178,7 @@ public class BoardAnalyserFactory {
 
 	};
 
-	private static final BoardAnalyser BLOCK_FORCED_ANALYSER = new AbstractForceBoardAnalyser() {
+	private static final AbstractForceBoardAnalyser BLOCK_FORCED_ANALYSER = new AbstractForceBoardAnalyser() {
 		@Override
 		public List<ForcedAnalysisResult> analyse(final BoardAnalysis boardAnalysis,
 				final Board board, final Disc currentPlayer) {
@@ -199,13 +202,13 @@ public class BoardAnalyserFactory {
 		};
 	};
 
-	private static final List<BoardAnalyser> ANALYSERS = new LinkedList<BoardAnalyser>();
+	private static final List<AbstractForceBoardAnalyser> ANALYSERS = new LinkedList<AbstractForceBoardAnalyser>();
 	static {
 		ANALYSERS.add(FORCED_ANALYSER);
 		ANALYSERS.add(BLOCK_FORCED_ANALYSER);
 	}
 
-	public static List<BoardAnalyser> getAnalysers() {
+	public static List<AbstractForceBoardAnalyser> getForcedAnalysers() {
 		return ANALYSERS;
 	}
 }
