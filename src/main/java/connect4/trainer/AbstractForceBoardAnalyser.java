@@ -14,14 +14,14 @@ import connect4.trainer.BoardAnalyserFactory.ForcedAnalysisResult;
 
 public abstract class AbstractForceBoardAnalyser {
 
-	private final Logger LOGGER = Logger.getLogger(getClass());
+	final Logger LOGGER = Logger.getLogger(getClass());
 
 	public abstract List<ForcedAnalysisResult> analyse(final BoardAnalysis boardAnalysis,
 			final Board board, final Disc currentPlayer);
 
 	/**
 	 * Perform 'forced' analysis, i.e. recursively analyse if the opponent is forced into a move.
-	 * @param board the {@link Board} to analse
+	 * @param board the {@link Board} to anaylse
 	 * @param currentPlayer the {@link Disc} of the current player
 	 * @param boardAnalysis the freshly analysed board
 	 * @param depth how far down the rabbit hole we've gone

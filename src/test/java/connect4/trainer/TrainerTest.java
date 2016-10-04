@@ -186,9 +186,8 @@ public class TrainerTest {
 		Assert.assertNull(BoardHelper.hasWinner(board));
 		Assert.assertEquals(0, trainer.recommend(board, Disc.YELLOW));
 		Assert.assertEquals(1, trainer.getLastBestBoardAnalysis().size());
-		Assert.assertTrue(trainer.getLastBestBoardAnalysis().get(0)
+		Assert.assertTrue(trainer.getLastBestBoardAnalysis().getAnalysisAtColumn(0)
 				.hasCondition(ColumnAnalysis.FLAG_FORCED_WIN));
-		Assert.assertEquals(0, trainer.getLastBestBoardAnalysis().get(0).getColumn());
 	}
 
 	@Test
@@ -213,6 +212,19 @@ public class TrainerTest {
 		Assert.assertNull(BoardHelper.hasWinner(board));
 		trainer.recommend(board, Disc.YELLOW);
 		Assert.assertEquals(1, trainer.getLastBestBoardAnalysis().size());
+		Assert.assertTrue(trainer.getLastBestBoardAnalysis().getAnalysisAtColumn(3)
+				.hasCondition(ColumnAnalysis.FLAG_FORCED_WIN));
+	}
+
+	// @Test
+	public void testForceTrapWin7() throws IOException {
+		final Board board = BoardLoader
+				.readBoard(new File(RESOURCES_DIR + "TrainerTest_ForceWin_7.txt"));
+		Assert.assertNull(BoardHelper.hasWinner(board));
+		trainer.recommend(board, Disc.YELLOW);
+		Assert.assertEquals(1, trainer.getLastBestBoardAnalysis().size());
+		// Yellow should play 3 so next move it can play 6 which executes a trap
+		// Red could block above by playing 3, 6
 		Assert.assertTrue(trainer.getLastBestBoardAnalysis().getAnalysisAtColumn(3)
 				.hasCondition(ColumnAnalysis.FLAG_FORCED_WIN));
 	}
@@ -256,9 +268,20 @@ public class TrainerTest {
 				.hasCondition(ColumnAnalysis.FLAG_BLOCK_FORCED_WIN));
 		Assert.assertTrue(trainer.getLastBestBoardAnalysis().getAnalysisAtColumn(4)
 				.hasCondition(ColumnAnalysis.FLAG_BLOCK_FORCED_WIN));
-		// TODO why doesn't this have 4 columns with column 5 too?
-		// Assert.assertTrue(trainer.getLastBestBoardAnalysis().getAnalysisAtColumn(5)
-		// .hasCondition(ColumnAnalysis.FLAG_BLOCK_FORCED_WIN));
+		// Column 5 is not here because it enables an opponent win
+	}
+
+	@Test
+	public void testBlockForceTrapWin4() throws IOException {
+		final Board board = BoardLoader
+				.readBoard(new File(RESOURCES_DIR + "TrainerTest_ForceWin_4.txt"));
+		Assert.assertNull(BoardHelper.hasWinner(board));
+		trainer.recommend(board, Disc.RED);
+		Assert.assertEquals(2, trainer.getLastBestBoardAnalysis().size());
+		Assert.assertTrue(trainer.getLastBestBoardAnalysis().getAnalysisAtColumn(0)
+				.hasCondition(ColumnAnalysis.FLAG_BLOCK_FORCED_WIN));
+		Assert.assertTrue(trainer.getLastBestBoardAnalysis().getAnalysisAtColumn(2)
+				.hasCondition(ColumnAnalysis.FLAG_BLOCK_FORCED_WIN));
 	}
 
 	@Test
