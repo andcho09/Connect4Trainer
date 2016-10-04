@@ -11,16 +11,15 @@ import connect4.Board;
 import connect4.Disc;
 
 /**
- * A human player who inputs commands via the console. We don't use {@link System#console()} because
- * of an Eclipse <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=122429">bug</a>.
+ * A human player who inputs commands via the console. We don't use {@link System#console()} because of an Eclipse
+ * <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=122429">bug</a>.
  */
 public class ConsoleHumanPlayer extends Player {
 
 	private final BufferedReader in;
 	private final PrintWriter out;
 
-	public ConsoleHumanPlayer(final String name, final Disc disc, final PrintStream out,
-			final InputStream in) {
+	public ConsoleHumanPlayer(final String name, final Disc disc, final PrintStream out, final InputStream in) {
 		super(name, disc);
 		if (in == null) {
 			throw new NullPointerException("The InputStreamReader must not be null");
@@ -49,8 +48,7 @@ public class ConsoleHumanPlayer extends Player {
 			try {
 				col = Integer.parseInt(line);
 			} catch (final NumberFormatException e) {
-				out.printf("The input '%s' is not valid column. Valid columns are 1 to %d.", line,
-						board.getNumCols());
+				out.printf("The input '%s' is not valid column. Valid columns are 1 to %d.", line, board.getNumCols());
 			}
 
 		}

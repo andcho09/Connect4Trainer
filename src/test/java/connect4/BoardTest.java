@@ -30,8 +30,7 @@ public class BoardTest {
 	@Test
 	public void testEmptyBoard() {
 		final Board board = new Board(7, 6);
-		Assert.assertEquals(".......\n.......\n.......\n.......\n.......\n.......\n",
-				board.toString());
+		Assert.assertEquals(".......\n.......\n.......\n.......\n.......\n.......\n", board.toString());
 		Assert.assertNull(board.getDisc(0, 0));
 		Assert.assertNull(board.getDisc(6, 0));
 		Assert.assertNull(board.getDisc(0, 5));
@@ -67,8 +66,7 @@ public class BoardTest {
 		Assert.assertEquals(Disc.RED, board.getDisc(0, 0));
 		Assert.assertEquals(null, board.getDisc(0, 1));
 		Assert.assertEquals(null, board.getDisc(1, 0));
-		Assert.assertEquals(".......\n.......\n.......\n.......\n.......\nr......\n",
-				board.toString());
+		Assert.assertEquals(".......\n.......\n.......\n.......\n.......\nr......\n", board.toString());
 
 		// Place yellow disk in col 6
 		Assert.assertEquals(0, board.putDisc(6, Disc.YELLOW));
@@ -79,8 +77,7 @@ public class BoardTest {
 		Assert.assertEquals(Disc.RED, board.getDisc(0, 0)); // Check red still there
 		Assert.assertEquals(null, board.getDisc(0, 1));
 		Assert.assertEquals(null, board.getDisc(1, 0));
-		Assert.assertEquals(".......\n.......\n.......\n.......\n.......\nr.....y\n",
-				board.toString());
+		Assert.assertEquals(".......\n.......\n.......\n.......\n.......\nr.....y\n", board.toString());
 
 		// Place red disk in col 6
 		Assert.assertEquals(1, board.putDisc(6, Disc.RED));
@@ -94,8 +91,7 @@ public class BoardTest {
 		Assert.assertEquals(Disc.RED, board.getDisc(0, 0)); // Check first red still there
 		Assert.assertEquals(null, board.getDisc(0, 1));
 		Assert.assertEquals(null, board.getDisc(1, 0));
-		Assert.assertEquals(".......\n.......\n.......\n.......\n......r\nr.....y\n",
-				board.toString());
+		Assert.assertEquals(".......\n.......\n.......\n.......\n......r\nr.....y\n", board.toString());
 
 		// Place red disk in col 6
 		Assert.assertEquals(2, board.putDisc(6, Disc.RED));
@@ -103,8 +99,7 @@ public class BoardTest {
 		Assert.assertEquals(Disc.RED, board.getDisc(6, 1));
 		Assert.assertEquals(Disc.YELLOW, board.getDisc(6, 0));
 		Assert.assertEquals(null, board.getDisc(6, 3));
-		Assert.assertEquals(".......\n.......\n.......\n......r\n......r\nr.....y\n",
-				board.toString());
+		Assert.assertEquals(".......\n.......\n.......\n......r\n......r\nr.....y\n", board.toString());
 	}
 
 	@Test(expected = IllegalMoveException.class)
@@ -131,12 +126,9 @@ public class BoardTest {
 
 	@Test
 	public void testIsFull() throws IOException {
-		Assert.assertFalse(
-				BoardLoader.readBoard(new File(RESOURCES_DIR + "BoardTest_isFull1.txt")).isFull());
-		Assert.assertTrue(
-				BoardLoader.readBoard(new File(RESOURCES_DIR + "BoardTest_isFull2.txt")).isFull());
-		Assert.assertFalse(
-				BoardLoader.readBoard(new File(RESOURCES_DIR + "BoardTest_isFull3.txt")).isFull());
+		Assert.assertFalse(BoardLoader.readBoard(new File(RESOURCES_DIR + "BoardTest_isFull1.txt")).isFull());
+		Assert.assertTrue(BoardLoader.readBoard(new File(RESOURCES_DIR + "BoardTest_isFull2.txt")).isFull());
+		Assert.assertFalse(BoardLoader.readBoard(new File(RESOURCES_DIR + "BoardTest_isFull3.txt")).isFull());
 	}
 
 }

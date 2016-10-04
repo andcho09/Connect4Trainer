@@ -16,8 +16,7 @@ public abstract class AbstractForceBoardAnalyser {
 
 	final Logger LOGGER = Logger.getLogger(getClass());
 
-	public abstract List<ForcedAnalysisResult> analyse(final BoardAnalysis boardAnalysis,
-			final Board board, final Disc currentPlayer);
+	public abstract List<ForcedAnalysisResult> analyse(final BoardAnalysis boardAnalysis, final Board board, final Disc currentPlayer);
 
 	/**
 	 * Perform 'forced' analysis, i.e. recursively analyse if the opponent is forced into a move.
@@ -29,22 +28,21 @@ public abstract class AbstractForceBoardAnalyser {
 	 *         before end condition). Could be wining columns (if we can win), or forced columns
 	 *         (we're forced to play there).
 	 */
-	List<ForcedAnalysisResult> doForcedAnalysis(final Board board, final Disc currentPlayer,
-			final BoardAnalysis boardAnalysis, final int depth) {
+	List<ForcedAnalysisResult> doForcedAnalysis(final Board board, final Disc currentPlayer, final BoardAnalysis boardAnalysis,
+			final int depth) {
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Beginning forced analysis for player " + currentPlayer.toString()
-					+ " for board:\n" + board.toString() + " with analysis: "
-					+ StringUtils.join(boardAnalysis.iterator(), ", "));
+			LOGGER.debug("Beginning forced analysis for player " + currentPlayer.toString() + " for board:\n" + board.toString()
+					+ " with analysis: " + StringUtils.join(boardAnalysis.iterator(), ", "));
 		}
 
 		final List<ForcedAnalysisResult> resultInWins = new ArrayList<ForcedAnalysisResult>();
 
 		// Check exit conditions
 		// TODO scoring algorithm
-		final BoardAnalysis winColumns = boardAnalysis.getColumnsWithConditions(
-				ColumnAnalysis.FLAG_WIN_1, ColumnAnalysis.FLAG_TRAP_MORE_THAN_ONE);
-		final BoardAnalysis forcedColumns = boardAnalysis.getColumnsWithConditions(
-				ColumnAnalysis.FLAG_BLOCK_LOSS_1, ColumnAnalysis.FLAG_BLOCK_TRAP_MORE_THAN_ONE);
+		final BoardAnalysis winColumns = boardAnalysis.getColumnsWithConditions(ColumnAnalysis.FLAG_WIN_1,
+				ColumnAnalysis.FLAG_TRAP_MORE_THAN_ONE);
+		final BoardAnalysis forcedColumns = boardAnalysis.getColumnsWithConditions(ColumnAnalysis.FLAG_BLOCK_LOSS_1,
+				ColumnAnalysis.FLAG_BLOCK_TRAP_MORE_THAN_ONE);
 		int forcedColumn = -1;
 		if (winColumns.size() > 0) {
 			if (LOGGER.isDebugEnabled()) {
@@ -54,8 +52,7 @@ public abstract class AbstractForceBoardAnalyser {
 			return resultInWins;
 		} else if (forcedColumns.size() > 1) {
 			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug(
-						"Detected we're forced scenario to play more than one column, we probably lost, returning");
+				LOGGER.debug("Detected we're forced scenario to play more than one column, we probably lost, returning");
 			}
 			return Collections.emptyList();
 		} else if (forcedColumns.size() == 1) {
@@ -69,8 +66,8 @@ public abstract class AbstractForceBoardAnalyser {
 		for (final ColumnAnalysis analysis : boardAnalysis) {
 			if (forcedColumn != -1 && forcedColumn != analysis.getColumn()) {
 				if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug("Skipping column " + analysis.getColumn()
-							+ " because we're forced to play column " + forcedColumn + " instead");
+					LOGGER.debug("Skipping column " + analysis.getColumn() + " because we're forced to play column " + forcedColumn
+							+ " instead");
 				}
 				continue;
 			}
@@ -88,38 +85,30 @@ public abstract class AbstractForceBoardAnalyser {
 			}
 
 			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("What happens when " + currentPlayer.toString() + " plays column "
-						+ analysis.getColumn() + " to create board?:\n" + newBoard.toString());
+				LOGGER.debug("What happens when " + currentPlayer.toString() + " plays column " + analysis.getColumn()
+						+ " to create board?:\n" + newBoard.toString());
 			}
 
 			final Disc opponentPlayer = Disc.getOpposite(currentPlayer);
-			final BoardAnalysis opponentAnalyses = BoardAnalyserHelper.analyse(newBoard,
-					opponentPlayer);
+			final BoardAnalysis opponentAnalyses = BoardAnalyserHelper.analyse(newBoard, opponentPlayer);
 
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Opponent " + opponentPlayer.toString() + "'s analysis is:\n "
 						+ StringUtils.join(opponentAnalyses.iterator(), ", "));
 			}
 
-			BoardAnalysis opponentForcedColumns = opponentAnalyses
-					.getColumnsWithConditions(ColumnAnalysis.FLAG_BLOCK_LOSS_1);
+			BoardAnalysis opponentForcedColumns = opponentAnalyses.getColumnsWithConditions(ColumnAnalysis.FLAG_BLOCK_LOSS_1);
 			if (opponentForcedColumns.size() > 1) {
-				// TODO if there's two 'must block now' situations then we should have won and
-				// detected this before
+				// TODO if there's two 'must block now' situations then we should have won and detected this before
 				throwMoreThanForcedMoveError(
-						"I think we missed something. The opponent is forced into blocking more than one column immediately.",
-						board, currentPlayer, boardAnalysis, analysis.getColumn(), newBoard,
-						opponentForcedColumns);
+						"I think we missed something. The opponent is forced into blocking more than one column immediately.", board,
+						currentPlayer, boardAnalysis, analysis.getColumn(), newBoard, opponentForcedColumns);
 			} else if (opponentForcedColumns.size() == 0) {
-				opponentForcedColumns = boardAnalysis
-						.getColumnsWithConditions(ColumnAnalysis.FLAG_BLOCK_TRAP_MORE_THAN_ONE);
+				opponentForcedColumns = boardAnalysis.getColumnsWithConditions(ColumnAnalysis.FLAG_BLOCK_TRAP_MORE_THAN_ONE);
 				if (opponentForcedColumns.size() > 1) {
-					// TODO if they're blocking two traps we won. We should've detected this
-					// earlier.
-					throwMoreThanForcedMoveError(
-							"I think we missed something. The opponent is forced into blocking more than one trap.",
-							board, currentPlayer, boardAnalysis, analysis.getColumn(), newBoard,
-							opponentForcedColumns);
+					// TODO if they're blocking two traps we won. We should've detected this earlier.
+					throwMoreThanForcedMoveError("I think we missed something. The opponent is forced into blocking more than one trap.",
+							board, currentPlayer, boardAnalysis, analysis.getColumn(), newBoard, opponentForcedColumns);
 				}
 			}
 
@@ -132,20 +121,15 @@ public abstract class AbstractForceBoardAnalyser {
 					continue; // We're forced to play here but can't???
 				}
 
-				// TODO should we check that we didn't just lose right here? Should be
-				// eliminated by the 'are we forced check before'
-				final BoardAnalysis forcedAnalyses = BoardAnalyserHelper.analyse(opponentBoard,
-						currentPlayer);
+				// TODO should we check that we didn't just lose right here? Should be eliminated by the 'are we forced check before'
+				final BoardAnalysis forcedAnalyses = BoardAnalyserHelper.analyse(opponentBoard, currentPlayer);
 
 				if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug(
-							"Opponent " + opponentPlayer.toString() + " is forced to play column "
-									+ opponentForcedColumns.get(0).getColumn()
-									+ " which creates board:\n" + opponentBoard.toString()
-									+ "\nRecursively calling forced analysis again...");
+					LOGGER.debug("Opponent " + opponentPlayer.toString() + " is forced to play column "
+							+ opponentForcedColumns.get(0).getColumn() + " which creates board:\n" + opponentBoard.toString()
+							+ "\nRecursively calling forced analysis again...");
 				}
-				final List<ForcedAnalysisResult> results = doForcedAnalysis(opponentBoard,
-						currentPlayer, forcedAnalyses, depth + 1);
+				final List<ForcedAnalysisResult> results = doForcedAnalysis(opponentBoard, currentPlayer, forcedAnalyses, depth + 1);
 				for (final ForcedAnalysisResult result : results) {
 					if (!result.isLoss()) {
 						result.pushMove(analysis.getColumn());
@@ -165,8 +149,8 @@ public abstract class AbstractForceBoardAnalyser {
 	}
 
 	/**
-	 * Helper method to throw a {@link RuntimeException} when there's a win condition the analyser
-	 * missed and was detected during 'forced' analysis. This is effectively an assertion.
+	 * Helper method to throw a {@link RuntimeException} when there's a win condition the analyser missed and was detected during 'forced'
+	 * analysis. This is effectively an assertion.
 	 * @param initialMessage the initial message
 	 * @param board the original {@link Board} we're analysing
 	 * @param currentPlayer the {@link Disc} of the current player
@@ -176,18 +160,13 @@ public abstract class AbstractForceBoardAnalyser {
 	 * @param opponentForcedColumns {@link BoardAnalysis} showing where the opponent is forced to
 	 *        make a move
 	 */
-	void throwMoreThanForcedMoveError(final String initialMessage, final Board board,
-			final Disc currentPlayer, final BoardAnalysis currentAnalysis, final int currentColumn,
-			final Board newBoard, final BoardAnalysis opponentForcedColumns) {
+	void throwMoreThanForcedMoveError(final String initialMessage, final Board board, final Disc currentPlayer,
+			final BoardAnalysis currentAnalysis, final int currentColumn, final Board newBoard, final BoardAnalysis opponentForcedColumns) {
 		final StringBuilder message = new StringBuilder(initialMessage + "\n");
-		message.append(" We're playing as " + currentPlayer.toString() + " with board:\n"
-				+ board.toString());
-		message.append(
-				" Original analysis is:\n  " + StringUtils.join(currentAnalysis, ", ") + "\n");
-		message.append(" Candidate column is " + currentColumn + " which creates board:\n"
-				+ newBoard.toString());
-		message.append(
-				" Opponent analysis is:\n  " + StringUtils.join(opponentForcedColumns, ", "));
+		message.append(" We're playing as " + currentPlayer.toString() + " with board:\n" + board.toString());
+		message.append(" Original analysis is:\n  " + StringUtils.join(currentAnalysis, ", ") + "\n");
+		message.append(" Candidate column is " + currentColumn + " which creates board:\n" + newBoard.toString());
+		message.append(" Opponent analysis is:\n  " + StringUtils.join(opponentForcedColumns, ", "));
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug(message);
 		}

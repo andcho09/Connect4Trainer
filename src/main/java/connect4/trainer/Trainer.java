@@ -29,11 +29,9 @@ public class Trainer extends Recommender {
 
 		// Check 'forced'
 		final List<ForcedAnalysisResult> forcedAnalysisResults = new ArrayList<ForcedAnalysisResult>();
-		final List<AbstractForceBoardAnalyser> analysers = BoardAnalyserFactory
-				.getForcedAnalysers();
+		final List<AbstractForceBoardAnalyser> analysers = BoardAnalyserFactory.getForcedAnalysers();
 		for (final AbstractForceBoardAnalyser forcedBoardAnalyser : analysers) {
-			forcedAnalysisResults
-					.addAll(forcedBoardAnalyser.analyse(boardAnalysis, board, currentPlayer));
+			forcedAnalysisResults.addAll(forcedBoardAnalyser.analyse(boardAnalysis, board, currentPlayer));
 		}
 
 		// Scoring phase

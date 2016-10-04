@@ -7,7 +7,7 @@ public class ColumnAnalysisTest {
 
 	@Test
 	public void testRemove() {
-		ColumnAnalysis analysis = new ColumnAnalysis(1);
+		final ColumnAnalysis analysis = new ColumnAnalysis(1);
 		Assert.assertEquals(1, analysis.getColumn());
 		analysis.addCondition(ColumnAnalysis.FLAG_ENABLE_OPPONENT_WIN);
 		Assert.assertTrue(analysis.hasCondition(ColumnAnalysis.FLAG_ENABLE_OPPONENT_WIN));

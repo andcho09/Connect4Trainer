@@ -40,8 +40,7 @@ public abstract class Recommender {
 	/**
 	 * Sets the last analysis.
 	 */
-	void setLastAnalysis(final BoardAnalysis lastBestBoardAnalysis,
-			final BoardAnalysis lastBoardAnalysis) {
+	void setLastAnalysis(final BoardAnalysis lastBestBoardAnalysis, final BoardAnalysis lastBoardAnalysis) {
 		this.lastBestBoardAnalysis = lastBestBoardAnalysis;
 		this.lastBoardAnalysis = lastBoardAnalysis;
 	}

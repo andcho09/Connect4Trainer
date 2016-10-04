@@ -26,8 +26,7 @@ public class Controller {
 		while (winner == null && !board.isFull()) {
 			// move
 			lastMove = playPlayerMove(currentPlayer);
-			System.out.println(
-					currentPlayer.getDisc() + " played in column " + (lastMove.getCol() + 1));
+			System.out.println(currentPlayer.getDisc() + " played in column " + (lastMove.getCol() + 1));
 
 			// Is there a winner now?
 			winner = BoardHelper.hasWinner(board, lastMove);
