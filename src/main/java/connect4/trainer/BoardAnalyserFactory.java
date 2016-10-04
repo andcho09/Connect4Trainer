@@ -102,7 +102,7 @@ public class BoardAnalyserFactory {
 
 		@Override
 		public String toString() {
-			return "Sequence of moves: " + StringUtils.join(moves.descendingIterator(), ",");
+			return "Forced Moves:" + StringUtils.join(moves.descendingIterator(), ",");
 		}
 
 		/**
@@ -156,18 +156,20 @@ public class BoardAnalyserFactory {
 				// Found some wins, now find the shortest depth
 				int shortestDepth = Integer.MAX_VALUE;
 				final List<ForcedAnalysisResult> shortestForcedAnalysisWinResults = new ArrayList<ForcedAnalysisResult>();
-				for (final ForcedAnalysisResult forcedAnalysisWinResult : forcedAnalysisWinResults) {
-					if (forcedAnalysisWinResult.getDepth() < shortestDepth) {
-						shortestDepth = forcedAnalysisWinResult.getDepth();
+				for (final ForcedAnalysisResult result : forcedAnalysisWinResults) {
+					if (LOGGER.isDebugEnabled()) {
+						LOGGER.debug("Forced win sequence: " + result);
+					}
+					if (result.getDepth() < shortestDepth) {
+						shortestDepth = result.getDepth();
 						shortestForcedAnalysisWinResults.clear();
-						shortestForcedAnalysisWinResults.add(forcedAnalysisWinResult);
-					} else if (forcedAnalysisWinResult.getDepth() == shortestDepth) {
-						shortestForcedAnalysisWinResults.add(forcedAnalysisWinResult);
+						shortestForcedAnalysisWinResults.add(result);
+					} else if (result.getDepth() == shortestDepth) {
+						shortestForcedAnalysisWinResults.add(result);
 					}
 				}
-				for (final ForcedAnalysisResult forcedAnalysisWinResult : shortestForcedAnalysisWinResults) {
-					boardAnalysis.apply(forcedAnalysisWinResult.getEarliestMove(),
-							ColumnAnalysis.FLAG_FORCED_WIN);
+				for (final ForcedAnalysisResult result : shortestForcedAnalysisWinResults) {
+					boardAnalysis.apply(result.getEarliestMove(), ColumnAnalysis.FLAG_FORCED_WIN);
 				}
 				return shortestForcedAnalysisWinResults;
 			} else {
@@ -189,10 +191,13 @@ public class BoardAnalyserFactory {
 					board, opponent, opponentAnalysis, 0);
 			if (!forcedAnalysisOpponentWinResults.isEmpty()) {
 				// Found some wins for the opponent, we can't let them play these columns
-				for (final ForcedAnalysisResult forcedAnalysisOpponentWinResult : forcedAnalysisOpponentWinResults) {
-					boardAnalysis.apply(forcedAnalysisOpponentWinResult.getEarliestMove(),
+				for (final ForcedAnalysisResult result : forcedAnalysisOpponentWinResults) {
+					if (LOGGER.isDebugEnabled()) {
+						LOGGER.debug("Opponent's forced win sequence: " + result);
+					}
+					boardAnalysis.apply(result.getEarliestMove(),
 							ColumnAnalysis.FLAG_BLOCK_FORCED_WIN);
-					forcedAnalysisOpponentWinResult.setIsLoss(true);
+					result.setIsLoss(true);
 				}
 				return forcedAnalysisOpponentWinResults;
 			} else {
