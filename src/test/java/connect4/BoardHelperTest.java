@@ -123,8 +123,7 @@ public class BoardHelperTest {
 		Assert.assertEquals(6, BoardHelper.getMaxColumnSpan(board, 6));
 	}
 
-	private static void assertHasWinner(final Disc expectedWinner, final String inputFile)
-			throws IOException {
+	private static void assertHasWinner(final Disc expectedWinner, final String inputFile) throws IOException {
 		final Board board = BoardLoader.readBoard(new File(RESOURCES_DIR + inputFile));
 		if (expectedWinner == null) {
 			Assert.assertNull(BoardHelper.hasWinner(board));
@@ -133,17 +132,15 @@ public class BoardHelperTest {
 		}
 	}
 
-	private static void assertHasWinner(final Disc expectedWinner, final int lastMoveCol,
-			final int lastMoveRow, final String inputFile) throws IOException {
+	private static void assertHasWinner(final Disc expectedWinner, final int lastMoveCol, final int lastMoveRow, final String inputFile)
+			throws IOException {
 		final Board board = BoardLoader.readBoard(new File(RESOURCES_DIR + inputFile));
-		Assert.assertEquals(expectedWinner,
-				BoardHelper.hasWinner(board, new Move(expectedWinner, lastMoveCol, lastMoveRow)));
+		Assert.assertEquals(expectedWinner, BoardHelper.hasWinner(board, new Move(expectedWinner, lastMoveCol, lastMoveRow)));
 	}
 
-	private static void assertNoWinner(final Disc lastMoveDisc, final int lastMoveCol,
-			final int lastMoveRow, final String inputFile) throws IOException {
+	private static void assertNoWinner(final Disc lastMoveDisc, final int lastMoveCol, final int lastMoveRow, final String inputFile)
+			throws IOException {
 		final Board board = BoardLoader.readBoard(new File(RESOURCES_DIR + inputFile));
-		Assert.assertNull(
-				BoardHelper.hasWinner(board, new Move(lastMoveDisc, lastMoveCol, lastMoveRow)));
+		Assert.assertNull(BoardHelper.hasWinner(board, new Move(lastMoveDisc, lastMoveCol, lastMoveRow)));
 	}
 }

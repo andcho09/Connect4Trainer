@@ -5,8 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Container for a bunch of {@link ColumnAnalysis}. Note, the number of elements does not
- * necessarily correlate to the number of columns the board has.
+ * Container for a bunch of {@link ColumnAnalysis}. Note, the number of elements does not necessarily correlate to the number of columns the
+ * board has.
  */
 public class BoardAnalysis extends AbstractList<ColumnAnalysis> {
 

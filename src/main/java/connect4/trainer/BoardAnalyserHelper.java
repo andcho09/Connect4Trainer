@@ -26,8 +26,7 @@ public class BoardAnalyserHelper {
 		return boardAnalysis;
 	}
 
-	private static ColumnAnalysis analyse(final Board board, final Disc currentPlayer,
-			final int column) {
+	private static ColumnAnalysis analyse(final Board board, final Disc currentPlayer, final int column) {
 		final ColumnAnalysis analysis = new ColumnAnalysis(column);
 		for (final ColumnAnalyser columnAnalyser : ColumnAnalyserFactory.getAnalysers()) {
 			columnAnalyser.flag(board, currentPlayer, column, analysis);

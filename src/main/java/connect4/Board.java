@@ -15,8 +15,7 @@ import java.util.Arrays;
  * <p>
  * Implementation details:
  * <ul>
- * <li>A board is made up of int[] where each element is a column. A row within the column needs two
- * bits, hence the 16 row max limitation.
+ * <li>A board is made up of int[] where each element is a column. A row within the column needs two bits, hence the 16 row max limitation.
  * </ul>
  * </p>
  */
@@ -69,8 +68,7 @@ public class Board {
 	}
 
 	/**
-	 * Get the disc at the specified position. There is no validation like the public
-	 * {@link #getDisc(int, int)} method
+	 * Get the disc at the specified position. There is no validation like the public {@link #getDisc(int, int)} method
 	 * @param col the col index (0-based)
 	 * @param row the row index (0-based)
 	 * @return the value of the disc or 0 if there is no disc
@@ -104,8 +102,7 @@ public class Board {
 			}
 		}
 
-		throw new IllegalMoveException(
-				"Cannot place disc at column " + col + " because it is full");
+		throw new IllegalMoveException("Cannot place disc at column " + col + " because it is full");
 	}
 
 	/**

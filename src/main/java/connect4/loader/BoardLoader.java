@@ -37,8 +37,7 @@ public class BoardLoader {
 	public static Board readBoard(final String board) {
 		final String[] lines = StringUtils.split(board.trim(), '\n');
 		if (lines.length < 2) {
-			throw new InvalidBoardFormatException(
-					"The board is invalid. Must be at least two lines.");
+			throw new InvalidBoardFormatException("The board is invalid. Must be at least two lines.");
 		}
 
 		// Figure out columns and rows
@@ -52,30 +51,24 @@ public class BoardLoader {
 		try {
 			nCols = Integer.parseInt(boardParams[0]);
 		} catch (final NumberFormatException e) {
-			throw new InvalidBoardFormatException(
-					"The board is invalid. The number of columns could not be parsed as an integer.",
-					e);
+			throw new InvalidBoardFormatException("The board is invalid. The number of columns could not be parsed as an integer.", e);
 		}
 		int nRows = -1;
 		try {
 			nRows = Integer.parseInt(boardParams[1]);
 		} catch (final NumberFormatException e) {
-			throw new InvalidBoardFormatException(
-					"The board is invalid. The number of rows could not be parsed as an integer.",
-					e);
+			throw new InvalidBoardFormatException("The board is invalid. The number of rows could not be parsed as an integer.", e);
 		}
 		if (nRows + 1 != lines.length) {
 			throw new InvalidBoardFormatException(
-					String.format("The board is invalid. Metadata said %d rows but found %d rows",
-							nRows, lines.length - 1));
+					String.format("The board is invalid. Metadata said %d rows but found %d rows", nRows, lines.length - 1));
 		}
 
 		Board result;
 		try {
 			result = new Board(nCols, nRows);
 		} catch (final IllegalArgumentException e) {
-			throw new InvalidBoardFormatException("The board is invalid. Could not create board.",
-					e);
+			throw new InvalidBoardFormatException("The board is invalid. Could not create board.", e);
 		}
 		for (int r = nRows; r > 0; r--) {
 			final String rowString = lines[r];
@@ -85,12 +78,10 @@ public class BoardLoader {
 					try {
 						final int resultRow = result.putDisc(c, disc);
 						if (resultRow != nRows - r) {
-							throw new InvalidBoardFormatException(
-									"The board is invalid. Placed disc didn't match the expect row.");
+							throw new InvalidBoardFormatException("The board is invalid. Placed disc didn't match the expect row.");
 						}
 					} catch (final IllegalMoveException e) {
-						throw new InvalidBoardFormatException(
-								"The board is invalid. It can't be played.", e);
+						throw new InvalidBoardFormatException("The board is invalid. It can't be played.", e);
 					}
 				}
 			}

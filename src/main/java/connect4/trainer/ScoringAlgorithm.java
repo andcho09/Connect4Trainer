@@ -58,10 +58,8 @@ public class ScoringAlgorithm {
 	 *         won, including traps, we're forced into a block)
 	 */
 	public static boolean isAnalysisDone(final ColumnAnalysis analysis) {
-		if (analysis.hasCondition(ColumnAnalysis.FLAG_UNPLAYABLE)
-				|| analysis.hasCondition(ColumnAnalysis.FLAG_WIN_1)
-				|| analysis.hasCondition(ColumnAnalysis.FLAG_BLOCK_LOSS_1)
-				|| analysis.hasCondition(ColumnAnalysis.FLAG_TRAP_MORE_THAN_ONE)
+		if (analysis.hasCondition(ColumnAnalysis.FLAG_UNPLAYABLE) || analysis.hasCondition(ColumnAnalysis.FLAG_WIN_1)
+				|| analysis.hasCondition(ColumnAnalysis.FLAG_BLOCK_LOSS_1) || analysis.hasCondition(ColumnAnalysis.FLAG_TRAP_MORE_THAN_ONE)
 				|| analysis.hasCondition(ColumnAnalysis.FLAG_BLOCK_TRAP_MORE_THAN_ONE)) {
 			return true;
 		} else {

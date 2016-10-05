@@ -14,11 +14,9 @@ public class Main {
 
 	public static void main(final String[] args) {
 		final Board board = new Board(DEFAULT_COLS, DEFAULT_ROWS);
-		// final Player player1 = new ConsoleHumanPlayer("Player 1", Disc.RED, System.out,
-		// System.in);
+		// final Player player1 = new ConsoleHumanPlayer("Player 1", Disc.RED, System.out, System.in);
 		final Player player1 = new TrainedComputerPlayer("Trained 1", Disc.RED);
-		final Player player2 = new ConsoleHumanPlayer("Player 2", Disc.YELLOW, System.out,
-				System.in);
+		final Player player2 = new ConsoleHumanPlayer("Player 2", Disc.YELLOW, System.out, System.in);
 
 		final Controller controller = new Controller(board, player1, player2);
 		controller.startGame();

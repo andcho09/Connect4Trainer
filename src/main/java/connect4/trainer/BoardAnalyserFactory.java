@@ -12,8 +12,7 @@ import connect4.Disc;
 import connect4.IllegalMoveException;
 
 /**
- * A factory for {@link BoardAnalyser}s which look at the playing the entire board. These analysers
- * differ from the ColumnAnalyser in that:
+ * A factory for {@link BoardAnalyser}s which look at the playing the entire board. These analysers differ from the ColumnAnalyser in that:
  * <ul>
  * <li>BoardAnalysers run after ColumnAnalyers which allows them to leverage their analysis</b>
  * <li>BoardAnalysers are intended to leverage communicating ForcedAnalysisResult scenarios</b>
@@ -111,8 +110,7 @@ public class BoardAnalyserFactory {
 		 * @return a {@link String} representing the play
 		 * @throws IllegalMoveException if the analysis is invalid and can't be played
 		 */
-		public String replay(final Board board, final Disc currentPlayer)
-				throws IllegalMoveException {
+		public String replay(final Board board, final Disc currentPlayer) throws IllegalMoveException {
 			if (moves.isEmpty()) {
 				return null; // Opponent not forced
 			}
@@ -126,20 +124,17 @@ public class BoardAnalyserFactory {
 				// Current
 				Integer column = moves.get(moves.size() - 1 - i);
 				playBoard.putDisc(column, currentPlayer);
-				sb.append(currentPlayer.toString() + " plays column " + (column + 1)
-						+ " creating board:\n" + playBoard);
+				sb.append(currentPlayer.toString() + " plays column " + (column + 1) + " creating board:\n" + playBoard);
 				// Opponent
 				column = opponentMoves.get(opponentMoves.size() - 1 - i);
 				playBoard.putDisc(column, opponent);
-				sb.append(opponent.toString() + " plays column " + (column + 1)
-						+ " creating board:\n" + playBoard);
+				sb.append(opponent.toString() + " plays column " + (column + 1) + " creating board:\n" + playBoard);
 			}
 			// TODO show losses
 			// TODO scoring algorithm
-			final BoardAnalysis winColumns = boardAnalysis.getColumnsWithConditions(
-					ColumnAnalysis.FLAG_WIN_1, ColumnAnalysis.FLAG_TRAP_MORE_THAN_ONE);
-			sb.append(currentPlayer.toString() + " wins with "
-					+ StringUtils.join(winColumns.iterator(), ", "));
+			final BoardAnalysis winColumns = boardAnalysis.getColumnsWithConditions(ColumnAnalysis.FLAG_WIN_1,
+					ColumnAnalysis.FLAG_TRAP_MORE_THAN_ONE);
+			sb.append(currentPlayer.toString() + " wins with " + StringUtils.join(winColumns.iterator(), ", "));
 			return sb.toString();
 		}
 	}
@@ -147,11 +142,9 @@ public class BoardAnalyserFactory {
 	private static final AbstractForceBoardAnalyser FORCED_ANALYSER = new AbstractForceBoardAnalyser() {
 
 		@Override
-		public List<ForcedAnalysisResult> analyse(final BoardAnalysis boardAnalysis,
-				final Board board, final Disc currentPlayer) {
+		public List<ForcedAnalysisResult> analyse(final BoardAnalysis boardAnalysis, final Board board, final Disc currentPlayer) {
 			// Check 'forced'
-			final List<ForcedAnalysisResult> forcedAnalysisWinResults = doForcedAnalysis(board,
-					currentPlayer, boardAnalysis, 0);
+			final List<ForcedAnalysisResult> forcedAnalysisWinResults = doForcedAnalysis(board, currentPlayer, boardAnalysis, 0);
 			if (!forcedAnalysisWinResults.isEmpty()) {
 				// Found some wins, now find the shortest depth
 				int shortestDepth = Integer.MAX_VALUE;
@@ -181,22 +174,19 @@ public class BoardAnalyserFactory {
 
 	private static final AbstractForceBoardAnalyser BLOCK_FORCED_ANALYSER = new AbstractForceBoardAnalyser() {
 		@Override
-		public List<ForcedAnalysisResult> analyse(final BoardAnalysis boardAnalysis,
-				final Board board, final Disc currentPlayer) {
+		public List<ForcedAnalysisResult> analyse(final BoardAnalysis boardAnalysis, final Board board, final Disc currentPlayer) {
 			final Disc opponent = Disc.getOpposite(currentPlayer);
 			final BoardAnalysis opponentAnalysis = BoardAnalyserHelper.analyse(board, opponent);
 
 			// Check 'forced'
-			final List<ForcedAnalysisResult> forcedAnalysisOpponentWinResults = doForcedAnalysis(
-					board, opponent, opponentAnalysis, 0);
+			final List<ForcedAnalysisResult> forcedAnalysisOpponentWinResults = doForcedAnalysis(board, opponent, opponentAnalysis, 0);
 			if (!forcedAnalysisOpponentWinResults.isEmpty()) {
 				// Found some wins for the opponent, we can't let them play these columns
 				for (final ForcedAnalysisResult result : forcedAnalysisOpponentWinResults) {
 					if (LOGGER.isDebugEnabled()) {
 						LOGGER.debug("Opponent's forced win sequence: " + result);
 					}
-					boardAnalysis.apply(result.getEarliestMove(),
-							ColumnAnalysis.FLAG_BLOCK_FORCED_WIN);
+					boardAnalysis.apply(result.getEarliestMove(), ColumnAnalysis.FLAG_BLOCK_FORCED_WIN);
 					result.setIsLoss(true);
 				}
 				return forcedAnalysisOpponentWinResults;
