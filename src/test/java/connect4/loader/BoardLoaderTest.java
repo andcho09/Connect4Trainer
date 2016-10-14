@@ -8,6 +8,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import connect4.Board;
+import connect4.Disc;
 
 public class BoardLoaderTest {
 
@@ -44,6 +45,20 @@ public class BoardLoaderTest {
 	public void testBadBoardLoader4() throws IOException {
 		// Unplayable
 		BoardLoader.readBoard(FileUtils.readFileToString(new File("src/test/resources/BoardLoaderTest_Bad4.txt"), "UTF-8"));
+	}
 
+	@Test
+	public void testBoardLoaderJson1() throws IOException {
+		String inputBoardString = FileUtils.readFileToString(new File("src/test/resources/BoardLoaderTest_Json_1.txt"), "UTF-8");
+		final Board board = BoardLoader.readBoard(inputBoardString);
+		Assert.assertEquals(7, board.getNumCols());
+		Assert.assertEquals(6, board.getNumRows());
+		Assert.assertEquals(Disc.RED, board.getDisc(0, 1));
+		Assert.assertEquals(Disc.RED, board.getDisc(1, 4));
+		Assert.assertEquals(Disc.YELLOW, board.getDisc(2, 3));
+		Assert.assertEquals(Disc.YELLOW, board.getDisc(3, 4));
+		Assert.assertEquals(Disc.RED, board.getDisc(4, 1));
+		Assert.assertEquals(Disc.RED, board.getDisc(5, 3));
+		Assert.assertEquals(Disc.YELLOW, board.getDisc(6, 1));
 	}
 }

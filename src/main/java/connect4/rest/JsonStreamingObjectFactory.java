@@ -10,7 +10,6 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.core.JsonToken;
 
 import connect4.Board;
@@ -74,6 +73,22 @@ public class JsonStreamingObjectFactory {
 		g.writeEndObject();
 	}
 
+	/**
+	 * Parse the JSON text as a {@link Board}. The JSON text should look like:
+	 * <pre>{	"numCols": 7,
+	"numRows": 6,
+	"rows": [
+		["r", "r", "r", "y", "y", "r", "r"],
+		["r", "y", "y", "y", "r", "y", "y"],
+		[".", "r", "r", "y", ".", "y", "."],
+		[".", "y", "y", "r", ".", "r", "."],
+		[".", "r", ".", "y", ".", ".", "."],
+		[".", ".", ".", ".", ".", ".", "."]
+	]}</pre>where "rows" is a 2D array. Each entry is a row. First row is the bottom row, last row is the top row.
+	 * @param jp the {@link JsonParser}
+	 * @return the {@link Board}
+	 * @throws IOException if the board could not be parsed.
+	 */
 	public Board deserializeBoard(final JsonParser jp) throws IOException {
 		int numCols = -1;
 		int numRows = -1;
@@ -222,9 +237,11 @@ public class JsonStreamingObjectFactory {
 	}
 
 	public JsonParser getParser(final InputStream inputStream) throws JsonParseException, IOException {
-		final JsonParser parser = factory.createParser(inputStream);
-		parser.configure(Feature.ALLOW_COMMENTS, true);
-		return parser;
+		return factory.createParser(inputStream);
+	}
+
+	public JsonParser getParser(final String text) throws JsonParseException, IOException {
+		return factory.createParser(text);
 	}
 
 	public static JsonStreamingObjectFactory getInstance() {

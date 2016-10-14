@@ -50,6 +50,16 @@ public class TrainerTest {
 	}
 
 	@Test
+	public void testWin1Move2() throws IOException {
+		final Board board = BoardLoader.readBoard(new File(RESOURCES_DIR + "TrainerTest_2.txt"));
+		Assert.assertNull(BoardHelper.hasWinner(board));
+		trainer.recommend(board, Disc.RED);
+		Assert.assertEquals(2, trainer.getLastBestBoardAnalysis().size());
+		Assert.assertTrue(trainer.getLastBestBoardAnalysis().getAnalysisAtColumn(4).hasCondition(ColumnAnalysis.FLAG_BLOCK_LOSS_1));
+		Assert.assertTrue(trainer.getLastBestBoardAnalysis().getAnalysisAtColumn(6).hasCondition(ColumnAnalysis.FLAG_BLOCK_LOSS_1));
+	}
+
+	@Test
 	public void testEnableOpponentWin() throws IOException {
 		final Board board = BoardLoader.readBoard(new File(RESOURCES_DIR + "TrainerTest_OppWin_1.txt"));
 		Assert.assertNull(BoardHelper.hasWinner(board));
