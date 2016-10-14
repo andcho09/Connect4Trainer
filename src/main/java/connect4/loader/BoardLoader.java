@@ -6,9 +6,12 @@ import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 
+import com.fasterxml.jackson.core.JsonParser;
+
 import connect4.Board;
 import connect4.Disc;
 import connect4.IllegalMoveException;
+import connect4.rest.JsonStreamingObjectFactory;
 
 /**
  * Reconstitutes a {@link Board} from some external format.
@@ -19,7 +22,11 @@ public class BoardLoader {
 	}
 
 	/**
-	 * Reads a board from a {@link String} where:
+	 * <p>
+	 * Reads a board from a {@link String} where the board is in either plain text or JSON format.
+	 * </p>
+	 * <p>
+	 * <b>Plain text format:</b>
 	 * <ul>
 	 * <li>first row is: &lt;nCols> &lt;nRows>
 	 * <li>next rows are the board in the format <pre>.......
@@ -31,11 +38,23 @@ public class BoardLoader {
 	 *rr.yy..
 	 * </pre>
 	 * </ul>
-	 * @param board in {@link String} format
-	 * @return the {@link Board}
+	 * </p>
+	 * <p>
+	 * <b>JSON format:</b>
+	 * See {@link JsonStreamingObjectFactory#deserializeBoard(JsonParser)}
+	 * </p>
+	 * @param board in {@link String} plain text or JSON format
+	 * @return the {@link Board}or <code>null</code> if the board
 	 */
 	public static Board readBoard(final String board) {
-		final String[] lines = StringUtils.split(board.trim(), '\n');
+		if (board == null) {
+			return null;
+		}
+		final String b = board.trim();
+		if (board.startsWith("{")) {
+			return readJsonBoard(b);
+		}
+		final String[] lines = StringUtils.split(b, '\n');
 		if (lines.length < 2) {
 			throw new InvalidBoardFormatException("The board is invalid. Must be at least two lines.");
 		}
@@ -88,6 +107,24 @@ public class BoardLoader {
 		}
 
 		return result;
+	}
+
+	public static Board readJsonBoard(final String json) {
+		final JsonStreamingObjectFactory factory = JsonStreamingObjectFactory.getInstance();
+		JsonParser parser;
+		try {
+			parser = factory.getParser(json);
+		} catch (final IOException e) {
+			throw new InvalidBoardFormatException("Could not get JSON parser when attempting to read board", e);
+		}
+		try {
+			parser.nextToken();
+			final Board board = factory.deserializeBoard(parser);
+			parser.close();
+			return board;
+		} catch (final IOException e) {
+			throw new InvalidBoardFormatException("The board is not a valid JSON board", e);
+		}
 	}
 
 	/**
