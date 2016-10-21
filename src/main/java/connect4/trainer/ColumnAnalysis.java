@@ -41,35 +41,35 @@ public class ColumnAnalysis {
 	/**
 	 * Playing in this column forces the opponent to play in a space where we'll eventually win
 	 */
-	public static final int FLAG_FORCED_WIN = 1 << 10;
+	public static final int FLAG_FORCED_WIN = 1 << 6;
 
 	/**
 	 * Playing in this column prevents the opponent forcing us into a loss
 	 */
-	public static final int FLAG_BLOCK_FORCED_WIN = 1 << 11;
+	public static final int FLAG_BLOCK_FORCED_WIN = 1 << 7;
 
 	/**
 	 * Playing in this column creates 3-in-a-row setup which the opponent can't block as there's a gap below the spot that completes the
 	 * 4-in-a-row, i.e. someone has to play below that spot first (a potential for {@link #FLAG_ENABLE_OPPONENT_WIN}. This could set up a
 	 * win later or at least shut down the column.
 	 */
-	public static final int FLAG_MAKE_3_SETUP = 1 << 12;
+	public static final int FLAG_MAKE_3_SETUP = 1 << 8;
 
 	/**
 	 * Playing in this column not only creates 3-in-a-row setup but there's also a 3-in-a-row setup directly below the new setup. This
 	 * effectively creates a {@link #FLAG_FORCED_WIN} later on.
 	 */
-	public static final int FLAG_MAKE_3_DOUBLE_SETUP = 1 << 13;
+	public static final int FLAG_MAKE_3_DOUBLE_SETUP = 1 << 9;
 
 	/**
 	 * Playing here blocks the opponent from making a 3-in-a-row setup.
 	 */
-	public static final int FLAG_BLOCK_MAKE_3_SETUP = 1 << 14;
+	public static final int FLAG_BLOCK_MAKE_3_SETUP = 1 << 10;
 
 	/**
 	 * Playing here blocks the opponent from making a 3-in-a-row double setup.
 	 */
-	public static final int FLAG_BLOCK_MAKE_3_DOUBLE_SETUP = 1 << 15;
+	public static final int FLAG_BLOCK_MAKE_3_DOUBLE_SETUP = 1 << 11;
 
 	private final int column;
 	private int flags;

@@ -17,6 +17,10 @@ package connect4.trainer;
  */
 public class ScoringAlgorithm {
 
+	private static final Integer[] FLAGS_WINS = new Integer[] { ColumnAnalysis.FLAG_WIN_1, ColumnAnalysis.FLAG_TRAP_MORE_THAN_ONE };
+	private static final Integer[] FLAGS_FORCED = new Integer[] { ColumnAnalysis.FLAG_BLOCK_LOSS_1,
+			ColumnAnalysis.FLAG_BLOCK_TRAP_MORE_THAN_ONE };
+
 	public int score(final ColumnAnalysis analysis) {
 		if (analysis.hasCondition(ColumnAnalysis.FLAG_WIN_1)) {
 			return Integer.MAX_VALUE;
@@ -53,6 +57,7 @@ public class ScoringAlgorithm {
 
 	/**
 	 * Checks whether there's any point doing any more analysis.
+	 * TODO this is probably unused
 	 * @param analysis the current analysis
 	 * @return <code>true</code> if analysis should continue, else <code>false</code> (we won, they
 	 *         won, including traps, we're forced into a block)
@@ -65,5 +70,13 @@ public class ScoringAlgorithm {
 		} else {
 			return false;
 		}
+	}
+
+	public static Integer[] getWinColumnAnalysisFlags() {
+		return FLAGS_WINS;
+	}
+
+	public static Integer[] getForcedColumnAnalysisFlags() {
+		return FLAGS_FORCED;
 	}
 }

@@ -38,11 +38,8 @@ public abstract class AbstractForceBoardAnalyser {
 		final List<ForcedAnalysisResult> resultInWins = new ArrayList<ForcedAnalysisResult>();
 
 		// Check exit conditions
-		// TODO scoring algorithm
-		final BoardAnalysis winColumns = boardAnalysis.getColumnsWithConditions(ColumnAnalysis.FLAG_WIN_1,
-				ColumnAnalysis.FLAG_TRAP_MORE_THAN_ONE);
-		final BoardAnalysis forcedColumns = boardAnalysis.getColumnsWithConditions(ColumnAnalysis.FLAG_BLOCK_LOSS_1,
-				ColumnAnalysis.FLAG_BLOCK_TRAP_MORE_THAN_ONE);
+		final BoardAnalysis winColumns = boardAnalysis.getColumnsWithConditions(ScoringAlgorithm.getWinColumnAnalysisFlags());
+		final BoardAnalysis forcedColumns = boardAnalysis.getColumnsWithConditions(ScoringAlgorithm.getForcedColumnAnalysisFlags());
 		int forcedColumn = -1;
 		if (winColumns.size() > 0) {
 			if (LOGGER.isDebugEnabled()) {

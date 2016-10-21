@@ -272,10 +272,10 @@ public class ColumnAnalyserFactory {
 	private static final List<ColumnAnalyser> ANALYSERS = new LinkedList<ColumnAnalyser>();
 	static {
 		ANALYSERS.add(WIN_NOW);
-		ANALYSERS.add(BLOCK_LOSS_1);
-		ANALYSERS.add(ENABLE_OPPONENT_WIN);
 		ANALYSERS.add(TRAP_MORE_THAN_ONE);
+		ANALYSERS.add(BLOCK_LOSS_1);
 		ANALYSERS.add(BLOCK_TRAP_MORE_THAN_ONE);
+		ANALYSERS.add(ENABLE_OPPONENT_WIN);
 		ANALYSERS.add(MAKE_3_SETUP);
 		ANALYSERS.add(BLOCK_MAKE_3_SETUP);
 	}

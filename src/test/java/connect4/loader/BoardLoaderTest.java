@@ -49,7 +49,7 @@ public class BoardLoaderTest {
 
 	@Test
 	public void testBoardLoaderJson1() throws IOException {
-		String inputBoardString = FileUtils.readFileToString(new File("src/test/resources/BoardLoaderTest_Json_1.txt"), "UTF-8");
+		final String inputBoardString = FileUtils.readFileToString(new File("src/test/resources/BoardLoaderTest_Json_1.txt"), "UTF-8");
 		final Board board = BoardLoader.readBoard(inputBoardString);
 		Assert.assertEquals(7, board.getNumCols());
 		Assert.assertEquals(6, board.getNumRows());

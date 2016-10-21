@@ -250,6 +250,15 @@ public class TrainerTest {
 	}
 
 	@Test
+	public void testForceTrapError1() throws IOException {
+		final Board board = BoardLoader.readBoard(new File(RESOURCES_DIR + "TrainerTest_ForceError_1.txt"));
+		Assert.assertNull(BoardHelper.hasWinner(board));
+		trainer.recommend(board, Disc.YELLOW);
+		Assert.assertEquals(1, trainer.getLastBestBoardAnalysis().size());
+		Assert.assertTrue(trainer.getLastBestBoardAnalysis().getAnalysisAtColumn(2).hasCondition(ColumnAnalysis.FLAG_TRAP_MORE_THAN_ONE));
+	}
+
+	@Test
 	public void testBlockMake31() throws IOException {
 		final Board board = BoardLoader.readBoard(new File(RESOURCES_DIR + "TrainerTest_Make3_1.txt"));
 		Assert.assertNull(BoardHelper.hasWinner(board));
