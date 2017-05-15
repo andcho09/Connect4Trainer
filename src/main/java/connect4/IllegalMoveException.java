@@ -7,7 +7,17 @@ public class IllegalMoveException extends Exception {
 
 	private static final long serialVersionUID = 1L;
 
-	public IllegalMoveException(final String message) {
+	private final Disc disc;
+
+	public IllegalMoveException(final Disc disc, final String message) {
 		super(message);
+		this.disc = disc;
+	}
+
+	/**
+	 * @return the {@link Disc} that created the illegal move
+	 */
+	public Disc getDisc() {
+		return disc;
 	}
 }
