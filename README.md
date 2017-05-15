@@ -1,6 +1,12 @@
 # Connect4Trainer
 This is a training tool for the game [Connect 4](https://en.wikipedia.org/wiki/Connect_Four). While you could play Connect-4 with this, the goal of the project is to train players for the end game by showing a board and checking whether they've made the "correct" move.
 
+
+# Usage
+
+1. In Eclipse run the `connect4.rest.RestServer` class
+2. Then in a browser, navigate to [http://localhost:4567/game.htm](http://localhost:4567/game.htm)
+
 # Design Bits
 
 ## Algorithm
@@ -35,12 +41,12 @@ Analysers detect facts about the board
 - enable opponent win (by opponent playing on top of our move)
 - execute a trap (our next move has more than one column to win)
 - block a trap (block the opponent's next move having more than one column to win)
-- set up 3-in-a-row which the opponent can't block in their next move since there's a gap below the row in column that would complete the 4. This can set up a win later on, or at least shutdown the column in our favour (if the opponent plays in the gap, we'll win by playing on top).
+- set up 3-in-a-row which the opponent can't block in their next move since there's a gap below the row in column that would complete the 4. This can set up a win later on, or at least shutdown the column in our favour (if the opponent plays in the gap, we'll win by playing on top). Also block the opponent from doing this
 - set up a double 3-in-a-row which is two 3-in-a-row setups, on top of the other. This effectively creates a forced win
+- set up 3-in-a-row with a dangling end
 
 **TODO**
-- block set up 3 in-a-row
-- block set 3 in-a-row
+- none
 
 ## Forced moves
 Forced moves are moves we expect the opponent to play because if they don't they'll lose. Because players have different skill levels, some players may not see the more advanced/obscure moves.
