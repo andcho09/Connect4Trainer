@@ -29,7 +29,7 @@ var GAME_STATE = {
 	DRAW: 4
 };
 var gameState = GAME_STATE.PLAYER_1_TURN;
-var waitForServer = true;
+var playerIsWaiting = true;
 
 // Messages/UI
 var text;
@@ -67,7 +67,7 @@ function resetBoard() {
 	}
 
 	gameState = GAME_STATE.PLAYER_1_TURN;
-	waitForServer = false;
+	playerIsWaiting = false;
 }
 
 /**
@@ -108,7 +108,7 @@ function createBoard() {
 	canvasBG.rect(0, 0, canvasBG.width, canvasBG.height, '#fff');
 	canvasBG.rect(1, 1, canvasBG.width - 2, canvasBG.height - 2, '#3f5c67');
 
-	var x = 19;
+	var x = 19; //TODO these are hardcoded
 	var y = 19;
 
 	canvasBG.addToWorld(x, y);
@@ -156,7 +156,7 @@ function onMouseUp(pointer) {
 
 	var x = game.math.snapToFloor(pointer.x - canvasSprite.x, canvasZoom) / canvasZoom;
 	if (x < 0 || x >= NUM_COLS) { return; }
-	if (!waitForServer && gameState == GAME_STATE.PLAYER_1_TURN && pointer.msSinceLastClick > MIN_INPUT_INTERVAL) {
+	if (!playerIsWaiting && gameState == GAME_STATE.PLAYER_1_TURN && pointer.msSinceLastClick > MIN_INPUT_INTERVAL) {
 		play(x);
 	} else if (gameState == GAME_STATE.PLAYER_1_WON || gameState == GAME_STATE.PLAYER_2_WON || gameState == GAME_STATE.DRAW) {
 		resetBoard();
@@ -164,7 +164,7 @@ function onMouseUp(pointer) {
 }
 
 function onMouseMove(pointer) {
-	if (waitForServer) { return; }
+	if (playerIsWaiting) { return; }
 	var col = getCol(pointer);
 	if (col < 0) {
 		col = 0;
@@ -186,7 +186,7 @@ function play(col) {
 		"column": col
 	};
 
-	waitForServer = true;
+	playerIsWaiting = true;
 	var request = $.ajax({
 		url: "/game/next",
 		method: "POST",
@@ -196,43 +196,50 @@ function play(col) {
 
 	request.done(function(msg) {
 		board = msg.playerBoard.rows;
-		// animate play to our row
-		drawDisc(player1, col, msg.playerRow);
-		// check the state
 		gameState = msg.gameState;
+		// animate play to our row
+		var playerDiscTween = drawDisc(player1, col, msg.playerRow);
 		// if we won, animate we won and end game
 		if (gameState == GAME_STATE.PLAYER_1_WON) {
 			// TODO animate win
 			showText("You won!");
+			playerIsWaiting = false;
 		} else {
 			var aiCol = msg.aiCol;
 			var aiRow = msg.aiRow;
 			// if ai null AND is draw, then draw and end game
 			if (aiCol == null && gameState == GAME_STATE.DRAW) {
 				showText("It's a draw!");
+				playerIsWaiting = false;
 			} else {
 				board = msg.aiBoard.rows;
-				drawDisc(player2, aiCol, aiRow);
+				var opponentTween = drawDisc(player2, aiCol, aiRow, playerDiscTween);
 				if (gameState == GAME_STATE.PLAYER_2_WON) {
 					// if opponent won, animate opponent won and end game
 					showText("The bot won!");
+					playerIsWaiting = false;
 				} else if (gameState == GAME_STATE.DRAW) {
 					gameState == GAME_STATE.DRAW;
 					showText("It's a draw!");
+					playerIsWaiting = false;
+				} else {
+					opponentTween.onComplete.add(function(){ playerIsWaiting = false; }, this);
 				}
 			}
 		}
-		waitForServer = false;
 	});
 
 	request.fail(function(jqXhr, textStatus) {
-		// debugger;
-		alert("Request failed: " + jqXhr.responseText);
-		waitForServer = false;
+		if (jqXhr.responseJSON.exceptionClass == "connect4.IllegalMoveException" && jqXhr.responseJSON.disc == "y"){
+			//alert("You can't play there. Please pick another column.");
+		} else {
+			alert("Request failed: " + jqXhr.responseText);
+		}
+		playerIsWaiting = false;
 	});
 }
 
-function drawDisc(player, col, row) {
+function drawDisc(player, col, row, parentTween) {
 	var key = "player1Circle";
 	var group = player1Discs;
 	if (player == player2) {
@@ -241,11 +248,22 @@ function drawDisc(player, col, row) {
 	}
 	var x = canvasSprite.x + 2 + col * canvasZoom;
 	var y = canvasSprite.y + 2 + (NUM_ROWS - row - 1) * canvasZoom;
-	var disc = group.getFirstDead(false, x, y);
-	if (!disc) {
-		disc = game.cache.getBitmapData(key).addToWorld(x, y);
+	var disc = group.getFirstDead(false, x, canvasSprite.y - canvasZoom);
+	if (!disc) {//TODO is this needed if true is used above?
+		disc = game.cache.getBitmapData(key).addToWorld(x, canvasSprite.y - canvasZoom);
 		group.add(disc);
 	}
+	
+	var duration = (NUM_COLS - row - 1) * 25;
+	var tween = game.add.tween(disc);
+	var autoStart = true;
+	var delay = 0;
+	if(parentTween != undefined){
+		parentTween.chain(tween)
+		autoStart = false;
+	}
+	tween.to({y:y}, duration, Phaser.Easing.Linear.None, autoStart);
+	return tween
 	// TODO grid has extra pixel on left and bottom. 79x79 boxes
 }
 

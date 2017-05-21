@@ -134,16 +134,50 @@ public class RestServer {
 			}
 		});
 
+		exception(IllegalMoveException.class, new ExceptionHandler() {
+			@Override
+			public void handle(final Exception exception, final Request request, final Response response) {
+				response.type("application/json");
+				response.status(HttpStatus.BAD_REQUEST_400);
+			}
+		});
 		// Generic exception handler
 		exception(Exception.class, new ExceptionHandler() {
 			@Override
 			public void handle(final Exception exception, final Request request, final Response response) {
-				final String body = "Oopps, an error occurred during processing: " + exception.getClass().getName() + ": "
-						+ exception.getMessage();
-				LOGGER.error(body, exception);
-				response.body(body);
+				final StringWriter writer = new StringWriter();
+				try {
+					final JsonGenerator g = factory.getGenerator(writer);
+					g.writeStartObject();
+					final Throwable nested = exception.getCause();
+					if (nested instanceof IllegalMoveException) {
+						final IllegalMoveException cause = (IllegalMoveException) exception.getCause();
+						response.body("{exceptionClass: '" + cause + "', disc: '" + cause.getDisc().getSymbol() + "'}");
+						g.writeStringField("exceptionClass", cause.getClass().getCanonicalName());
+						g.writeStringField("disc", "" + cause.getDisc().getSymbol());
+						g.writeStringField("message", "" + cause.getMessage());
+					} else {
+						// Unhandled
+						LOGGER.error("Oopps, an unhandled error occurred during processing: " + exception.getClass().getName() + ": "
+								+ exception.getMessage(), exception);
+						g.writeStringField("exceptionClass", exception.getClass().getCanonicalName());
+						g.writeStringField("message", "" + exception.getMessage());
+					}
+					g.writeEndObject();
+					g.close();
+				} catch (final IOException e) {
+					// Error occurred inside exception handler
+					LOGGER.error("An error occurred in the error handling '" + e.getMessage() + "' while trying to process error '"
+							+ exception.getMessage() + "'", e);
+					response.body("{message: 'An error occurred in the exception handler'}");
+					response.type("application/json");
+					response.status(HttpStatus.INTERNAL_SERVER_ERROR_500);
+					return;
+				}
+				writer.flush();
+				response.body(writer.toString());
+				response.type("application/json");
 				response.status(HttpStatus.BAD_REQUEST_400);
-				// Spark.halt(HttpStatus.BAD_REQUEST_400, exception.getMessage());
 			}
 		});
 	}
