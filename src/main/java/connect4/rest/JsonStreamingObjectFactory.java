@@ -2,6 +2,7 @@ package connect4.rest;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Writer;
 import java.util.LinkedList;
 import java.util.List;
@@ -277,6 +278,10 @@ public class JsonStreamingObjectFactory {
 
 	public JsonGenerator getGenerator(final Writer writer) throws IOException {
 		return factory.createGenerator(writer);
+	}
+
+	public JsonGenerator getGenerator(final OutputStream outputStream) throws IOException {
+		return factory.createGenerator(outputStream);
 	}
 
 	public JsonParser getParser(final InputStream inputStream) throws JsonParseException, IOException {
