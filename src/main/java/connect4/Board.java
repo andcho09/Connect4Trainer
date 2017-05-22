@@ -88,10 +88,10 @@ public class Board {
 	 */
 	public int putDisc(final int col, final Disc disc) throws IllegalMoveException {
 		if (col < 0 || col >= nCols) {
-			throw new IllegalMoveException(disc, "Column position " + col + " is out of bounds");
+			throw new IllegalMoveException(disc, col, "Column position " + col + " is out of bounds");
 		}
 		if (disc == null) {
-			throw new IllegalMoveException(disc, "Disc must not be null");
+			throw new IllegalMoveException(disc, -1, "Disc must not be null");
 		}
 
 		final int column = board[col];
@@ -102,7 +102,7 @@ public class Board {
 			}
 		}
 
-		throw new IllegalMoveException(disc, "Cannot place disc at column " + col + " because it is full");
+		throw new IllegalMoveException(disc, col, "Cannot place disc at column " + col + " because it is full");
 	}
 
 	/**

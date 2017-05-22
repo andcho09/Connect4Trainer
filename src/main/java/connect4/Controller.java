@@ -3,7 +3,7 @@ package connect4;
 import connect4.player.Player;
 
 /**
- * Controls players, rules, and game state.
+ * Controls players, rules, and game state for playing via the command-line.
  */
 public class Controller {
 
