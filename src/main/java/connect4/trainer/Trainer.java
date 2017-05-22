@@ -8,11 +8,12 @@ import connect4.Disc;
 import connect4.trainer.BoardAnalyserFactory.ForcedAnalysisResult;
 
 /**
- * Trainer capable of predicting forced moves.
+ * Trainer capable of predicting forced moves. Note, trainers are almost stateless, they remember the last {@link ForcedAnalysisResult}. You
+ * can construct a new {@link Trainer} each time, or reuse one (like the JUnit tests do).
  */
 public class Trainer extends Recommender {
 
-	private List<ForcedAnalysisResult> lastForcedAnalysisResults = new ArrayList<ForcedAnalysisResult>();
+	private List<ForcedAnalysisResult> lastForcedAnalysisResults = new ArrayList<>();
 
 	/**
 	 * Analyses the board and recommends where to play.
@@ -28,7 +29,7 @@ public class Trainer extends Recommender {
 		final BoardAnalysis boardAnalysis = BoardAnalyserHelper.analyse(board, currentPlayer);
 
 		// Check 'forced'
-		final List<ForcedAnalysisResult> forcedAnalysisResults = new ArrayList<ForcedAnalysisResult>();
+		final List<ForcedAnalysisResult> forcedAnalysisResults = new ArrayList<>();
 		final List<AbstractForceBoardAnalyser> analysers = BoardAnalyserFactory.getForcedAnalysers();
 		for (final AbstractForceBoardAnalyser forcedBoardAnalyser : analysers) {
 			forcedAnalysisResults.addAll(forcedBoardAnalyser.analyse(boardAnalysis, board, currentPlayer));
