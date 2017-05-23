@@ -10,8 +10,8 @@ public class IllegalMoveException extends GameException {
 	private final int column;
 	private final Disc disc;
 
-	public IllegalMoveException(final Disc disc, final int column, final String message) {
-		super(message);
+	public IllegalMoveException(final ErrorCode errorCode, final Disc disc, final int column, final String message) {
+		super(errorCode, message);
 		this.column = column;
 		this.disc = disc;
 	}

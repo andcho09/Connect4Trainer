@@ -195,13 +195,22 @@ function play(col) {
 	});
 
 	request.done(function(msg) {
+		if(msg.exception != undefined){
+			// Error
+			if(msg.exception.code == "COLUMN_FULL" || msg.exception.code == "OUT_OF_BOUNDS"){
+				playerIsWaiting = false;
+				return;
+			}else{
+				alert("Could not play col '" + col + "' because: " + msg.exception);
+				return;
+			}
+		}
 		board = msg.playerBoard.rows;
 		gameState = msg.gameState;
 		// animate play to our row
 		var playerDiscTween = drawDisc(player1, col, msg.playerRow);
 		// if we won, animate we won and end game
 		if (gameState == GAME_STATE.PLAYER_1_WON) {
-			// TODO animate win
 			showText("You won!");
 			playerIsWaiting = false;
 		} else {
@@ -230,11 +239,7 @@ function play(col) {
 	});
 
 	request.fail(function(jqXhr, textStatus) {
-		if (jqXhr.responseJSON.exceptionClass == "connect4.IllegalMoveException" && jqXhr.responseJSON.disc == "y"){
-			//alert("You can't play there. Please pick another column.");
-		} else {
-			alert("Request failed: " + jqXhr.responseText);
-		}
+		alert("Request failed: " + jqXhr.responseText);
 		playerIsWaiting = false;
 	});
 }

@@ -2,6 +2,10 @@ package connect4;
 
 import java.util.Arrays;
 
+import org.apache.commons.lang.builder.HashCodeBuilder;
+
+import connect4.GameException.ErrorCode;
+
 /**
  * <p>
  * Represents the board.
@@ -81,17 +85,17 @@ public class Board {
 
 	/**
 	 * Puts a disk at the specified column.
-	 * @param col the column position (0-based)
+	 * @param col the column position (0-based, 0 is left-most column)
 	 * @param disc the disc
-	 * @return the row number at which the disc was placed (0-based)
+	 * @return the row number at which the disc was placed (0-based, 0 is bottom row)
 	 * @throws IllegalMoveException if the move is illegal
 	 */
 	public int putDisc(final int col, final Disc disc) throws IllegalMoveException {
 		if (col < 0 || col >= nCols) {
-			throw new IllegalMoveException(disc, col, "Column position " + col + " is out of bounds");
+			throw new IllegalMoveException(ErrorCode.OUT_OF_BOUNDS, disc, col, "Column position " + col + " is out of bounds");
 		}
 		if (disc == null) {
-			throw new IllegalMoveException(disc, -1, "Disc must not be null");
+			throw new IllegalMoveException(ErrorCode.UNKNOWN, disc, -1, "Disc must not be null");
 		}
 
 		final int column = board[col];
@@ -102,7 +106,7 @@ public class Board {
 			}
 		}
 
-		throw new IllegalMoveException(disc, col, "Cannot place disc at column " + col + " because it is full");
+		throw new IllegalMoveException(ErrorCode.COLUMN_FULL, disc, col, "Cannot place disc at column " + col + " because it is full");
 	}
 
 	/**
@@ -152,5 +156,30 @@ public class Board {
 	 */
 	int[] getDelegateBoard() {
 		return board;
+	}
+
+	@Override
+	public boolean equals(final Object obj) {
+		if (this == obj) {
+			return true;
+		} else if (obj instanceof Board) {
+			final Board other = (Board) obj;
+			if (this.nCols != other.nCols || this.nCols != other.nCols) {
+				return false;
+			} else {
+				for (int i = 0; i < board.length; i++) {
+					if (board[i] != other.board[i]) {
+						return false;
+					}
+				}
+				return true;
+			}
+		}
+		return false;
+	}
+
+	@Override
+	public int hashCode() {
+		return new HashCodeBuilder().append(board).toHashCode();
 	}
 }
