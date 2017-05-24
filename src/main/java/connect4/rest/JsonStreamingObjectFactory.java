@@ -14,6 +14,7 @@ import com.fasterxml.jackson.core.JsonToken;
 
 import connect4.Board;
 import connect4.Disc;
+import connect4.GameException;
 import connect4.IllegalMoveException;
 import connect4.web.GameState;
 import connect4.web.PlayRequest;
@@ -92,7 +93,7 @@ public class JsonStreamingObjectFactory {
 	public Board deserializeBoard(final JsonParser jp) throws IOException {
 		int numCols = -1;
 		int numRows = -1;
-		final List<List<Disc>> rows = new LinkedList<List<Disc>>();
+		final List<List<Disc>> rows = new LinkedList<>();
 		while (jp.nextToken() != JsonToken.END_OBJECT) {
 			final String fieldname = jp.getCurrentName();
 			jp.nextToken();
@@ -113,7 +114,7 @@ public class JsonStreamingObjectFactory {
 				// [".", "y", ".", ".", ".", ".", "."]
 				// ]
 				while (jp.nextToken() != JsonToken.END_ARRAY) {
-					final List<Disc> row = new LinkedList<Disc>();
+					final List<Disc> row = new LinkedList<>();
 					rows.add(row);
 					while (jp.nextToken() != JsonToken.END_ARRAY) {
 						row.add(deserializeDisc(jp));
@@ -145,7 +146,11 @@ public class JsonStreamingObjectFactory {
 	}
 
 	public void serialize(final JsonGenerator g, final Disc disc) throws IOException {
-		g.writeStringField("disc", "" + disc.getSymbol());
+		if (disc == null) {
+			g.writeNullField("disc");
+		} else {
+			g.writeStringField("disc", "" + disc.getSymbol());
+		}
 	}
 
 	/**
@@ -164,7 +169,11 @@ public class JsonStreamingObjectFactory {
 
 	public void serialize(final JsonGenerator g, final RecommendResponse recommendResponse) throws IOException {
 		g.writeStartObject();
-		g.writeNumberField("recommendColumn", recommendResponse.getRecommendColumn());
+		if (recommendResponse.getException() != null) {
+			serialize(g, recommendResponse.getException());
+		} else {
+			g.writeNumberField("recommendColumn", recommendResponse.getRecommendColumn());
+		}
 		serialize(g, recommendResponse.getBoard());
 		g.writeEndObject();
 	}
@@ -190,9 +199,16 @@ public class JsonStreamingObjectFactory {
 
 	public void serialize(final JsonGenerator g, final PlayResponse playResponse) throws IOException {
 		g.writeStartObject();
+		if (playResponse.getException() != null) {
+			serialize(g, playResponse.getException());
+		}
 		serialize(g, playResponse.getState());
 		serialize(g, playResponse.getPlayerBoard(), "playerBoard");
-		g.writeNumberField("playerRow", playResponse.getPlayerRow());
+		if (playResponse.getPlayerRow() == null) {
+			g.writeNullField("playerRow");
+		} else {
+			g.writeNumberField("playerRow", playResponse.getPlayerRow());
+		}
 		serialize(g, playResponse.getAiBoard(), "aiBoard");
 		if (playResponse.getAiCol() == null) {
 			g.writeNullField("aiCol");
@@ -230,6 +246,33 @@ public class JsonStreamingObjectFactory {
 		jp.close();
 
 		return result;
+	}
+
+	public void serialize(final JsonGenerator g, final GameException exception) throws IOException {
+		if (exception == null) {
+			g.writeNullField("exception");
+		} else {
+			g.writeObjectFieldStart("exception");
+			g.writeStringField("message", exception.getMessage());
+			g.writeStringField("class", exception.getClass().getCanonicalName());
+			g.writeStringField("code", exception.getErrorCode().name());
+			if (exception instanceof IllegalMoveException) {
+				g.writeNumberField("column", ((IllegalMoveException) exception).getColumn());
+				serialize(g, ((IllegalMoveException) exception).getDisc());
+			}
+			g.writeEndObject();
+		}
+	}
+
+	public void serialize(final JsonGenerator g, final Exception exception) throws IOException {
+		if (exception == null) {
+			g.writeNullField("exception");
+		} else {
+			g.writeObjectFieldStart("exception");
+			g.writeStringField("message", exception.getMessage());
+			g.writeStringField("class", exception.getClass().getCanonicalName());
+			g.writeEndObject();
+		}
 	}
 
 	public JsonGenerator getGenerator(final Writer writer) throws IOException {

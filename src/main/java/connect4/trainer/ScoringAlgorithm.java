@@ -57,7 +57,6 @@ public class ScoringAlgorithm {
 
 	/**
 	 * Checks whether there's any point doing any more analysis.
-	 * TODO this is probably unused
 	 * @param analysis the current analysis
 	 * @return <code>true</code> if analysis should continue, else <code>false</code> (we won, they
 	 *         won, including traps, we're forced into a block)

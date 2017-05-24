@@ -3,6 +3,7 @@ package connect4.web;
 import java.io.Serializable;
 
 import connect4.Board;
+import connect4.GameException;
 
 public class PlayResponse implements Serializable {
 
@@ -14,6 +15,7 @@ public class PlayResponse implements Serializable {
 	private Integer aiCol;
 	private Integer aiRow;
 	private Board aiBoard;
+	private GameException exception;
 
 	public GameState getState() {
 		return state;
@@ -31,6 +33,9 @@ public class PlayResponse implements Serializable {
 		this.playerRow = playerRow;
 	}
 
+	/**
+	 * @return the {@link Board} just after the player made their play
+	 */
 	public Board getPlayerBoard() {
 		return playerBoard;
 	}
@@ -55,11 +60,22 @@ public class PlayResponse implements Serializable {
 		this.aiCol = aiCol;
 	}
 
+	/**
+	 * @return the {@link Board} just after the AI player made their play
+	 */
 	public Board getAiBoard() {
 		return aiBoard;
 	}
 
 	public void setAiBoard(final Board aiBoard) {
 		this.aiBoard = aiBoard;
+	}
+
+	public GameException getException() {
+		return exception;
+	}
+
+	public void setException(final GameException exception) {
+		this.exception = exception;
 	}
 }

@@ -14,8 +14,6 @@ import org.eclipse.jetty.http.HttpStatus;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 
-import connect4.GameException;
-import connect4.IllegalMoveException;
 import connect4.web.GameHandler;
 import connect4.web.PlayRequest;
 import connect4.web.PlayResponse;
@@ -46,12 +44,7 @@ public class RestServer {
 				final RecommendRequest request = factory.deserializeRecommendRequest(parser);
 				parser.close();
 
-				final RecommendResponse response;
-				try {
-					response = gameHandler.recommend(request);
-				} catch (final GameException e) {
-					throw new IOException("Can't make a recommendation", e);
-				}
+				final RecommendResponse response = gameHandler.recommend(request);
 
 				final Writer writer = new StringWriter();
 				final JsonGenerator g = factory.getGenerator(writer);
@@ -72,11 +65,7 @@ public class RestServer {
 				parser.close();
 
 				final PlayResponse response;
-				try {
-					response = gameHandler.next(request);
-				} catch (final GameException e) {
-					throw new IOException("Can't play the next move", e);
-				}
+				response = gameHandler.next(request);
 
 				final Writer writer = new StringWriter();
 				final JsonGenerator g = factory.getGenerator(writer);
@@ -92,22 +81,12 @@ public class RestServer {
 			public void handle(final Exception exception, final Request request, final Response response) {
 				final StringWriter writer = new StringWriter();
 				try {
+					LOGGER.error("Oopps, an unhandled error occurred during processing: " + exception.getClass().getName() + ": "
+							+ exception.getMessage(), exception);
 					final JsonGenerator g = factory.getGenerator(writer);
 					g.writeStartObject();
-					final Throwable nested = exception.getCause();
-					if (nested instanceof IllegalMoveException) {
-						final IllegalMoveException cause = (IllegalMoveException) exception.getCause();
-						response.body("{exceptionClass: '" + cause + "', disc: '" + cause.getDisc().getSymbol() + "'}");
-						g.writeStringField("exceptionClass", cause.getClass().getCanonicalName());
-						g.writeStringField("disc", "" + cause.getDisc().getSymbol());
-						g.writeStringField("message", "" + cause.getMessage());
-					} else {
-						// Unhandled
-						LOGGER.error("Oopps, an unhandled error occurred during processing: " + exception.getClass().getName() + ": "
-								+ exception.getMessage(), exception);
-						g.writeStringField("exceptionClass", exception.getClass().getCanonicalName());
-						g.writeStringField("message", "" + exception.getMessage());
-					}
+					g.writeStringField("exceptionClass", exception.getClass().getCanonicalName());
+					g.writeStringField("message", "" + exception.getMessage());
 					g.writeEndObject();
 					g.close();
 				} catch (final IOException e) {
