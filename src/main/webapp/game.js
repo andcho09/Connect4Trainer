@@ -100,21 +100,27 @@ function create() {
 }
 
 function createBoard() {
-	game.create.grid('board', NUM_COLS * canvasZoom, NUM_ROWS * canvasZoom, canvasZoom, canvasZoom, 'rgba(0,191,243,0.8)');
-
 	canvas = game.make.bitmapData(NUM_COLS * canvasZoom, NUM_ROWS * canvasZoom);
 	canvasBG = game.make.bitmapData(canvas.width + 2, canvas.height + 2);
-
-	canvasBG.rect(0, 0, canvasBG.width, canvasBG.height, '#fff');
-	canvasBG.rect(1, 1, canvasBG.width - 2, canvasBG.height - 2, '#3f5c67');
+	canvasBG.rect(0, 0, canvasBG.width, canvasBG.height, '#fff'); //white border
+	canvasBG.rect(1, 1, canvasBG.width - 2, canvasBG.height - 2, '#3f5c67'); // board background 
 
 	var x = 19; //TODO these are hardcoded
 	var y = 19;
 
 	canvasBG.addToWorld(x, y);
 	canvasSprite = canvas.addToWorld(x + 1, y + 1);
-	canvasGrid = game.add.sprite(x + 1, y + 1, 'board');
-	canvasGrid.crop(new Phaser.Rectangle(0, 0, SPRITE_WIDTH * canvasZoom, SPRITE_HEIGHT * canvasZoom));
+	
+	var graphics = game.add.graphics(x, y);
+	graphics.lineStyle(1, 0x00bff3, 0.8);
+	for (var i = 0; i < NUM_COLS; i++){
+		graphics.moveTo(i * canvasZoom + 1, 1);
+		graphics.lineTo(i * canvasZoom + 1, NUM_ROWS * canvasZoom + 1);
+	}
+	for (var i = 0; i < NUM_ROWS; i++){
+		graphics.moveTo(1, i * canvasZoom + 1);
+		graphics.lineTo(NUM_COLS * canvasZoom + 1, i * canvasZoom + 1);
+	}
 }
 
 function createDiscs() {
