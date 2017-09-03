@@ -182,4 +182,33 @@ public class Board {
 	public int hashCode() {
 		return new HashCodeBuilder().append(board).toHashCode();
 	}
+
+	/**
+	 * Orientates the board so that most of the dics are on the left. This allows
+	 * mirror-image games to be considered the same for analysis
+	 * 
+	 * @return a new normalised board which could be the same as the current board
+	 */
+	public Board normalise() {
+		Board result = new Board(this);
+		for (int i = 0; i < result.nCols / 2; i++) {
+			if (result.board[i] < result.board[nCols - 1 - i]) {
+				result.reverse();
+				return result;
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Reverses the board (i.e. creates a mirror image).
+	 */
+	private void reverse() {
+		int tempColValue;
+		for (int i = 0; i < nCols / 2; i++) {
+			tempColValue = board[i];
+			board[i] = board[nCols - 1 - i];
+			board[nCols - 1 - i] = tempColValue;
+		}
+	}
 }

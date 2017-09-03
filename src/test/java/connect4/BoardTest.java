@@ -131,4 +131,25 @@ public class BoardTest {
 		Assert.assertFalse(BoardLoader.readBoard(new File(RESOURCES_DIR + "BoardTest_isFull3.txt")).isFull());
 	}
 
+	@Test
+	public void testNormalise1() throws Exception {
+		// Already normalised
+		final Board board = BoardLoader.readBoard(new File(RESOURCES_DIR + "BoardTest_reverse1_input.txt"));
+		Assert.assertEquals(board, board.normalise());
+	}
+
+	@Test
+	public void testNormalise2() throws Exception {
+		// Symmetrical
+		final Board board = BoardLoader.readBoard(new File(RESOURCES_DIR + "BoardTest_reverse2_input.txt"));
+		Assert.assertEquals(board, board.normalise());
+	}
+
+	@Test
+	public void testNormalise3() throws Exception {
+		// Reverse required
+		final Board input = BoardLoader.readBoard(new File(RESOURCES_DIR + "BoardTest_reverse3_input.txt"));
+		final Board output = BoardLoader.readBoard(new File(RESOURCES_DIR + "BoardTest_reverse3_output.txt"));
+		Assert.assertEquals(output, input.normalise());
+	}
 }
