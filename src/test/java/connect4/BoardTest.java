@@ -152,4 +152,10 @@ public class BoardTest {
 		final Board output = BoardLoader.readBoard(new File(RESOURCES_DIR + "BoardTest_reverse3_output.txt"));
 		Assert.assertEquals(output, input.normalise());
 	}
+
+	@Test
+	public void testHashCodeNormalised() throws Exception {
+		final Board board = BoardLoader.readBoard(new File(RESOURCES_DIR + "BoardTest_reverse3_input.txt"));
+		Assert.assertEquals(board.hashCodeNormalised(), board.normalise().hashCode());
+	}
 }

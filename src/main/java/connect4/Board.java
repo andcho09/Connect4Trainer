@@ -19,7 +19,8 @@ import connect4.GameException.ErrorCode;
  * <p>
  * Implementation details:
  * <ul>
- * <li>A board is made up of int[] where each element is a column. A row within the column needs two bits, hence the 16 row max limitation.
+ * <li>A board is made up of int[] where each element is a column. A row within
+ * the column needs two bits, hence the 16 row max limitation.
  * </ul>
  * </p>
  */
@@ -46,7 +47,9 @@ public class Board {
 
 	/**
 	 * Copy constructor.
-	 * @param board the board to copy
+	 * 
+	 * @param board
+	 *        the board to copy
 	 */
 	public Board(final Board board) {
 		this.nCols = board.nCols;
@@ -56,8 +59,11 @@ public class Board {
 
 	/**
 	 * Get the disc at the specified position. (0,0) is bottom-left
-	 * @param col the col index (0-based)
-	 * @param row the row index (0-based)
+	 * 
+	 * @param col
+	 *        the col index (0-based)
+	 * @param row
+	 *        the row index (0-based)
 	 * @return the {@link Disc} or <code>null</code> if no disc is present
 	 */
 	public Disc getDisc(final int col, final int row) {
@@ -72,9 +78,13 @@ public class Board {
 	}
 
 	/**
-	 * Get the disc at the specified position. There is no validation like the public {@link #getDisc(int, int)} method
-	 * @param col the col index (0-based)
-	 * @param row the row index (0-based)
+	 * Get the disc at the specified position. There is no validation like the
+	 * public {@link #getDisc(int, int)} method
+	 * 
+	 * @param col
+	 *        the col index (0-based)
+	 * @param row
+	 *        the row index (0-based)
 	 * @return the value of the disc or 0 if there is no disc
 	 */
 	int getDiscByte(final int col, final int row) {
@@ -85,10 +95,15 @@ public class Board {
 
 	/**
 	 * Puts a disk at the specified column.
-	 * @param col the column position (0-based, 0 is left-most column)
-	 * @param disc the disc
-	 * @return the row number at which the disc was placed (0-based, 0 is bottom row)
-	 * @throws IllegalMoveException if the move is illegal
+	 * 
+	 * @param col
+	 *        the column position (0-based, 0 is left-most column)
+	 * @param disc
+	 *        the disc
+	 * @return the row number at which the disc was placed (0-based, 0 is bottom
+	 *         row)
+	 * @throws IllegalMoveException
+	 *         if the move is illegal
 	 */
 	public int putDisc(final int col, final Disc disc) throws IllegalMoveException {
 		if (col < 0 || col >= nCols) {
@@ -110,7 +125,8 @@ public class Board {
 	}
 
 	/**
-	 * @return <code>true</code> if there are no more moves to be played, else <code>false</code>
+	 * @return <code>true</code> if there are no more moves to be played, else
+	 *         <code>false</code>
 	 */
 	public boolean isFull() {
 		for (int c = 0; c < nCols; c++) {
@@ -152,7 +168,8 @@ public class Board {
 	}
 
 	/**
-	 * @return the int[] backing this board. Only meant to be called by helper classes
+	 * @return the int[] backing this board. Only meant to be called by helper
+	 *         classes
 	 */
 	int[] getDelegateBoard() {
 		return board;
@@ -180,7 +197,15 @@ public class Board {
 
 	@Override
 	public int hashCode() {
-		return new HashCodeBuilder().append(board).toHashCode();
+		return new HashCodeBuilder().append(nCols).append(nRows).append(board).toHashCode();
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public int hashCodeNormalised() {
+		return new HashCodeBuilder().append(nCols).append(nRows).append(normalise().board).toHashCode();
 	}
 
 	/**
