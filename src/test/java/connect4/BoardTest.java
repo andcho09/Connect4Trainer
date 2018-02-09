@@ -158,4 +158,12 @@ public class BoardTest {
 		final Board board = BoardLoader.readBoard(new File(RESOURCES_DIR + "BoardTest_reverse3_input.txt"));
 		Assert.assertEquals(board.hashCodeNormalised(), board.normalise().hashCode());
 	}
+
+	@Test
+	public void testSwap() throws Exception {
+		final Board input = BoardLoader.readBoard(new File(RESOURCES_DIR + "BoardTest_swap_input.txt"));
+		final Board output = BoardLoader.readBoard(new File(RESOURCES_DIR + "BoardTest_swap_output.txt"));
+		Assert.assertEquals(output, input.swap());
+		Assert.assertEquals(input, input.swap().swap());
+	}
 }

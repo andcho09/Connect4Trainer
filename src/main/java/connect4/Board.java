@@ -20,7 +20,9 @@ import connect4.GameException.ErrorCode;
  * Implementation details:
  * <ul>
  * <li>A board is made up of int[] where each element is a column. A row within
- * the column needs two bits, hence the 16 row max limitation.
+ * the column needs two bits, hence the 16 row max limitation.</li>
+ * <li>The least significant bits are the bottom row. For example, given {@link Disc#RED} = 1 ("01" in binary) and {@link Disc#YELLOW} = 2
+ * ("10" in binary), "601" (in decimal which is "00 10 01 01 10 01" in binary) is (bottom-to-top) "ryrry."</li>
  * </ul>
  * </p>
  */
@@ -47,7 +49,7 @@ public class Board {
 
 	/**
 	 * Copy constructor.
-	 * 
+	 *
 	 * @param board
 	 *        the board to copy
 	 */
@@ -59,7 +61,7 @@ public class Board {
 
 	/**
 	 * Get the disc at the specified position. (0,0) is bottom-left
-	 * 
+	 *
 	 * @param col
 	 *        the col index (0-based)
 	 * @param row
@@ -80,7 +82,7 @@ public class Board {
 	/**
 	 * Get the disc at the specified position. There is no validation like the
 	 * public {@link #getDisc(int, int)} method
-	 * 
+	 *
 	 * @param col
 	 *        the col index (0-based)
 	 * @param row
@@ -95,7 +97,7 @@ public class Board {
 
 	/**
 	 * Puts a disk at the specified column.
-	 * 
+	 *
 	 * @param col
 	 *        the column position (0-based, 0 is left-most column)
 	 * @param disc
@@ -115,7 +117,7 @@ public class Board {
 
 		final int column = board[col];
 		for (int r = 0; r < nRows; r++) {
-			if (column >>> r * 2 == 0) {
+			if (column >>> r * 2 == 0) { // find the row that's zero, i.e. has no disc
 				board[col] = column | disc.getValue() << r * 2;
 				return r;
 			}
@@ -201,7 +203,7 @@ public class Board {
 	}
 
 	/**
-	 * 
+	 *
 	 * @return
 	 */
 	public int hashCodeNormalised() {
@@ -209,13 +211,13 @@ public class Board {
 	}
 
 	/**
-	 * Orientates the board so that most of the dics are on the left. This allows
+	 * Orientates the board so that most of the discs are on the left. This allows
 	 * mirror-image games to be considered the same for analysis
-	 * 
+	 *
 	 * @return a new normalised board which could be the same as the current board
 	 */
 	public Board normalise() {
-		Board result = new Board(this);
+		final Board result = new Board(this);
 		for (int i = 0; i < result.nCols / 2; i++) {
 			if (result.board[i] < result.board[nCols - 1 - i]) {
 				result.reverse();
@@ -235,5 +237,29 @@ public class Board {
 			board[i] = board[nCols - 1 - i];
 			board[nCols - 1 - i] = tempColValue;
 		}
+	}
+
+	/**
+	 * Swaps the board so that Red is Yellow and Yellow is Red.
+	 * @return the swapped board
+	 */
+	public Board swap() {
+		final Board result = new Board(this);
+		for (int i = 0; i < nCols; i++) {
+			final int column = result.board[i];
+			int r = 0;
+			for (; r < nRows; r++) {
+				if (column >>> r * 2 == 0) { // find the row that's zero, i.e. has no disc
+					break;
+				}
+			}
+			if (r == 0) {
+				continue; // no discs in this column, no need to swap
+			}
+			// invert all the bits and mask off the top bits up to the row we found
+			// Integer.MIN_VALUE is all 1s.
+			result.board[i] = ~column & (((2 << ((r * 2) - 1))) - 1);
+		}
+		return result;
 	}
 }
