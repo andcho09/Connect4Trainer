@@ -30,7 +30,7 @@ public class GameHandler {
 		response.setRecommendColumn(-1);
 		final Board board = request.getBoard();
 		response.setBoard(board);
-		final Disc winner = BoardHelper.hasWinner(board);
+		Disc winner = BoardHelper.hasWinner(board);
 		if (winner != null) {
 			response.setException(new GameException(ErrorCode.ALREADY_WON, "Cannot recommend next move, the game is already won."));
 			return response;
@@ -40,14 +40,25 @@ public class GameHandler {
 		}
 
 		final Disc currentPlayer = request.getCurrentPlayer();
-		final int recommendColumn = trainer.recommend(board, currentPlayer);
-		response.setRecommendColumn(recommendColumn);
+		final int recommendedCol = trainer.recommend(board, currentPlayer);
+		response.setRecommendColumn(recommendedCol);
+		int recommendedRow;
 		try {
-			board.putDisc(recommendColumn, currentPlayer);
+			recommendedRow = board.putDisc(recommendedCol, currentPlayer);
 		} catch (final IllegalMoveException e) {
 			response.setException(e);
 			return response;
 		}
+
+		winner = BoardHelper.hasWinner(board, new Move(request.getCurrentPlayer(), recommendedCol, recommendedRow));
+		if (currentPlayer.equals(winner)) {
+			response.setState(GameState.getWinnerState(currentPlayer));
+		} else if (board.isFull()) {
+			response.setState(GameState.DRAW);
+		} else {
+			response.setState(GameState.getTurnState(Disc.getOpposite(currentPlayer)));
+		}
+
 		return response;
 	}
 
@@ -58,7 +69,8 @@ public class GameHandler {
 	 */
 	public PlayResponse next(final PlayRequest request) {
 		final PlayResponse response = new PlayResponse();
-		response.setState(GameState.PLAYER_1_TURN); // TODO this is weird. Numbers to discs?
+		final Disc currentPlayer = request.getCurrentPlayer();
+		response.setState(GameState.getTurnState(currentPlayer));
 		final Board board = request.getBoard();
 		response.setPlayerBoard(board);
 
@@ -71,25 +83,24 @@ public class GameHandler {
 			return response;
 		}
 
-		response.setPlayerBoard(board);
 		final int playerRow;
 		try {
-			playerRow = board.putDisc(request.getColumn(), request.getCurrentPlayer());
+			playerRow = board.putDisc(request.getColumn(), currentPlayer);
 		} catch (final IllegalMoveException e) {
 			response.setException(e);
 			return response;
 		}
 		response.setPlayerRow(playerRow);
-		winner = BoardHelper.hasWinner(board, new Move(request.getCurrentPlayer(), request.getColumn(), playerRow));
-		if (request.getCurrentPlayer().equals(winner)) {
-			response.setState(GameState.PLAYER_1_WON); // TODO this is weird. Numbers to discs?
+		winner = BoardHelper.hasWinner(board, new Move(currentPlayer, request.getColumn(), playerRow));
+		if (currentPlayer.equals(winner)) {
+			response.setState(GameState.getWinnerState(currentPlayer));
 		} else if (board.isFull()) {
 			response.setState(GameState.DRAW);
 		} else {
 			final Board opponentBoard = new Board(board);
 			response.setAiBoard(opponentBoard);
-			final Disc opponent = Disc.getOpposite(request.getCurrentPlayer());
-			response.setState(GameState.PLAYER_2_TURN);
+			final Disc opponent = Disc.getOpposite(currentPlayer);
+			response.setState(GameState.getTurnState(opponent));
 			final int aiCol = trainer.recommend(opponentBoard, opponent);
 			final int aiRow;
 			try {
@@ -102,11 +113,11 @@ public class GameHandler {
 			response.setAiRow(aiRow);
 			winner = BoardHelper.hasWinner(opponentBoard, new Move(opponent, aiCol, aiRow));
 			if (opponent.equals(winner)) {
-				response.setState(GameState.PLAYER_2_WON); // TODO this is weird. Numbers to discs?
+				response.setState(GameState.getWinnerState(opponent));
 			} else if (opponentBoard.isFull()) {
 				response.setState(GameState.DRAW);
 			} else {
-				response.setState(GameState.PLAYER_1_TURN);
+				response.setState(GameState.getTurnState(currentPlayer));
 			}
 		}
 		return response;

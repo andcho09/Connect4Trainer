@@ -173,17 +173,23 @@ public class JsonStreamingObjectFactory {
 		if (recommendResponse.getException() != null) {
 			serialize(g, recommendResponse.getException());
 		} else {
+			serialize(g, recommendResponse.getState());
 			g.writeNumberField("recommendColumn", recommendResponse.getRecommendColumn());
+			g.writeNumberField("recommendRow", recommendResponse.getRecommendRow());
 		}
 		serialize(g, recommendResponse.getBoard());
 		g.writeEndObject();
 	}
 
 	public RecommendRequest deserializeRecommendRequest(final JsonParser jp) throws IOException {
-		final RecommendRequest result = new RecommendRequest();
 		if (!JsonToken.START_OBJECT.equals(jp.nextToken())) {
 			throw new IOException("Could not parse RecommendRequest. Does not appear to be JSON.");
 		}
+		return doDeserializeRecommendRequest(jp);
+	}
+
+	private RecommendRequest doDeserializeRecommendRequest(final JsonParser jp) throws IOException {
+		final RecommendRequest result = new RecommendRequest();
 		while (jp.nextToken() == JsonToken.FIELD_NAME) {
 			final String fieldname = jp.getCurrentName();
 			jp.nextToken();
@@ -193,8 +199,6 @@ public class JsonStreamingObjectFactory {
 				result.setBoard(deserializeBoard(jp));
 			}
 		}
-		jp.close();
-
 		return result;
 	}
 
@@ -229,10 +233,14 @@ public class JsonStreamingObjectFactory {
 	}
 
 	public PlayRequest deserializePlayRequest(final JsonParser jp) throws IOException {
-		final PlayRequest result = new PlayRequest();
 		if (!JsonToken.START_OBJECT.equals(jp.nextToken())) {
 			throw new IOException("Could not parse PlayRequest. Does not appear to be JSON.");
 		}
+		return doDeserializePlayRequest(jp);
+	}
+
+	private PlayRequest doDeserializePlayRequest(final JsonParser jp) throws IOException {
+		final PlayRequest result = new PlayRequest();
 		while (jp.nextToken() == JsonToken.FIELD_NAME) {
 			final String fieldname = jp.getCurrentName();
 			jp.nextToken();
@@ -244,9 +252,26 @@ public class JsonStreamingObjectFactory {
 				result.setColumn(jp.getIntValue());
 			}
 		}
-		jp.close();
-
 		return result;
+	}
+
+	public RecommendRequest deserialiseGenericRequest(final JsonParser jp) throws IOException {
+		if (!JsonToken.START_OBJECT.equals(jp.nextToken())) {
+			throw new IOException("Could not parse request. Does not appear to be JSON.");
+		}
+		while (jp.nextToken() == JsonToken.FIELD_NAME) {
+			final String fieldname = jp.getCurrentName();
+			jp.nextToken();
+			if ("action".equals(fieldname)) {
+				final String action = jp.getValueAsString();
+				if ("next".equals(action)) {
+					return doDeserializePlayRequest(jp);
+				} else if ("recommend".equals(action)) {
+					return doDeserializeRecommendRequest(jp);
+				}
+			}
+		}
+		throw new IOException("Could not determine request type. Does not contain an 'action' key.");
 	}
 
 	private void serialize(final JsonGenerator g, final GameException exception) throws IOException {

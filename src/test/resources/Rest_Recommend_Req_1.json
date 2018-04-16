@@ -1,4 +1,5 @@
 {
+	"action": "recommend",
     "currentPlayer": "y",
     "board": {
         "numCols": 7,
