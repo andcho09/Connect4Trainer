@@ -291,6 +291,12 @@ public class TrainerTest {
 		trainer.recommend(board, Disc.YELLOW);
 		Assert.assertEquals(1, trainer.getLastBestBoardAnalysis().size());
 		Assert.assertTrue(trainer.getLastBestBoardAnalysis().getAnalysisAtColumn(5).hasCondition(ColumnAnalysis.FLAG_MAKE_3_DOUBLE_SETUP));
+
+		trainer.recommend(board, Disc.RED);
+		Assert.assertEquals(1, trainer.getLastBestBoardAnalysis().size());
+		Assert.assertEquals(5, trainer.getLastBestBoardAnalysis().get(0).getColumn());
+		Assert.assertTrue(
+				trainer.getLastBestBoardAnalysis().getAnalysisAtColumn(5).hasCondition(ColumnAnalysis.FLAG_BLOCK_MAKE_3_DOUBLE_SETUP));
 	}
 
 	@Test
@@ -300,6 +306,10 @@ public class TrainerTest {
 		trainer.recommend(board, Disc.YELLOW);
 		Assert.assertEquals(1, trainer.getLastBestBoardAnalysis().size());
 		Assert.assertTrue(trainer.getLastBestBoardAnalysis().getAnalysisAtColumn(6).hasCondition(ColumnAnalysis.FLAG_MAKE_3_DOUBLE_SETUP));
+
+		trainer.recommend(board, Disc.RED);
+		Assert.assertEquals(1, trainer.getLastBestBoardAnalysis().size());
+		Assert.assertTrue(trainer.getLastBestBoardAnalysis().getAnalysisAtColumn(6).hasCondition(ColumnAnalysis.FLAG_BLOCK_MAKE_3_DOUBLE_SETUP));
 	}
 
 	@Test
