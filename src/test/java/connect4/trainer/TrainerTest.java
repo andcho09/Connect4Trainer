@@ -301,4 +301,14 @@ public class TrainerTest {
 		Assert.assertEquals(1, trainer.getLastBestBoardAnalysis().size());
 		Assert.assertTrue(trainer.getLastBestBoardAnalysis().getAnalysisAtColumn(6).hasCondition(ColumnAnalysis.FLAG_MAKE_3_DOUBLE_SETUP));
 	}
+
+	@Test
+	public void testNoFreeWins1() throws IOException {
+		final Board board = BoardLoader.readBoard(new File(RESOURCES_DIR + "TrainerTest_NoFreeWins1.txt"));
+		Assert.assertNull(BoardHelper.hasWinner(board));
+		Assert.assertEquals(0, trainer.recommend(board, Disc.RED));
+		Assert.assertEquals(1, trainer.getLastBestBoardAnalysis().size());
+		Assert.assertEquals(0, trainer.getLastBestBoardAnalysis().get(0).getColumn());
+		Assert.assertTrue(trainer.getLastBoardAnalysis().getAnalysisAtColumn(3).hasCondition(ColumnAnalysis.FLAG_ENABLE_OPPONENT_WIN));
+	}
 }

@@ -84,8 +84,8 @@ public class ColumnAnalyserFactory {
 			int row;
 			try {
 				row = newBoard.putDisc(column, oponentPlayer);
-			} catch (final IllegalMoveException e) {
-				return true;
+			} catch (final IllegalMoveException ignored) {
+				return false;
 			}
 
 			if (oponentPlayer.equals(BoardHelper.hasWinner(newBoard, new Move(oponentPlayer, column, row)))) {

@@ -114,4 +114,19 @@ public class ColumnAnalysis {
 	public String toString() {
 		return String.format("ColumnAnalysis (col=%d, flags=%d)", column, flags);
 	}
+
+	public String toStringDetail() {
+		final StringBuilder detail = new StringBuilder();
+		detail.append("\n We will win next move: " + hasCondition(FLAG_WIN_1));
+		detail.append("\n Board is unplayable: " + hasCondition(FLAG_UNPLAYABLE));
+		detail.append("\n Block opponent winning: " + hasCondition(FLAG_BLOCK_LOSS_1));
+		detail.append("\n Enable opponent to win: " + hasCondition(FLAG_ENABLE_OPPONENT_WIN));
+		detail.append("\n Set trap to win move after: " + hasCondition(FLAG_TRAP_MORE_THAN_ONE));
+		detail.append("\n Block opponents trap: " + hasCondition(FLAG_BLOCK_TRAP_MORE_THAN_ONE));
+		detail.append("\n Force opponents move for us to win: " + hasCondition(FLAG_FORCED_WIN));
+		detail.append("\n Block opponent forcing our move and losing : " + hasCondition(FLAG_BLOCK_FORCED_WIN));
+		detail.append("\n Sets up a 3-in-a-row with a gap below: " + hasCondition(FLAG_MAKE_3_SETUP));
+		detail.append("\n Sets up 2x 3-in-a-row stacked ontop of ecah other with a gap below: " + hasCondition(FLAG_MAKE_3_DOUBLE_SETUP));
+		return String.format("ColumnAnalysis (col=%d, flags=%d)%s", column, flags, detail.toString());
+	}
 }
