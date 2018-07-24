@@ -309,7 +309,8 @@ public class TrainerTest {
 
 		trainer.recommend(board, Disc.RED);
 		Assert.assertEquals(1, trainer.getLastBestBoardAnalysis().size());
-		Assert.assertTrue(trainer.getLastBestBoardAnalysis().getAnalysisAtColumn(6).hasCondition(ColumnAnalysis.FLAG_BLOCK_MAKE_3_DOUBLE_SETUP));
+		Assert.assertTrue(
+				trainer.getLastBestBoardAnalysis().getAnalysisAtColumn(6).hasCondition(ColumnAnalysis.FLAG_BLOCK_MAKE_3_DOUBLE_SETUP));
 	}
 
 	@Test
@@ -320,5 +321,19 @@ public class TrainerTest {
 		Assert.assertEquals(1, trainer.getLastBestBoardAnalysis().size());
 		Assert.assertEquals(0, trainer.getLastBestBoardAnalysis().get(0).getColumn());
 		Assert.assertTrue(trainer.getLastBoardAnalysis().getAnalysisAtColumn(3).hasCondition(ColumnAnalysis.FLAG_ENABLE_OPPONENT_WIN));
+	}
+
+	@Test
+	public void testNoFreeWins2() throws IOException {
+		final Board board = BoardLoader.readBoard(new File(RESOURCES_DIR + "TrainerTest_NoFreeWins2.txt"));
+		Assert.assertNull(BoardHelper.hasWinner(board));
+		Assert.assertEquals(4, trainer.recommend(board, Disc.RED));
+		Assert.assertEquals(1, trainer.getLastBestBoardAnalysis().size());
+
+		// TODO this is a little weird that column 4 is chosen over column 5
+		Assert.assertEquals(4, trainer.getLastBestBoardAnalysis().get(0).getColumn());
+		Assert.assertTrue(trainer.getLastBoardAnalysis().getAnalysisAtColumn(4).hasCondition(ColumnAnalysis.FLAG_BLOCK_FORCED_WIN));
+		Assert.assertTrue(
+				trainer.getLastBoardAnalysis().getAnalysisAtColumn(5).hasCondition(ColumnAnalysis.FLAG_BLOCK_MAKE_3_DOUBLE_SETUP));
 	}
 }

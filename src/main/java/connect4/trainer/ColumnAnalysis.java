@@ -126,7 +126,9 @@ public class ColumnAnalysis {
 		detail.append("\n Force opponents move for us to win: " + hasCondition(FLAG_FORCED_WIN));
 		detail.append("\n Block opponent forcing our move and losing : " + hasCondition(FLAG_BLOCK_FORCED_WIN));
 		detail.append("\n Sets up a 3-in-a-row with a gap below: " + hasCondition(FLAG_MAKE_3_SETUP));
-		detail.append("\n Sets up 2x 3-in-a-row stacked ontop of ecah other with a gap below: " + hasCondition(FLAG_MAKE_3_DOUBLE_SETUP));
+		detail.append("\n Block 3-in-a-row with a gap below: " + hasCondition(FLAG_BLOCK_MAKE_3_SETUP));
+		detail.append(
+				"\n Block 2x 3-in-a-row stacked ontop of ecah other with a gap below: " + hasCondition(FLAG_BLOCK_MAKE_3_DOUBLE_SETUP));
 		return String.format("ColumnAnalysis (col=%d, flags=%d)%s", column, flags, detail.toString());
 	}
 }
