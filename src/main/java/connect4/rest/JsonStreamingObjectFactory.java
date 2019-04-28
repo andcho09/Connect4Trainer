@@ -50,11 +50,11 @@ public class JsonStreamingObjectFactory {
 		this.factory = new JsonFactory(); // This is expensive to create
 	}
 
-	public void serialize(final JsonGenerator g, final Board board) throws IOException {
+	private void serialize(final JsonGenerator g, final Board board) throws IOException {
 		serialize(g, board, "board");
 	}
 
-	public void serialize(final JsonGenerator g, final Board board, final String boardName) throws IOException {
+	private void serialize(final JsonGenerator g, final Board board, final String boardName) throws IOException {
 		if (board == null) {
 			g.writeNullField(boardName);
 			return;
@@ -146,7 +146,7 @@ public class JsonStreamingObjectFactory {
 		return board;
 	}
 
-	public void serialize(final JsonGenerator g, final Disc disc) throws IOException {
+	private void serialize(final JsonGenerator g, final Disc disc) throws IOException {
 		if (disc == null) {
 			g.writeNullField("disc");
 		} else {
@@ -160,7 +160,7 @@ public class JsonStreamingObjectFactory {
 	 * @return the disc or <code>null</code> if the space is empty (which can be any unrecognized character, typically a period '.')
 	 * @throws IOException if the disc text is <code>null</code> or not one character
 	 */
-	public Disc deserializeDisc(final JsonParser jp) throws IOException {
+	private Disc deserializeDisc(final JsonParser jp) throws IOException {
 		final String discText = jp.getText();
 		if (discText == null || discText.length() != 1) {
 			throw new IOException(String.format("Could not parse disc '%s'.", discText));
@@ -224,7 +224,7 @@ public class JsonStreamingObjectFactory {
 		g.writeEndObject();
 	}
 
-	public void serialize(final JsonGenerator g, final GameState state) throws IOException {
+	private void serialize(final JsonGenerator g, final GameState state) throws IOException {
 		g.writeStringField("gameState", "" + state.ordinal());
 	}
 
@@ -249,7 +249,7 @@ public class JsonStreamingObjectFactory {
 		return result;
 	}
 
-	public void serialize(final JsonGenerator g, final GameException exception) throws IOException {
+	private void serialize(final JsonGenerator g, final GameException exception) throws IOException {
 		if (exception == null) {
 			g.writeNullField("exception");
 		} else {
@@ -265,7 +265,7 @@ public class JsonStreamingObjectFactory {
 		}
 	}
 
-	public void serialize(final JsonGenerator g, final Exception exception) throws IOException {
+	private void serialize(final JsonGenerator g, final Exception exception) throws IOException {
 		if (exception == null) {
 			g.writeNullField("exception");
 		} else {
