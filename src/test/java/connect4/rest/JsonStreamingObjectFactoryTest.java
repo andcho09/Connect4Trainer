@@ -40,7 +40,9 @@ public class JsonStreamingObjectFactoryTest {
 		final RecommendResponse response = new RecommendResponse();
 		response.setBoard(
 				BoardLoader.readBoard(FileUtils.readFileToString(new File("src/test/resources/Rest_Recommend_Req_1_board.txt"), "UTF-8")));
-		response.setRecommendColumn(0);
+		response.setRecommendColumn(1);
+		response.setRecommendRow(0);
+		response.setState(GameState.PLAYER_Y_TURN);
 
 		final StringWriter writer = new StringWriter();
 		final JsonGenerator generator = INSTANCE.getGenerator(writer);
@@ -75,7 +77,7 @@ public class JsonStreamingObjectFactoryTest {
 		response.setAiCol(0);
 		response.setAiRow(aiBoard.putDisc(0, Disc.RED));
 		response.setAiBoard(aiBoard);
-		response.setState(GameState.PLAYER_1_TURN);
+		response.setState(GameState.PLAYER_R_TURN);
 
 		final StringWriter writer = new StringWriter();
 		final JsonGenerator generator = INSTANCE.getGenerator(writer);
@@ -83,6 +85,14 @@ public class JsonStreamingObjectFactoryTest {
 		generator.close();
 		writer.flush();
 		Assert.assertEquals(FileUtils.readFileToString(new File("src/test/resources/Rest_Play_Res_1.json"), "UTF-8"), writer.toString());
+	}
 
+	@Test
+	public void testDeserialiseGenericRequest() throws IOException {
+		String json = FileUtils.readFileToString(new File("src/test/resources/Rest_Play_Req_1.json"), "UTF-8");
+		Assert.assertEquals(PlayRequest.class, INSTANCE.deserialiseGenericRequest(INSTANCE.getParser(json)).getClass());
+
+		json = FileUtils.readFileToString(new File("src/test/resources/Rest_Recommend_Req_1.json"), "UTF-8");
+		Assert.assertEquals(RecommendRequest.class, INSTANCE.deserialiseGenericRequest(INSTANCE.getParser(json)).getClass());
 	}
 }

@@ -9,7 +9,9 @@ public class RecommendResponse implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	private int recommendColumn;
+	private int recommendRow;
 	private Board board;
+	private GameState state;
 	private GameException exception;
 
 	public int getRecommendColumn() {
@@ -20,12 +22,28 @@ public class RecommendResponse implements Serializable {
 		this.recommendColumn = recommendColumn;
 	}
 
+	public int getRecommendRow() {
+		return recommendRow;
+	}
+
+	public void setRecommendRow(final int recommendRow) {
+		this.recommendRow = recommendRow;
+	}
+
 	public Board getBoard() {
 		return board;
 	}
 
 	public void setBoard(final Board board) {
 		this.board = board;
+	}
+
+	public GameState getState() {
+		return state;
+	}
+
+	public void setState(final GameState state) {
+		this.state = state;
 	}
 
 	public GameException getException() {

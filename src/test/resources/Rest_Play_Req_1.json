@@ -1,4 +1,5 @@
 {
+	"action": "next",
     "currentPlayer": "y",
     "board": {
         "numCols": 7,

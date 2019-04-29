@@ -17,18 +17,18 @@ var canvasZoom = 80;
 var dropIndicator;
 
 // Disc
-var player1Discs;
-var player2Discs;
+var playerYDiscs;
+var playerRDiscs;
 
 // Game state
 var GAME_STATE = {
-	PLAYER_1_TURN: 0,
-	PLAYER_2_TURN: 1,
-	PLAYER_1_WON: 2,
-	PLAYER_2_WON: 3,
+	PLAYER_R_TURN: 0,
+	PLAYER_Y_TURN: 1,
+	PLAYER_R_WON: 2,
+	PLAYER_Y_WON: 3,
 	DRAW: 4
 };
-var gameState = GAME_STATE.PLAYER_1_TURN;
+var gameState = GAME_STATE.PLAYER_Y_TURN;
 var playerIsWaiting = true;
 
 // Messages/UI
@@ -42,13 +42,14 @@ var Player = function(symbol, colour) {
 	this.symbol = symbol;
 	this.colour = colour;
 };
-var player1 = new Player("y", "#fff700");// Human
-var player2 = new Player("r", "#e33333");// AI
+var playerY = new Player("y", "#fff700");// Human
+var playerR = new Player("r", "#e33333");// AI
+var firstPlayer = playerY;
 
 // Timing
 var MIN_INPUT_INTERVAL = 200;
 
-function resetBoard() {
+function resetBoard(swapPlayers) {
 	board = [];
 	for (var y = 0; y < NUM_ROWS; y++) {
 		var a = [];
@@ -58,16 +59,32 @@ function resetBoard() {
 		board.push(a);
 	}
 
-	player1Discs.forEach(kill, this)
-	player2Discs.forEach(kill, this)
+	playerYDiscs.forEach(kill, this)
+	playerRDiscs.forEach(kill, this)
 
 	if (text) {
 		text.y = -50;
 		text.kill();
 	}
 
-	gameState = GAME_STATE.PLAYER_1_TURN;
-	playerIsWaiting = false;
+	if(swapPlayers){
+		if (firstPlayer == playerR){
+			firstPlayer = playerY;
+			gameState = GAME_STATE.PLAYER_Y_TURN;
+		} else {
+			firstPlayer = playerR;
+			gameState = GAME_STATE.PLAYER_R_TURN;
+		}
+	} else {
+		gameState = GAME_STATE.PLAYER_Y_TURN;
+	}
+	
+	if (gameState == GAME_STATE.PLAYER_Y_TURN){
+		playerIsWaiting = false;
+	} else {
+		playerIsWaiting = true;
+		playAi(); // AI is going first
+	}
 }
 
 /**
@@ -96,7 +113,7 @@ function create() {
 	createButtons();
 	createEventListeners();
 
-	resetBoard();
+	resetBoard(false);
 }
 
 function createBoard() {
@@ -125,16 +142,16 @@ function createBoard() {
 
 function createDiscs() {
 	var dropIndicatorBitmap = game.make.bitmapData(canvasZoom / 2, canvasZoom / 2);
-	dropIndicatorBitmap.circle(canvasZoom / 4, 0, canvasZoom / 4, player1.colour);
+	dropIndicatorBitmap.circle(canvasZoom / 4, 0, canvasZoom / 4, playerY.colour);
 	dropIndicator = dropIndicatorBitmap.addToWorld(-50, 0); // draw off
 
-	player1Discs = game.add.group();
-	player2Discs = game.add.group();
+	playerYDiscs = game.add.group();
+	playerRDiscs = game.add.group();
 
-	var disc1Bmd = game.make.bitmapData(canvasZoom - 4, canvasZoom - 4, "player1Circle", true);
-	disc1Bmd.circle((canvasZoom - 4) / 2, (canvasZoom - 4) / 2, (canvasZoom - 4) / 2, player1.colour);
-	var disc2Bmd = game.make.bitmapData(canvasZoom - 4, canvasZoom - 4, "player2Circle", true);
-	disc2Bmd.circle((canvasZoom - 4) / 2, (canvasZoom - 4) / 2, (canvasZoom - 4) / 2, player2.colour);
+	var disc1Bmd = game.make.bitmapData(canvasZoom - 4, canvasZoom - 4, "playerYCircle", true);
+	disc1Bmd.circle((canvasZoom - 4) / 2, (canvasZoom - 4) / 2, (canvasZoom - 4) / 2, playerY.colour);
+	var disc2Bmd = game.make.bitmapData(canvasZoom - 4, canvasZoom - 4, "playerRCircle", true);
+	disc2Bmd.circle((canvasZoom - 4) / 2, (canvasZoom - 4) / 2, (canvasZoom - 4) / 2, playerR.colour);
 }
 
 function createButtons() {
@@ -145,7 +162,7 @@ function createButtons() {
 	});
 	text.inputEnabled = true;
 	text.events.onInputDown.add(function() {
-		resetBoard();
+		resetBoard(true);
 	}, this);
 }
 
@@ -162,10 +179,10 @@ function onMouseUp(pointer) {
 
 	var x = game.math.snapToFloor(pointer.x - canvasSprite.x, canvasZoom) / canvasZoom;
 	if (x < 0 || x >= NUM_COLS) { return; }
-	if (!playerIsWaiting && gameState == GAME_STATE.PLAYER_1_TURN && pointer.msSinceLastClick > MIN_INPUT_INTERVAL) {
+	if (!playerIsWaiting && gameState == GAME_STATE.PLAYER_Y_TURN && pointer.msSinceLastClick > MIN_INPUT_INTERVAL) {
 		play(x);
-	} else if (gameState == GAME_STATE.PLAYER_1_WON || gameState == GAME_STATE.PLAYER_2_WON || gameState == GAME_STATE.DRAW) {
-		resetBoard();
+	} else if (gameState == GAME_STATE.PLAYER_R_WON || gameState == GAME_STATE.PLAYER_Y_WON || gameState == GAME_STATE.DRAW) {
+		resetBoard(true);
 	}
 }
 
@@ -181,9 +198,14 @@ function onMouseMove(pointer) {
 	dropIndicator.x = xPos;
 }
 
+/**
+ * Handle a human player's play into a specific column.
+ * @param col the column the player is playing into, could be an illegal move
+ */
 function play(col) {
 	var data = {
-		"currentPlayer": "y",
+		"action": "next",
+		"currentPlayer": playerY.symbol,
 		"board": {
 			"numCols": NUM_COLS,
 			"numRows": NUM_ROWS,
@@ -194,7 +216,7 @@ function play(col) {
 
 	playerIsWaiting = true;
 	var request = $.ajax({
-		url: "/game/next",
+		url: "/game/play",
 		method: "POST",
 		data: JSON.stringify(data),
 		dataType: "json"
@@ -205,18 +227,17 @@ function play(col) {
 			// Error
 			if(msg.exception.code == "COLUMN_FULL" || msg.exception.code == "OUT_OF_BOUNDS"){
 				playerIsWaiting = false;
-				return;
 			}else{
 				alert("Could not play col '" + col + "' because: " + msg.exception);
-				return;
 			}
+			return;
 		}
 		board = msg.playerBoard.rows;
 		gameState = msg.gameState;
 		// animate play to our row
-		var playerDiscTween = drawDisc(player1, col, msg.playerRow);
+		var playerDiscTween = drawDisc(playerY, col, msg.playerRow);
 		// if we won, animate we won and end game
-		if (gameState == GAME_STATE.PLAYER_1_WON) {
+		if (gameState == GAME_STATE.PLAYER_Y_WON) {
 			showText("You won!");
 			playerIsWaiting = false;
 		} else {
@@ -228,8 +249,8 @@ function play(col) {
 				playerIsWaiting = false;
 			} else {
 				board = msg.aiBoard.rows;
-				var opponentTween = drawDisc(player2, aiCol, aiRow, playerDiscTween);
-				if (gameState == GAME_STATE.PLAYER_2_WON) {
+				var opponentTween = drawDisc(playerR, aiCol, aiRow, playerDiscTween);
+				if (gameState == GAME_STATE.PLAYER_R_WON) {
 					// if opponent won, animate opponent won and end game
 					showText("The bot won!");
 					playerIsWaiting = false;
@@ -250,12 +271,63 @@ function play(col) {
 	});
 }
 
+/**
+ * Handles AI making a play (e.g. in a game where the AI goes first).
+ */
+function playAi(){
+	var data = {
+		"action": "recommend",
+		"currentPlayer": playerR.symbol,
+		"board": {
+			"numCols": NUM_COLS,
+			"numRows": NUM_ROWS,
+			"rows": board
+		}
+	};
+
+	playerIsWaiting = true;
+	var request = $.ajax({
+		url: "/game/play",
+		method: "POST",
+		data: JSON.stringify(data),
+		dataType: "json"
+	});
+	
+	request.done(function(msg) {
+		if(msg.exception != undefined){
+			// Error
+			if(msg.exception.code == "COLUMN_FULL" || msg.exception.code == "OUT_OF_BOUNDS"){
+				playerIsWaiting = false;
+			}else{
+				alert("Could not play col '" + col + "' because: " + msg.exception);
+			}
+			return;
+		}
+		board = msg.board.rows;
+		gameState = msg.gameState;
+		// animate AI's play to row
+		var aiDiscTween = drawDisc(playerR, msg.recommendColumn, msg.recommendRow);
+		// if AI won, animate opponent won and end game
+		if (gameState == GAME_STATE.PLAYER_R_WON) {
+			showText("The bot won!");
+		} else if (gameState == GAME_STATE.DRAW){
+			showText("It's a draw!");
+		}
+		aiDiscTween.onComplete.add(function(){ playerIsWaiting = false; }, this);
+	});
+	
+	request.fail(function(jqXhr, textStatus) {
+		alert("Request failed: " + jqXhr.responseText);
+		playerIsWaiting = false;
+	});
+}
+
 function drawDisc(player, col, row, parentTween) {
-	var key = "player1Circle";
-	var group = player1Discs;
-	if (player == player2) {
-		key = "player2Circle";
-		group = player2Discs;
+	var key = "playerYCircle";
+	var group = playerYDiscs;
+	if (player == playerR) {
+		key = "playerRCircle";
+		group = playerRDiscs;
 	}
 	var x = canvasSprite.x + 2 + col * canvasZoom;
 	var y = canvasSprite.y + 2 + (NUM_ROWS - row - 1) * canvasZoom;
@@ -270,11 +342,12 @@ function drawDisc(player, col, row, parentTween) {
 	var autoStart = true;
 	var delay = 0;
 	if(parentTween != undefined){
-		parentTween.chain(tween)
+		parentTween.chain(tween);
 		autoStart = false;
 	}
 	tween.to({y:y}, duration, Phaser.Easing.Linear.None, autoStart);
-	return tween
+	console.log("Tween " + player.symbol + " to x: " + x + ", y: " + y);
+	return tween;
 	// TODO grid has extra pixel on left and bottom. 79x79 boxes
 }
 

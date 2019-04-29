@@ -75,6 +75,29 @@ public class RestServer {
 			}
 		});
 
+		post("/game/play", new Route() {
+			@Override
+			public Object handle(final Request req, final Response res) throws Exception {
+
+				final JsonParser parser = factory.getParser(req.raw().getInputStream());
+				final RecommendRequest genericRequest = factory.deserialiseGenericRequest(parser);
+				parser.close();
+
+				final Writer writer = new StringWriter();
+				final JsonGenerator g = factory.getGenerator(writer);
+
+				if (genericRequest instanceof PlayRequest) {
+					final PlayResponse response = gameHandler.next((PlayRequest) genericRequest);
+					factory.serialize(g, response);
+				} else {
+					final RecommendResponse response = gameHandler.recommend(genericRequest);
+					factory.serialize(g, response);
+				}
+				g.close();
+				return writer.toString();
+			}
+		});
+
 		// Generic exception handler
 		exception(Exception.class, new ExceptionHandler() {
 			@Override

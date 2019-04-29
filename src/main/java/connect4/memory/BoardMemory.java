@@ -5,7 +5,7 @@ import connect4.player.Player;
 
 public class BoardMemory {
 
-	public void has(final Board b, Player currentPlayer) {
+	public void has(final Board b, final Player currentPlayer) {
 
 	}
 
