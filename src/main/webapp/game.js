@@ -346,7 +346,6 @@ function drawDisc(player, col, row, parentTween) {
 		autoStart = false;
 	}
 	tween.to({y:y}, duration, Phaser.Easing.Linear.None, autoStart);
-	console.log("Tween " + player.symbol + " to x: " + x + ", y: " + y);
 	return tween;
 	// TODO grid has extra pixel on left and bottom. 79x79 boxes
 }
