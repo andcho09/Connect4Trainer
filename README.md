@@ -110,6 +110,6 @@ CloudFront distribution caches the following:
     ``> git clone git@bitbucket.org:andcho09/connect4trainer.git connect4trainer_clean``
 1. Run ``gradle build`` to build the .zip file which will be saved to ``build/distributions``
 1. Upload the .zip file to AWS Lambda
-1. Upload any new web content to the AWS S3 bucket [andrewcho-connect4](https://s3.console.aws.amazon.com/s3/buckets/andrewcho-connect4/?region=us-east-1&tab=overview)
+1. Upload any new web content from ``build/aws-s3-dist`` to the AWS S3 bucket [andrewcho-connect4](https://s3.console.aws.amazon.com/s3/buckets/andrewcho-connect4/?region=us-east-1&tab=overview)
     * Note CloudFront caches web content so it might need to be [invalidated manually](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/Invalidation.html)
 1. Tag the git commit

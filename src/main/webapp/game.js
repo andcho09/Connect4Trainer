@@ -255,7 +255,6 @@ function play(col) {
 					showText("The bot won!");
 					playerIsWaiting = false;
 				} else if (gameState == GAME_STATE.DRAW) {
-					gameState == GAME_STATE.DRAW;
 					showText("It's a draw!");
 					playerIsWaiting = false;
 				} else {

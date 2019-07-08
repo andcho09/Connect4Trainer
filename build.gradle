@@ -1,5 +1,7 @@
-apply plugin: 'java'
-apply plugin: 'maven'
+plugins {
+    id 'java'
+    id 'maven'
+}
 
 group = 'Connect4Trainer'
 version = '0.0.1-SNAPSHOT'
@@ -49,4 +51,20 @@ task buildZip(type: Zip, group: "Custom", description: "Creates .zip for upload 
     }
 }
 
-build.dependsOn buildZip
+task copyAwsWeb(type: Copy) {
+    from file('src/main/webapp/')
+        include '*.htm'
+    into 'build/distributions/aws-s3-dist'
+    doLast{
+        ant.gzip(src: 'src/main/webapp/favicon.ico', destfile: 'build/distributions/aws-s3-dist/favicon.ico')
+    }
+}
+
+task yuiCompressJs(type: JavaExec) {
+    classpath = layout.files('../commontools/Ant/lib/yuicompressor-2.4.8.jar')
+    main = 'com.yahoo.platform.yui.compressor.Bootstrap'
+    args = ['-o', 'build/distributions/aws-s3-dist/game.js', 'src/main/webapp/game.js']
+}
+
+yuiCompressJs.dependsOn copyAwsWeb
+build.dependsOn buildZip, yuiCompressJs
