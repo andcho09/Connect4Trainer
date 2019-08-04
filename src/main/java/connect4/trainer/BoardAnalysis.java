@@ -13,7 +13,7 @@ public class BoardAnalysis extends AbstractList<ColumnAnalysis> {
 	private final List<ColumnAnalysis> columnAnalyses;
 
 	public BoardAnalysis() {
-		this.columnAnalyses = new ArrayList<ColumnAnalysis>();
+		this.columnAnalyses = new ArrayList<>();
 
 	}
 
@@ -62,6 +62,9 @@ public class BoardAnalysis extends AbstractList<ColumnAnalysis> {
 		return this.columnAnalyses.add(analysis);
 	}
 
+	/**
+	 * Retrieves the analysis at position index in the list. Could throw {@link IndexOutOfBoundsException}.
+	 */
 	@Override
 	public ColumnAnalysis get(final int index) {
 		return columnAnalyses.get(index);

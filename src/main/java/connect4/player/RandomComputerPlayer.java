@@ -21,7 +21,7 @@ public class RandomComputerPlayer extends Player {
 
 	@Override
 	public int nextMove(final Board board) {
-		final List<Integer> freeColumns = new ArrayList<Integer>(board.getNumCols());
+		final List<Integer> freeColumns = new ArrayList<>(board.getNumCols());
 		for (int c = 0; c < board.getNumCols(); c++) {
 			if (board.getDisc(c, board.getNumRows() - 1) == null) {
 				freeColumns.add(c);

@@ -10,7 +10,8 @@ import connect4.IllegalMoveException;
 import connect4.Move;
 
 /**
- * A factory for {@link ColumnAnalyser}s which look at the playing in an individual column.
+ * A factory for {@link ColumnAnalyser}s which look at the playing in an individual column. This is very simple and does not evaluate beyond
+ * one disc being played unlike the {@link AbstractForceBoardAnalyser} classes.
  */
 public class ColumnAnalyserFactory {
 
@@ -269,7 +270,24 @@ public class ColumnAnalyserFactory {
 		}
 	};
 
-	private static final List<ColumnAnalyser> ANALYSERS = new LinkedList<ColumnAnalyser>();
+	/**
+	 * Check if the bottom center column if free
+	 */
+	private static final ColumnAnalyser BOTTOM_CENTER = new ColumnAnalyser() {
+
+		@Override
+		public boolean flag(final Board board, final Disc currentPlayer, final int column, final ColumnAnalysis currentAnalysis) {
+			final int centerColumn = board.getNumCols() / 2;
+			if (column == centerColumn && board.getDisc(centerColumn, 0) == null) {
+				currentAnalysis.addCondition(ColumnAnalysis.FLAG_BOTTOM_CENTER_FREE);
+				return true;
+			}
+			return false;
+		}
+
+	};
+
+	private static final List<ColumnAnalyser> ANALYSERS = new LinkedList<>();
 	static {
 		ANALYSERS.add(WIN_NOW);
 		ANALYSERS.add(TRAP_MORE_THAN_ONE);
@@ -278,6 +296,7 @@ public class ColumnAnalyserFactory {
 		ANALYSERS.add(ENABLE_OPPONENT_WIN);
 		ANALYSERS.add(MAKE_3_SETUP);
 		ANALYSERS.add(BLOCK_MAKE_3_SETUP);
+		ANALYSERS.add(BOTTOM_CENTER);
 	}
 
 	public static List<ColumnAnalyser> getAnalysers() {

@@ -52,6 +52,9 @@ public class ScoringAlgorithm {
 		if (analysis.hasCondition(ColumnAnalysis.FLAG_MAKE_3_DOUBLE_SETUP)) {
 			return 1000000; // This is very likely a good play
 		}
+		if (analysis.hasCondition(ColumnAnalysis.FLAG_BOTTOM_CENTER_FREE)) {
+			return 1; // Possibly a good play
+		}
 		return 0; // No opinion
 	}
 

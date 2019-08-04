@@ -71,6 +71,11 @@ public class ColumnAnalysis {
 	 */
 	public static final int FLAG_BLOCK_MAKE_3_DOUBLE_SETUP = 1 << 11;
 
+	/**
+	 * Bottom center column is free.
+	 */
+	public static final int FLAG_BOTTOM_CENTER_FREE = 1 << 12;
+
 	private final int column;
 	private int flags;
 
@@ -129,6 +134,7 @@ public class ColumnAnalysis {
 		detail.append("\n Block 3-in-a-row with a gap below: " + hasCondition(FLAG_BLOCK_MAKE_3_SETUP));
 		detail.append(
 				"\n Block 2x 3-in-a-row stacked ontop of ecah other with a gap below: " + hasCondition(FLAG_BLOCK_MAKE_3_DOUBLE_SETUP));
+		detail.append("\n Bottom center column is free: " + hasCondition(FLAG_BOTTOM_CENTER_FREE));
 		return String.format("ColumnAnalysis (col=%d, flags=%d)%s", column, flags, detail.toString());
 	}
 }

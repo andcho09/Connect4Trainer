@@ -35,7 +35,7 @@ public abstract class AbstractForceBoardAnalyser {
 					+ " with analysis: " + StringUtils.join(boardAnalysis.iterator(), ", "));
 		}
 
-		final List<ForcedAnalysisResult> resultInWins = new ArrayList<ForcedAnalysisResult>();
+		final List<ForcedAnalysisResult> resultInWins = new ArrayList<>();
 
 		// Check exit conditions
 		final BoardAnalysis winColumns = boardAnalysis.getColumnsWithConditions(ScoringAlgorithm.getWinColumnAnalysisFlags());

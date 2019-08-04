@@ -38,8 +38,8 @@ public class BoardAnalyserFactory {
 		public ForcedAnalysisResult(final int depth, final BoardAnalysis boardAnalysis) {
 			this.depth = depth;
 			this.boardAnalysis = boardAnalysis;
-			this.moves = new LinkedList<Integer>();
-			this.opponentMoves = new LinkedList<Integer>();
+			this.moves = new LinkedList<>();
+			this.opponentMoves = new LinkedList<>();
 		}
 
 		/**
@@ -111,6 +111,7 @@ public class BoardAnalyserFactory {
 		 * @throws IllegalMoveException if the analysis is invalid and can't be played
 		 */
 		public String replay(final Board board, final Disc currentPlayer) throws IllegalMoveException {
+			// TODO currently unused
 			if (moves.isEmpty()) {
 				return null; // Opponent not forced
 			}
@@ -148,7 +149,7 @@ public class BoardAnalyserFactory {
 			if (!forcedAnalysisWinResults.isEmpty()) {
 				// Found some wins, now find the shortest depth
 				int shortestDepth = Integer.MAX_VALUE;
-				final List<ForcedAnalysisResult> shortestForcedAnalysisWinResults = new ArrayList<ForcedAnalysisResult>();
+				final List<ForcedAnalysisResult> shortestForcedAnalysisWinResults = new ArrayList<>();
 				for (final ForcedAnalysisResult result : forcedAnalysisWinResults) {
 					if (LOGGER.isDebugEnabled()) {
 						LOGGER.debug("Forced win sequence: " + result);
@@ -196,7 +197,7 @@ public class BoardAnalyserFactory {
 		};
 	};
 
-	private static final List<AbstractForceBoardAnalyser> ANALYSERS = new LinkedList<AbstractForceBoardAnalyser>();
+	private static final List<AbstractForceBoardAnalyser> ANALYSERS = new LinkedList<>();
 	static {
 		ANALYSERS.add(FORCED_ANALYSER);
 		ANALYSERS.add(BLOCK_FORCED_ANALYSER);
