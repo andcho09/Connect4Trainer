@@ -324,7 +324,7 @@ public class BoardHelper {
 		final int cMin = col - shiftNw;
 		final int rMax = row + shiftNw;
 
-		final List<int[]> result = new ArrayList<int[]>(2);
+		final List<int[]> result = new ArrayList<>(2);
 		result.add(new int[] { cMax, rMin });
 		result.add(new int[] { cMin, rMax });
 		return result;
@@ -346,7 +346,7 @@ public class BoardHelper {
 		final int cMax = col + shiftNe;
 		final int rMax = row + shiftNe;
 
-		final List<int[]> result = new ArrayList<int[]>(2);
+		final List<int[]> result = new ArrayList<>(2);
 		result.add(new int[] { c, r });
 		result.add(new int[] { cMax, rMax });
 		return result;
