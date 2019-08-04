@@ -46,12 +46,21 @@ public class ScoringAlgorithm {
 		if (analysis.hasCondition(ColumnAnalysis.FLAG_BLOCK_FORCED_WIN)) {
 			return Integer.MAX_VALUE - 5;
 		}
-		if (analysis.hasCondition(ColumnAnalysis.FLAG_MAKE_3_SETUP)) {
-			return 1000; // This is probably a good play
-		}
+
+		// TODO these next 4 probably should be smarter about tie breaking based on which setup is closest to the bottom
 		if (analysis.hasCondition(ColumnAnalysis.FLAG_MAKE_3_DOUBLE_SETUP)) {
 			return 1000000; // This is very likely a good play
 		}
+		if (analysis.hasCondition(ColumnAnalysis.FLAG_BLOCK_MAKE_3_DOUBLE_SETUP)) {
+			return 1000000 - 1;
+		}
+		if (analysis.hasCondition(ColumnAnalysis.FLAG_MAKE_3_SETUP)) {
+			return 1000; // This is probably a good play
+		}
+		if (analysis.hasCondition(ColumnAnalysis.FLAG_BLOCK_MAKE_3_SETUP)) {
+			return 1000 - 1;
+		}
+
 		if (analysis.hasCondition(ColumnAnalysis.FLAG_BOTTOM_CENTER_FREE)) {
 			return 1; // Possibly a good play
 		}

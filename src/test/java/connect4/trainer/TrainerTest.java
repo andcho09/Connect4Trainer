@@ -283,6 +283,19 @@ public class TrainerTest {
 	}
 
 	@Test
+	public void testBlockMake34() throws IOException {
+		final Board board = BoardLoader.readBoard(new File(RESOURCES_DIR + "TrainerTest_Make3_4.txt"));
+		Assert.assertNull(BoardHelper.hasWinner(board));
+		Assert.assertEquals(5, trainer.recommend(board, Disc.YELLOW));
+		Assert.assertEquals(1, trainer.getLastBestBoardAnalysis().size());
+		Assert.assertTrue(trainer.getLastBestBoardAnalysis().get(0).hasCondition(ColumnAnalysis.FLAG_MAKE_3_SETUP));
+
+		trainer.recommend(board, Disc.RED);
+		Assert.assertEquals(1, trainer.getLastBestBoardAnalysis().size());
+		Assert.assertTrue(trainer.getLastBoardAnalysis().getAnalysisAtColumn(5).hasCondition(ColumnAnalysis.FLAG_BLOCK_MAKE_3_SETUP));
+	}
+
+	@Test
 	public void testBlockMake3Double1() throws IOException {
 		final Board board = BoardLoader.readBoard(new File(RESOURCES_DIR + "TrainerTest_Make3Double_1.txt"));
 		Assert.assertNull(BoardHelper.hasWinner(board));
@@ -346,4 +359,5 @@ public class TrainerTest {
 		Assert.assertEquals(3, trainer.recommend(board, Disc.YELLOW));
 		Assert.assertEquals(1, trainer.getLastBestBoardAnalysis().size());
 	}
+
 }
