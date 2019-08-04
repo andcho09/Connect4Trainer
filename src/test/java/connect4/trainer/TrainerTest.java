@@ -27,12 +27,10 @@ public class TrainerTest {
 	public void testEmpty() {
 		final Board board = new Board(7, 6);
 		Assert.assertNull(BoardHelper.hasWinner(board));
-		final int recommendedColumn = trainer.recommend(board, Disc.RED);
-		Assert.assertTrue(recommendedColumn >= 0);
-		Assert.assertTrue(recommendedColumn < board.getNumCols());
+		Assert.assertEquals(3, trainer.recommend(board, Disc.RED));
 		final BoardAnalysis lastBestBoardAnalysis = trainer.getLastBestBoardAnalysis();
-		Assert.assertEquals(7, lastBestBoardAnalysis.size());
-		// If center was preferred, we'd get deterministic result
+		Assert.assertEquals(1, lastBestBoardAnalysis.size());
+		Assert.assertTrue(lastBestBoardAnalysis.getAnalysisAtColumn(3).hasCondition(ColumnAnalysis.FLAG_BOTTOM_CENTER_FREE));
 	}
 
 	@Test
@@ -148,9 +146,9 @@ public class TrainerTest {
 		// No opinion. This is testing a bug
 		final Board board = BoardLoader.readBoard(new File(RESOURCES_DIR + "TrainerTest_ForceWin_2.txt"));
 		Assert.assertNull(BoardHelper.hasWinner(board));
-		trainer.recommend(board, Disc.YELLOW);
-		Assert.assertEquals(7, trainer.getLastBestBoardAnalysis().size());
-		Assert.assertEquals(ColumnAnalysis.FLAG_NO_OPINION, trainer.getLastBestBoardAnalysis().get(0).getFlags());
+		Assert.assertEquals(3, trainer.recommend(board, Disc.YELLOW));
+		Assert.assertEquals(1, trainer.getLastBestBoardAnalysis().size());
+		Assert.assertEquals(ColumnAnalysis.FLAG_BOTTOM_CENTER_FREE, trainer.getLastBestBoardAnalysis().get(0).getFlags());
 	}
 
 	@Test
@@ -330,10 +328,22 @@ public class TrainerTest {
 		Assert.assertEquals(4, trainer.recommend(board, Disc.RED));
 		Assert.assertEquals(1, trainer.getLastBestBoardAnalysis().size());
 
-		// TODO this is a little weird that column 4 is chosen over column 5
+		// TODO this is a little weird that column 4 (blocks forced win) is chosen over column 5 (if we played here we prevent the double
+		// setup)
 		Assert.assertEquals(4, trainer.getLastBestBoardAnalysis().get(0).getColumn());
 		Assert.assertTrue(trainer.getLastBoardAnalysis().getAnalysisAtColumn(4).hasCondition(ColumnAnalysis.FLAG_BLOCK_FORCED_WIN));
 		Assert.assertTrue(
 				trainer.getLastBoardAnalysis().getAnalysisAtColumn(5).hasCondition(ColumnAnalysis.FLAG_BLOCK_MAKE_3_DOUBLE_SETUP));
+	}
+
+	@Test
+	public void testTakeBottomCenter() throws IOException {
+		final Board board = BoardLoader.readBoard(new File(RESOURCES_DIR + "TrainerTest_BottomCenter_1.txt"));
+		Assert.assertNull(BoardHelper.hasWinner(board));
+		Assert.assertEquals(3, trainer.recommend(board, Disc.RED));
+		Assert.assertEquals(1, trainer.getLastBestBoardAnalysis().size());
+
+		Assert.assertEquals(3, trainer.recommend(board, Disc.YELLOW));
+		Assert.assertEquals(1, trainer.getLastBestBoardAnalysis().size());
 	}
 }
