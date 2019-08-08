@@ -1,0 +1,12 @@
+# comments here and empty lines
+
+3 4
+
+...
+.y.
+# comment in the middle and some whitespace on the next line
+ 
+.r.
+ryy
+
+# stuff at the bottom

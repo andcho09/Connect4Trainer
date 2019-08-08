@@ -18,6 +18,8 @@ import connect4.rest.JsonStreamingObjectFactory;
  */
 public class BoardLoader {
 
+	public static char COMMENT_CHAR = '#';
+
 	private BoardLoader() {
 	}
 
@@ -37,6 +39,7 @@ public class BoardLoader {
 	 *.r.yr..
 	 *rr.yy..
 	 * </pre>
+	 * <li>comments start with the '#' character
 	 * </ul>
 	 * </p>
 	 * <p>
@@ -59,9 +62,14 @@ public class BoardLoader {
 			throw new InvalidBoardFormatException("The board is invalid. Must be at least two lines.");
 		}
 
+		int sizeLineIndex = 0;
+		String line;
+
 		// Figure out columns and rows
-		final String firstLine = lines[0].trim();
-		final String[] boardParams = StringUtils.split(firstLine, ' ');
+		do {
+			line = lines[sizeLineIndex++].trim();
+		} while (isCommentLine(line) && sizeLineIndex < lines.length);
+		final String[] boardParams = StringUtils.split(line, ' ');
 		if (boardParams.length < 2) {
 			throw new InvalidBoardFormatException(
 					"The board is invalid. The first line must have at least two arguments for: <nCols> <nRows>");
@@ -78,10 +86,6 @@ public class BoardLoader {
 		} catch (final NumberFormatException e) {
 			throw new InvalidBoardFormatException("The board is invalid. The number of rows could not be parsed as an integer.", e);
 		}
-		if (nRows + 1 != lines.length) {
-			throw new InvalidBoardFormatException(
-					String.format("The board is invalid. Metadata said %d rows but found %d rows", nRows, lines.length - 1));
-		}
 
 		Board result;
 		try {
@@ -89,14 +93,23 @@ public class BoardLoader {
 		} catch (final IllegalArgumentException e) {
 			throw new InvalidBoardFormatException("The board is invalid. Could not create board.", e);
 		}
-		for (int r = nRows; r > 0; r--) {
-			final String rowString = lines[r];
+		int lineIndex = lines.length - 1;
+		int rowsFound = 0;
+		for (; rowsFound < nRows && lineIndex > 0; lineIndex--) {
+			line = lines[lineIndex].trim();
+			if (isCommentLine(line)) {
+				continue;
+			}
+			if (nCols != line.length()) {
+				throw new InvalidBoardFormatException(
+						String.format("The board is invalid. Expected %d columns but the row was '%s'", nCols, line));
+			}
 			for (int c = 0; c < nCols; c++) {
-				final Disc disc = Disc.getDisc(rowString.charAt(c));
+				final Disc disc = Disc.getDisc(line.charAt(c));
 				if (disc != null) {
 					try {
 						final int resultRow = result.putDisc(c, disc);
-						if (resultRow != nRows - r) {
+						if (resultRow != rowsFound) {
 							throw new InvalidBoardFormatException("The board is invalid. Placed disc didn't match the expect row.");
 						}
 					} catch (final IllegalMoveException e) {
@@ -104,6 +117,15 @@ public class BoardLoader {
 					}
 				}
 			}
+			rowsFound++;
+		}
+		if (nRows != rowsFound) {
+			throw new InvalidBoardFormatException(
+					String.format("The board is invalid. Metadata said %d rows but found %d rows.", nRows, rowsFound));
+		}
+		line = lines[lineIndex].trim();
+		if (sizeLineIndex <= lineIndex && !isCommentLine(line)) {
+			throw new InvalidBoardFormatException(String.format("The board is invalid. Expected %d rows but found more.", nRows));
 		}
 
 		return result;
@@ -136,5 +158,13 @@ public class BoardLoader {
 	public static Board readBoard(final File inputFile) throws IOException {
 		final String inputBoardString = FileUtils.readFileToString(inputFile, "UTF-8");
 		return BoardLoader.readBoard(inputBoardString);
+	}
+
+	/**
+	 * @param line the String to check
+	 * @return <code>true</code> if the line is a comment or should be ignored, else <code>false</code>
+	 */
+	private static boolean isCommentLine(final String line) {
+		return "".equals(line) || line.charAt(0) == COMMENT_CHAR;
 	}
 }

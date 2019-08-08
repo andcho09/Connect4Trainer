@@ -261,7 +261,7 @@ public class ColumnAnalyserFactory {
 			final Disc opponentDisc = Disc.getOpposite(currentPlayer);
 			final ColumnAnalysis opponentAnalysis = new ColumnAnalysis(currentAnalysis);
 			if (MAKE_3_SETUP.flag(board, opponentDisc, column, opponentAnalysis)) {
-				currentAnalysis.addCondition(ColumnAnalysis.FLAG_MAKE_3_SETUP);
+				currentAnalysis.addCondition(ColumnAnalysis.FLAG_BLOCK_MAKE_3_SETUP);
 				if (opponentAnalysis.hasCondition(ColumnAnalysis.FLAG_MAKE_3_DOUBLE_SETUP)) {
 					currentAnalysis.addCondition(ColumnAnalysis.FLAG_BLOCK_MAKE_3_DOUBLE_SETUP);
 				}
