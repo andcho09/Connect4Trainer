@@ -1,0 +1,6 @@
+# this board has too many columns
+3 4
+.r
+.y
+ry
+yr

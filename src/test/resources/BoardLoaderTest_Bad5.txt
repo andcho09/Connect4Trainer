@@ -1,0 +1,7 @@
+# this board has too many rows
+3 4
+...
+.r.
+.y.
+ry.
+yrr
