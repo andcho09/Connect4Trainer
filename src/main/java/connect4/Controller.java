@@ -38,7 +38,7 @@ public class Controller {
 			currentPlayer = currentPlayer == player1 ? player2 : player1;
 		}
 
-		System.out.println(board.toString());
+		System.out.println(board.toString(true));
 		if (winner == null) {
 			System.out.println("It's a draw!");
 		} else {

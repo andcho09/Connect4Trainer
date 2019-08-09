@@ -122,19 +122,19 @@ public class ColumnAnalysis {
 
 	public String toStringDetail() {
 		final StringBuilder detail = new StringBuilder();
-		detail.append("\n We will win next move: " + hasCondition(FLAG_WIN_1));
-		detail.append("\n Board is unplayable: " + hasCondition(FLAG_UNPLAYABLE));
-		detail.append("\n Block opponent winning: " + hasCondition(FLAG_BLOCK_LOSS_1));
-		detail.append("\n Enable opponent to win: " + hasCondition(FLAG_ENABLE_OPPONENT_WIN));
-		detail.append("\n Set trap to win move after: " + hasCondition(FLAG_TRAP_MORE_THAN_ONE));
-		detail.append("\n Block opponents trap: " + hasCondition(FLAG_BLOCK_TRAP_MORE_THAN_ONE));
-		detail.append("\n Force opponents move for us to win: " + hasCondition(FLAG_FORCED_WIN));
-		detail.append("\n Block opponent forcing our move and losing : " + hasCondition(FLAG_BLOCK_FORCED_WIN));
-		detail.append("\n Sets up a 3-in-a-row with a gap below: " + hasCondition(FLAG_MAKE_3_SETUP));
-		detail.append("\n Block 3-in-a-row with a gap below: " + hasCondition(FLAG_BLOCK_MAKE_3_SETUP));
+		detail.append(hasCondition(FLAG_WIN_1) ? "\n We will win next move" : "");
+		detail.append(hasCondition(FLAG_UNPLAYABLE) ? "\n Column is unplayable" : "");
+		detail.append(hasCondition(FLAG_BLOCK_LOSS_1) ? "\n Block opponent winning" : "");
+		detail.append(hasCondition(FLAG_ENABLE_OPPONENT_WIN) ? "\n Enable opponent to win" : "");
+		detail.append(hasCondition(FLAG_TRAP_MORE_THAN_ONE) ? "\n Set trap to win move after" : "");
+		detail.append(hasCondition(FLAG_BLOCK_TRAP_MORE_THAN_ONE) ? "\n Block opponents trap" : "");
+		detail.append(hasCondition(FLAG_FORCED_WIN) ? "\n Force opponents move for us to win" : "");
+		detail.append(hasCondition(FLAG_BLOCK_FORCED_WIN) ? "\n Block opponent forcing our move and losing" : "");
+		detail.append(hasCondition(FLAG_MAKE_3_SETUP) ? "\n Sets up a 3-in-a-row with a gap below" : "");
+		detail.append(hasCondition(FLAG_BLOCK_MAKE_3_SETUP) ? "\n Block 3-in-a-row with a gap below" : "");
 		detail.append(
-				"\n Block 2x 3-in-a-row stacked ontop of ecah other with a gap below: " + hasCondition(FLAG_BLOCK_MAKE_3_DOUBLE_SETUP));
-		detail.append("\n Bottom center column is free: " + hasCondition(FLAG_BOTTOM_CENTER_FREE));
+				hasCondition(FLAG_BLOCK_MAKE_3_DOUBLE_SETUP) ? "\n Block 2x 3-in-a-row stacked ontop of ecah other with a gap below" : "");
+		detail.append(hasCondition(FLAG_BOTTOM_CENTER_FREE) ? "\n Bottom center column is free" : "");
 		return String.format("ColumnAnalysis (col=%d, flags=%d)%s", column, flags, detail.toString());
 	}
 }

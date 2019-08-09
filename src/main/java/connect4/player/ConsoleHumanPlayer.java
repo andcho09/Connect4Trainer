@@ -33,24 +33,23 @@ public class ConsoleHumanPlayer extends Player {
 
 	@Override
 	public int nextMove(final Board board) {
-		out.printf("%s", board.toString());
-		out.printf("%s, which column to play? [1-%d]: ", toString(), board.getNumCols());
-
-		String line;
-		try {
-			line = in.readLine();
-		} catch (final IOException e) {
-			throw new RuntimeException("Could not read player input", e);
-		}
+		out.printf("%s", board.toString(true));
 
 		int col = -1;
-		while (col == -1) {
+		while (col < 1 || col > board.getNumCols()) {
+			out.printf("%s, which column to play? [1-%d]: ", toString(), board.getNumCols());
+			String line;
 			try {
-				col = Integer.parseInt(line);
-			} catch (final NumberFormatException e) {
-				out.printf("The input '%s' is not valid column. Valid columns are 1 to %d.", line, board.getNumCols());
+				line = in.readLine().trim();
+			} catch (final IOException e) {
+				throw new RuntimeException("Could not read player input", e);
 			}
-
+			if (Character.isDigit(line.charAt(0))) {
+				try {
+					col = Integer.parseInt(line);
+				} catch (final NumberFormatException ignored) {}
+			}
+			out.printf("The input '%s' is not valid column. Valid columns are 1 to %d.", line, board.getNumCols());
 		}
 		return col - 1;
 	}

@@ -144,15 +144,28 @@ public class Board {
 	 */
 	@Override
 	public String toString() {
-		final StringBuilder sb = new StringBuilder((nCols + 1) * nRows);
+		return toString(false);
+	}
+
+	/**
+	 * Prints the board to a String
+	 * @param consoleOptimised <code>true</code> to use console optimised format else <code>false</code>
+	 * @return
+	 */
+	public String toString(final boolean consoleOptimised) {
+		final StringBuilder sb = new StringBuilder((nCols + 1) * nRows * (consoleOptimised ? 3 : 1));
 		for (int r = nRows - 1; r >= 0; r--) {
 			for (int c = 0; c < nCols; c++) {
 				final Disc disc = getDisc(c, r);
-				sb.append(Disc.toSymbol(disc));
+				sb.append(Disc.toSymbol(disc) + (consoleOptimised ? "  " : ""));
 			}
 			sb.append('\n');
+			if (consoleOptimised) {
+				sb.append('\n');
+			}
 		}
 		return sb.toString();
+
 	}
 
 	/**
@@ -258,7 +271,7 @@ public class Board {
 			}
 			// invert all the bits and mask off the top bits up to the row we found
 			// Integer.MIN_VALUE is all 1s.
-			result.board[i] = ~column & (((2 << ((r * 2) - 1))) - 1);
+			result.board[i] = ~column & (2 << r * 2 - 1) - 1;
 		}
 		return result;
 	}

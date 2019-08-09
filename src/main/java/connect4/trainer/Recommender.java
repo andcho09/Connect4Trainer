@@ -49,7 +49,7 @@ public abstract class Recommender {
 	 * @return the best {@link BoardAnalysis} for the recent analysis. Could be more than one best
 	 *         column.
 	 */
-	protected BoardAnalysis getLastBestBoardAnalysis() {
+	public BoardAnalysis getLastBestBoardAnalysis() {
 		return lastBestBoardAnalysis;
 	}
 
