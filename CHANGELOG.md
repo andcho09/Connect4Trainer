@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+* New
+    * Expanded Main class to allow user to pick between playing a game or analysing a board from a file
 * Bug fixes
     * Fixed a bug where a column was incorrectly flagged as setting up a 3-in-a-row when infact it blocks its
 
