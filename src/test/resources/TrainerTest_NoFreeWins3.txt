@@ -1,0 +1,8 @@
+7 6
+.......
+...y...
+...yy..
+...ry.y
+...yrrr
+r.yrrry
+# Issue #9 on bitbucket. AI RED plays column[5] but gives away yellow win

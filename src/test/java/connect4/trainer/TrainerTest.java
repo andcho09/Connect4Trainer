@@ -253,7 +253,10 @@ public class TrainerTest {
 		Assert.assertNull(BoardHelper.hasWinner(board));
 		trainer.recommend(board, Disc.YELLOW);
 		Assert.assertEquals(1, trainer.getLastBestBoardAnalysis().size());
-		Assert.assertTrue(trainer.getLastBestBoardAnalysis().getAnalysisAtColumn(2).hasCondition(ColumnAnalysis.FLAG_TRAP_MORE_THAN_ONE));
+		Assert.assertTrue(trainer.getLastBestBoardAnalysis().getAnalysisAtColumn(2).hasCondition(ColumnAnalysis.FLAG_BLOCK_LOSS_1));
+		// Because we terminate analysis early we only find the ColumnAnalysis.FLAG_BLOCK_LOSS_1 flag. The
+		// ColumnAnalysis.FLAG_TRAP_MORE_THAN_ONE is missed.
+		Assert.assertFalse(trainer.getLastBestBoardAnalysis().getAnalysisAtColumn(2).hasCondition(ColumnAnalysis.FLAG_TRAP_MORE_THAN_ONE));
 	}
 
 	@Test
@@ -347,6 +350,21 @@ public class TrainerTest {
 		Assert.assertTrue(trainer.getLastBoardAnalysis().getAnalysisAtColumn(4).hasCondition(ColumnAnalysis.FLAG_BLOCK_FORCED_WIN));
 		Assert.assertTrue(
 				trainer.getLastBoardAnalysis().getAnalysisAtColumn(5).hasCondition(ColumnAnalysis.FLAG_BLOCK_MAKE_3_DOUBLE_SETUP));
+	}
+
+	@Test
+	public void testNoFreeWins3() throws IOException {
+		final Board board = BoardLoader.readBoard(new File(RESOURCES_DIR + "TrainerTest_NoFreeWins3.txt"));
+		Assert.assertNull(BoardHelper.hasWinner(board));
+		Assert.assertEquals(6, trainer.recommend(board, Disc.RED));
+		Assert.assertEquals(1, trainer.getLastBestBoardAnalysis().size());
+		Assert.assertTrue(trainer.getLastBestBoardAnalysis().getAnalysisAtColumn(6).hasCondition(ColumnAnalysis.FLAG_BLOCK_MAKE_3_SETUP));
+
+		Assert.assertEquals(5, trainer.recommend(board, Disc.YELLOW));
+		Assert.assertEquals(1, trainer.getLastBestBoardAnalysis().size());
+		Assert.assertTrue(
+				trainer.getLastBestBoardAnalysis().getAnalysisAtColumn(5).hasCondition(ColumnAnalysis.FLAG_BLOCK_TRAP_MORE_THAN_ONE));
+
 	}
 
 	@Test
