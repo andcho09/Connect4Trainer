@@ -20,7 +20,7 @@ public abstract class AbstractForceBoardAnalyser {
 
 	/**
 	 * Perform 'forced' analysis, i.e. recursively analyse if the opponent is forced into a move.
-	 * @param board the {@link Board} to anaylse
+	 * @param board the {@link Board} to analyse
 	 * @param currentPlayer the {@link Disc} of the current player
 	 * @param boardAnalysis the freshly analysed board
 	 * @param depth how far down the rabbit hole we've gone
@@ -77,8 +77,8 @@ public abstract class AbstractForceBoardAnalyser {
 			final Board newBoard = new Board(board);
 			try {
 				newBoard.putDisc(analysis.getColumn(), currentPlayer);
-			} catch (final IllegalMoveException swallow) {
-				continue;
+			} catch (final IllegalMoveException e) {
+				throw new RuntimeException("Something went wrong with forced analysis. Illegal moves should've been removed already.", e);
 			}
 
 			if (LOGGER.isDebugEnabled()) {
@@ -96,10 +96,12 @@ public abstract class AbstractForceBoardAnalyser {
 
 			BoardAnalysis opponentForcedColumns = opponentAnalyses.getColumnsWithConditions(ColumnAnalysis.FLAG_BLOCK_LOSS_1);
 			if (opponentForcedColumns.size() > 1) {
-				// TODO if there's two 'must block now' situations then we should have won and detected this before
-				throwMoreThanForcedMoveError(
-						"I think we missed something. The opponent is forced into blocking more than one column immediately.", board,
-						currentPlayer, boardAnalysis, analysis.getColumn(), newBoard, opponentForcedColumns);
+				// If the opponent is forced to play more than two columns, they've lost. Normally this would be detected in the exit
+				// conditions checks above but some cases will slip through if we terminate analysis early, e.g. we're forced to block
+				// losing in 1 move and coincidentally this move also sets up a trap
+				final BoardAnalysis result = new BoardAnalysis();
+				result.add(analysis);
+				resultInWins.add(new ForcedAnalysisResult(depth, result));
 			} else if (opponentForcedColumns.size() == 0) {
 				opponentForcedColumns = boardAnalysis.getColumnsWithConditions(ColumnAnalysis.FLAG_BLOCK_TRAP_MORE_THAN_ONE);
 				if (opponentForcedColumns.size() > 1) {
@@ -115,7 +117,9 @@ public abstract class AbstractForceBoardAnalyser {
 				try {
 					opponentBoard.putDisc(opponentForcedColumn, opponentPlayer);
 				} catch (final IllegalMoveException e) {
-					continue; // We're forced to play here but can't???
+					throw new RuntimeException(
+							"Something went wrong with forced analysis. Opponent is forced to play in a column that's unplayable. This shouldn't happen.",
+							e);
 				}
 
 				// TODO should we check that we didn't just lose right here? Should be eliminated by the 'are we forced check before'

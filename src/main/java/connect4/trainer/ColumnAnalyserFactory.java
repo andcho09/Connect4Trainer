@@ -227,6 +227,7 @@ public class ColumnAnalyserFactory {
 						}
 						return true;
 					}
+					// if gapRow == 0 or disc below is not null, this will force opponent to block this blockable-3-setup
 				}
 			}
 			return false;
@@ -290,10 +291,10 @@ public class ColumnAnalyserFactory {
 	private static final List<ColumnAnalyser> ANALYSERS = new LinkedList<>();
 	static {
 		ANALYSERS.add(WIN_NOW);
-		ANALYSERS.add(TRAP_MORE_THAN_ONE);
 		ANALYSERS.add(BLOCK_LOSS_1);
-		ANALYSERS.add(BLOCK_TRAP_MORE_THAN_ONE);
 		ANALYSERS.add(ENABLE_OPPONENT_WIN);
+		ANALYSERS.add(TRAP_MORE_THAN_ONE);
+		ANALYSERS.add(BLOCK_TRAP_MORE_THAN_ONE);
 		ANALYSERS.add(MAKE_3_SETUP);
 		ANALYSERS.add(BLOCK_MAKE_3_SETUP);
 		ANALYSERS.add(BOTTOM_CENTER);

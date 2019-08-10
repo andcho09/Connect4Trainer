@@ -68,14 +68,19 @@ public class ScoringAlgorithm {
 	}
 
 	/**
-	 * Checks whether there's any point doing any more analysis.
+	 * Checks whether there's any point doing any more analysis. Analysis stops early because:
+	 * <ol>
+	 * <li>column is unplayable
+	 * <li>next move ends the game: win in 1 move
+	 * <li>next move and opponent's move ends the game: block losing in 1, enable opponent's win
+	 * <li>series of forced moves creates a trap and we win
+	 * </ol>
 	 * @param analysis the current analysis
-	 * @return <code>true</code> if analysis should continue, else <code>false</code> (we won, they
-	 *         won, including traps, we're forced into a block)
+	 * @return <code>true</code> if analysis should continue, else <code>false</code> (see conditions above)
 	 */
 	public static boolean isAnalysisDone(final ColumnAnalysis analysis) {
 		if (analysis.hasCondition(ColumnAnalysis.FLAG_UNPLAYABLE) || analysis.hasCondition(ColumnAnalysis.FLAG_WIN_1)
-				|| analysis.hasCondition(ColumnAnalysis.FLAG_BLOCK_LOSS_1)
+				|| analysis.hasCondition(ColumnAnalysis.FLAG_BLOCK_LOSS_1) || analysis.hasCondition(ColumnAnalysis.FLAG_ENABLE_OPPONENT_WIN)
 				|| analysis.hasCondition(ColumnAnalysis.FLAG_TRAP_MORE_THAN_ONE)) {
 			return true;
 		} else {
