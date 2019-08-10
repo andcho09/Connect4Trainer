@@ -2,10 +2,14 @@
 
 ## Unreleased
 
+## 0.3 (Aug 2019)
+
 * New
     * Expanded Main class to allow user to pick between playing a game or analysing a board from a file
+    * Allows board files to have new lines and comments with the '#' character   
 * Bug fixes
-    * Fixed a bug where a column was incorrectly flagged as setting up a 3-in-a-row when infact it blocks its
+    * Fixed a bug where a column was incorrectly flagged as setting up a 3-in-a-row when infact it blocks it
+    * We now check that we don't enable an opponent's win earlier in the analysis
 
 ## 0.2 (Aug 2019)
 * New
