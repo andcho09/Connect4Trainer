@@ -194,25 +194,28 @@ public class TrainerTest {
 
 	// @Test
 	public void testForceTrapWin7() throws IOException {
+		// TODOO broken test
 		final Board board = BoardLoader.readBoard(new File(RESOURCES_DIR + "TrainerTest_ForceWin_7.txt"));
 		Assert.assertNull(BoardHelper.hasWinner(board));
 		trainer.recommend(board, Disc.YELLOW);
 		Assert.assertEquals(1, trainer.getLastBestBoardAnalysis().size());
-		// Yellow should play 3 so next move it can play 6 which executes a trap
-		// Red could block above by playing 3, 6
+		// Yellow should play column[3] so next move it can play column[6] which executes a trap
+		// Red could block above by playing column[3] or column[6]
+		// Unfortunately no analysis finds this :(
 		Assert.assertTrue(trainer.getLastBestBoardAnalysis().getAnalysisAtColumn(3).hasCondition(ColumnAnalysis.FLAG_FORCED_WIN));
 	}
 
-	// @Test
-	// This test fails. It's potentially not a block of a forced play since yellow needs two moves
-	// to set the trap
+	@Test
 	public void testBlockForceTrapWin1() throws IOException {
-		// No opinion. This is testing a bug
 		final Board board = BoardLoader.readBoard(new File(RESOURCES_DIR + "TrainerTest_BlockForceWin_1.txt"));
 		Assert.assertNull(BoardHelper.hasWinner(board));
-		trainer.recommend(board, Disc.RED);
+		Assert.assertEquals(1, trainer.recommend(board, Disc.RED));
 		Assert.assertEquals(1, trainer.getLastBestBoardAnalysis().size());
-		Assert.assertEquals(1, trainer.getLastBestBoardAnalysis().get(0));
+		Assert.assertTrue(trainer.getLastBestBoardAnalysis().get(0).hasCondition(ColumnAnalysis.FLAG_BLOCK_MAKE_3_DOUBLE_SETUP));
+
+		Assert.assertEquals(1, trainer.recommend(board, Disc.YELLOW));
+		Assert.assertEquals(1, trainer.getLastBestBoardAnalysis().size());
+		Assert.assertTrue(trainer.getLastBestBoardAnalysis().get(0).hasCondition(ColumnAnalysis.FLAG_MAKE_3_DOUBLE_SETUP));
 	}
 
 	@Test
@@ -364,7 +367,6 @@ public class TrainerTest {
 		Assert.assertEquals(1, trainer.getLastBestBoardAnalysis().size());
 		Assert.assertTrue(
 				trainer.getLastBestBoardAnalysis().getAnalysisAtColumn(5).hasCondition(ColumnAnalysis.FLAG_BLOCK_TRAP_MORE_THAN_ONE));
-
 	}
 
 	@Test
@@ -377,5 +379,4 @@ public class TrainerTest {
 		Assert.assertEquals(3, trainer.recommend(board, Disc.YELLOW));
 		Assert.assertEquals(1, trainer.getLastBestBoardAnalysis().size());
 	}
-
 }

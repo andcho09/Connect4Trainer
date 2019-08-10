@@ -131,6 +131,7 @@ public class ColumnAnalysis {
 		detail.append(hasCondition(FLAG_FORCED_WIN) ? "\n Force opponents move for us to win" : "");
 		detail.append(hasCondition(FLAG_BLOCK_FORCED_WIN) ? "\n Block opponent forcing our move and losing" : "");
 		detail.append(hasCondition(FLAG_MAKE_3_SETUP) ? "\n Sets up a 3-in-a-row with a gap below" : "");
+		detail.append(hasCondition(FLAG_MAKE_3_DOUBLE_SETUP) ? "\n Sets up a 2x 3-in-a-row ontop of each other with a gap below" : "");
 		detail.append(hasCondition(FLAG_BLOCK_MAKE_3_SETUP) ? "\n Block 3-in-a-row with a gap below" : "");
 		detail.append(
 				hasCondition(FLAG_BLOCK_MAKE_3_DOUBLE_SETUP) ? "\n Block 2x 3-in-a-row stacked ontop of ecah other with a gap below" : "");

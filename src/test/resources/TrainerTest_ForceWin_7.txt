@@ -5,3 +5,4 @@
 .r.ry..
 .yyrr..
 .rryy..
+# yellow should play column[3] and then column[6] to setup a trap
