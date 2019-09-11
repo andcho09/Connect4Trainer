@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-## 0.4 (Sep 2019)
+## 0.5 (Sep 2019)
 * Bug fixes
     * Upgraded dependencies which addressed some security holes
 
