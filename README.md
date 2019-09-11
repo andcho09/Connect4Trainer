@@ -100,9 +100,9 @@ Forced moves are moves we expect the opponent to play because if they don't they
 
 CloudFront distribution caches the following:
 
-* S3 bucket [andrewcho-connect4](https://s3.console.aws.amazon.com/s3/buckets/andrewcho-connect4/?region=us-east-1&tab=overview) hosts the web content with [CORS enabled on the bucket](https://docs.aws.amazon.com/AmazonS3/latest/dev/cors.html)
+* S3 bucket hosts the web content with [CORS enabled on the bucket](https://docs.aws.amazon.com/AmazonS3/latest/dev/cors.html)
 * API Gateway fronts ``/game/play`` POST resource which in turn invokes
-    * Lambda function [connect4trainer](https://console.aws.amazon.com/lambda/home?region=us-east-1#/functions/connect4trainer)
+    * Lambda function
 
 ## Deployment
 
@@ -110,6 +110,6 @@ CloudFront distribution caches the following:
     ``> git clone git@bitbucket.org:andcho09/connect4trainer.git connect4trainer_clean``
 1. Run ``gradle build`` to build the .zip file which will be saved to ``build/distributions``
 1. Upload the .zip file to AWS Lambda
-1. Upload any new web content from ``build/aws-s3-dist`` to the AWS S3 bucket [andrewcho-connect4](https://s3.console.aws.amazon.com/s3/buckets/andrewcho-connect4/?region=us-east-1&tab=overview)
+1. Upload any new web content from ``build/aws-s3-dist`` to the AWS S3 bucket
     * Note CloudFront caches web content so it might need to be [invalidated manually](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/Invalidation.html)
 1. Tag the git commit
