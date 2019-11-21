@@ -1,6 +1,9 @@
 # Changelog
 
-## Unreleased
+## 0.6 (Nov 2019)
+* New
+    * Standardised the deployment by using a [SAM](https://github.com/awslabs/serverless-application-model) CloudFormation template to standardise the deployment
+    * Reduced latency for Australia and New Zealand by using Lambda@Edge to redirect them to the Connect4Trainer deployed in the Sydney region
 
 ## 0.5.1 (Sep 2019)
 * Bug fixes

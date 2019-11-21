@@ -1,6 +1,8 @@
 .gradle
+.metadata
 .settings
+bin
 build
 gradle
-/target/
-/.metadata/
+packaged-template.yaml
+target

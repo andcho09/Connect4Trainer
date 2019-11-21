@@ -1,0 +1,8 @@
+7 6
+.r..ryy
+yyrryry
+ryyryry
+ryryrrr
+yryrryr
+rryyryy
+# 1a but reversed and swapped.

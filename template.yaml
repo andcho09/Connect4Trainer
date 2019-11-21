@@ -1,0 +1,110 @@
+AWSTemplateFormatVersion : '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Creates Connect 4 Trainer API Gateway, Lambda, and CodeDeploy resources
+
+Parameters:
+  LambdaIamRole:
+    Type: String
+    Description: ARN of IAM role for Lambda to use
+    Default: arn:aws:iam::214602658230:role/service-role/connect4trainer-role
+
+Resources:
+  # Lambda function
+  LambdaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: Connect4TrainerFunction/build/distributions/Connect4Trainer-0.0.1-SNAPSHOT.zip # Relative to location of this CloudFormation template
+      Handler: connect4.aws.AwsLambdaServer::handle
+      Runtime: java8
+      # Optional properties
+      AutoPublishAlias: live
+      Description: Lambda function for Connect 4
+      FunctionName: Connect4Trainer
+      MemorySize: 256
+      Role: !Ref LambdaIamRole
+      Tags:
+        Project: Connect4Trainer
+      Timeout: 10
+      # API Gateway
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /game/play
+            Method: POST
+            RestApiId: !Ref ApiGateway
+      # CodeDeploy
+      DeploymentPreference:
+          Type: AllAtOnce
+          Hooks:
+            PreTraffic: !Ref TestHookLambdaFunction
+  # API Gateway. Need to define this so we can use the 'BETA' stage since SAM default is 'Prod'
+  ApiGateway:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: Connect4Trainer
+      StageName: BETA
+      # Optional properties
+      DefinitionBody:
+        swagger: "2.0"
+        info:
+          version: "1.0.0"
+          title: "Connect4Trainer Swagger API"
+        basePath: "/BETA"
+        schemes:
+        - "https"
+        paths:
+          /game/play:
+            post:
+              produces:
+              - "application/json"
+              responses:
+                "200":
+                  description: "200 response"
+                  schema:
+                    $ref: "#/definitions/Empty"
+              x-amazon-apigateway-integration:
+                uri: 
+                  Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaFunction.Arn}:live/invocations"
+                responses:
+                  default:
+                    statusCode: "200"
+                passthroughBehavior: "when_no_match"
+                httpMethod: "POST"
+                contentHandling: "CONVERT_TO_TEXT"
+                type: "aws" # we need a Swagger definition so we can override SAM default of AWS_PROXY which passes raw request
+        definitions:
+          Empty:
+            type: "object"
+            title: "Empty Schema"
+      Tags:
+        Project: Connect4Trainer
+  # Pre-traffic test hook Lambda function
+  TestHookLambdaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: CodeDeployHook
+      Handler: preTrafficHook.handler
+      FunctionName: CodeDeployHook_Connect4TrainerTest # This must begin with 'CodeDeployHook_'
+      Runtime: nodejs10.x
+      # Optional parameters
+      Description: Tests new Lambda function before cutting over traffic
+      Environment:
+        Variables:
+          DEBUG: true
+          FUNCTION_TO_TEST: !Ref LambdaFunction.Version
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+          - Effect: "Allow"
+            Action:
+              - "codedeploy:PutLifecycleEventHookExecutionStatus"
+            Resource:
+              !Sub 'arn:aws:codedeploy:${AWS::Region}:${AWS::AccountId}:deploymentgroup:${ServerlessDeploymentApplication}/*'
+        - Version: "2012-10-17"
+          Statement:
+          - Effect: "Allow"
+            Action:
+              - "lambda:InvokeFunction"
+            Resource: !Ref LambdaFunction.Version
+      Timeout: 10

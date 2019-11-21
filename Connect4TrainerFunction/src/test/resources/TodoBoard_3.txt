@@ -1,0 +1,8 @@
+7 6
+....r..
+...yy..
+...yy..
+...ry..
+y.ryrr.
+rryrryr
+# yellows play is column[6] which sets up a trap, but red doesn't block this by playing column[6]
