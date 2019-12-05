@@ -1,4 +1,4 @@
-package connect4;
+package connect4.api;
 
 /**
  * Denotes a generic Connect 4 Trainer exception.
@@ -22,6 +22,6 @@ public class GameException extends Throwable {
 	}
 
 	public ErrorCode getErrorCode() {
-		return errorCode;
+		return this.errorCode;
 	}
 }

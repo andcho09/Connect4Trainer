@@ -1,6 +1,6 @@
 package connect4.web;
 
-import connect4.Disc;
+import connect4.api.Disc;
 
 public enum GameState {
 

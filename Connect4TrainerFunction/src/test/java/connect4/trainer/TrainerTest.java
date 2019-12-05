@@ -9,9 +9,11 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import connect4.Board;
-import connect4.BoardHelper;
-import connect4.Disc;
+import connect4.api.Board;
+import connect4.api.BoardHelper;
+import connect4.api.Disc;
+import connect4.api.analysis.BoardAnalysis;
+import connect4.api.analysis.ColumnAnalysis;
 import connect4.loader.BoardLoader;
 
 public class TrainerTest {

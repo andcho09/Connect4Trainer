@@ -1,0 +1,4 @@
+rootProject.name = 'Connect4'
+
+// Dependencies
+include 'Connect4CoreApi', 'Connect4StoreFunction', 'Connect4TrainerFunction'

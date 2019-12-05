@@ -17,7 +17,7 @@ exports.handler = (event, context, callback) => {
 	var lambdaParams = {
 		FunctionName: functionToTest,
 		InvocationType: "RequestResponse",
-		Payload: '{"action":"next","currentPlayer":"y","board":{"numCols":7,"numRows":6,"rows":[[".",".",".",".",".",".","."],[".",".",".",".",".",".","."],[".",".",".",".",".",".","."],[".",".",".",".",".",".","."],[".",".",".",".",".",".","."],[".",".",".",".",".",".","."]]},"column":0}'
+		Payload: '{"action":"next","currentPlayer":"r","board":{"numCols":7,"numRows":6,"rows":[["r","r","y",".",".",".","."],["y","y","y",".",".",".","."],["y","y","y",".",".",".","."],["r",".","r",".",".",".","."],[".",".",".",".",".",".","."],[".",".",".",".",".",".","."]]},"column":6}'
 	};
 	lambda.invoke(lambdaParams, function (err, data){
 		if (err){ // an error occurred
@@ -25,7 +25,7 @@ exports.handler = (event, context, callback) => {
 			lambdaResult = "Failed";
 		} else { // successful response
 			if (debug){console.log("Result: " + data);}
-			if (data.Payload == '{"gameState":"1","playerBoard":{"numCols":7,"numRows":6,"rows":[["y",".",".",".",".",".","."],[".",".",".",".",".",".","."],[".",".",".",".",".",".","."],[".",".",".",".",".",".","."],[".",".",".",".",".",".","."],[".",".",".",".",".",".","."]]},"playerRow":0,"aiBoard":{"numCols":7,"numRows":6,"rows":[["y",".",".","r",".",".","."],[".",".",".",".",".",".","."],[".",".",".",".",".",".","."],[".",".",".",".",".",".","."],[".",".",".",".",".",".","."],[".",".",".",".",".",".","."]]},"aiCol":3,"aiRow":0}'){
+			if (data.Payload == '{"gameState":"0","playerBoard":{"numCols":7,"numRows":6,"rows":[["r","r","y",".",".",".","r"],["y","y","y",".",".",".","."],["y","y","y",".",".",".","."],["r",".","r",".",".",".","."],[".",".",".",".",".",".","."],[".",".",".",".",".",".","."]]},"playerRow":0,"aiBoard":{"numCols":7,"numRows":6,"rows":[["r","r","y","y",".",".","r"],["y","y","y",".",".",".","."],["y","y","y",".",".",".","."],["r",".","r",".",".",".","."],[".",".",".",".",".",".","."],[".",".",".",".",".",".","."]]},"aiCol":3,"aiRow":0}'){
 				lambdaResult = "Succeeded";
 				if (debug){console.log("Validation testing succeeded!");}
 			} else {

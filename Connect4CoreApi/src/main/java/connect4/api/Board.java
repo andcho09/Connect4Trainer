@@ -1,10 +1,10 @@
-package connect4;
+package connect4.api;
 
 import java.util.Arrays;
 
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
-import connect4.GameException.ErrorCode;
+import connect4.api.GameException.ErrorCode;
 
 /**
  * <p>
@@ -265,6 +265,25 @@ public class Board {
 			board[i] = board[nCols - 1 - i];
 			board[nCols - 1 - i] = tempColValue;
 		}
+	}
+
+	/**
+	 * Reverses the board so that most of the discs are on the left.
+	 * @return <code>true</code> if the board was reversed or <code>false</code> if no rotation was performed (i.e. most discs already on
+	 *         the left)
+	 */
+	public boolean reverseToLeft() {
+		for (int i = 0; i < nCols / 2; i++) {
+			final int left = board[i];
+			final int right = board[nCols - 1 - i];
+			if (left < right) {
+				reverse();
+				return true;
+			} else if (left > right) {
+				break;
+			}
+		}
+		return false;
 	}
 
 	/**

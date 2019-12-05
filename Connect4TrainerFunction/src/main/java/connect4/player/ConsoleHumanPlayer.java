@@ -7,8 +7,8 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 
-import connect4.Board;
-import connect4.Disc;
+import connect4.api.Board;
+import connect4.api.Disc;
 
 /**
  * A human player who inputs commands via the console. We don't use {@link System#console()} because of an Eclipse

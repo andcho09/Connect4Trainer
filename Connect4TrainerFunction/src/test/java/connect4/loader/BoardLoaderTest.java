@@ -9,9 +9,9 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
-import connect4.Board;
-import connect4.BoardHelper;
-import connect4.Disc;
+import connect4.api.Board;
+import connect4.api.BoardHelper;
+import connect4.api.Disc;
 
 public class BoardLoaderTest {
 

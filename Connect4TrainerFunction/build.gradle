@@ -1,87 +1,144 @@
 plugins {
-    id 'com.eriwen.gradle.js' version '2.14.1'
-    id 'java'
-    id 'maven'
+	id 'com.eriwen.gradle.js' version '2.14.1'
+	id 'java'
+	id 'maven'
 }
 
 group = 'Connect4Trainer'
 version = '0.0.1-SNAPSHOT'
-
-description = "Connect4Trainer"
+description = 'Connect 4 Lambda function which receives JSON REST requests from web UI'
+ext.shortName = 'trainer'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 jar {
-    manifest {
-        attributes 'Implementation-Title': 'Connect 4 Trainer',
-                   'Implementation-Version': version
-    }
+	manifest {
+		attributes 'Implementation-Title': group,
+				   'Implementation-Version': version
+	}
 }
 
 repositories {
-     maven { url "http://repo.maven.apache.org/maven2" }
+	 maven { url "http://repo.maven.apache.org/maven2" }
 }
+
 dependencies {
-    implementation group: 'commons-io', name: 'commons-io', version:'2.6'
-    implementation group: 'commons-lang', name: 'commons-lang', version:'2.6'
-    implementation group: 'com.amazonaws', name: 'aws-lambda-java-core', version:'1.2.0'
-    implementation group: 'com.amazonaws', name: 'aws-lambda-java-events', version:'1.3.0'
-    implementation group: 'com.amazonaws', name: 'aws-lambda-java-log4j', version:'1.0.0'
-    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version:'2.9.10'
-    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version:'2.9.10.1'
-    implementation group: 'log4j', name: 'log4j', version:'1.2.17'
-    implementation group: 'com.sparkjava', name: 'spark-core', version:'2.9.1'
-    implementation group: 'org.slf4j', name: 'slf4j-log4j12', version:'1.7.21'
-    testImplementation group: 'junit', name: 'junit', version:'4.12'
+	implementation project(':Connect4CoreApi')
+	implementation group: 'commons-io', name: 'commons-io', version:'2.6'
+	implementation group: 'commons-lang', name: 'commons-lang', version:'2.6'
+	implementation group: 'com.amazonaws', name: 'aws-java-sdk-lambda', version:'1.11.683'
+	implementation group: 'com.amazonaws', name: 'aws-lambda-java-core', version:'1.2.0'
+	implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version:'2.9.10'
+	implementation group: 'com.sparkjava', name: 'spark-core', version:'2.9.1'
+	implementation group: 'log4j', name: 'log4j', version:'1.2.17'
+	implementation group: 'org.slf4j', name: 'slf4j-log4j12', version:'1.7.29'
+	compileOnly project(':Connect4StoreFunction') // For Main to send boards to DynamoDb but isn't needed for Lambda
+	testImplementation project(':Connect4StoreFunction')
+	testImplementation group: 'junit', name: 'junit', version:'4.12'
 }
 
 task buildZip(type: Zip, group: "Custom", description: "Creates .zip for upload to AWS Lambda") {
-    from compileJava
-    from processResources
-    into('lib') {
-        from configurations.runtimeClasspath {
-            // AWS Lambda doesn't use Spark/Jetty
-            exclude group: 'com.sparkjava', module: 'spark-core'
-            // Remove unused AWS libraries
-            exclude group: 'com.amazonaws', module: 'aws-java-sdk-cognitoidentity'
-            exclude group: 'com.amazonaws', module: 'aws-java-sdk-dynamodb'
-            exclude group: 'com.amazonaws', module: 'aws-java-sdk-kinesis'
-            exclude group: 'com.amazonaws', module: 'aws-java-sdk-sns'
-            // Possibly AWS KMS here too?
-        }
-    }
+	from compileJava
+	//from processResources
+	from file('src/main/resources/log4j_lambda.properties')
+	into('lib') {
+		from configurations.runtimeClasspath {
+			// Remove libraries provided by AWS runtime
+			exclude group: 'com.amazonaws', module: 'aws-lambda-java-core'
+			exclude group: 'com.amazonaws', module: 'aws-lambda-java-events'
+			// AWS Lambda doesn't use Spark/Jetty
+			exclude group: 'com.sparkjava', module: 'spark-core'
+			// Remove unused AWS libraries
+			exclude group: 'com.amazonaws', module: 'aws-java-sdk-cognitoidentity'
+			exclude group: 'com.amazonaws', module: 'aws-java-sdk-dynamodb'
+			exclude group: 'com.amazonaws', module: 'aws-java-sdk-kinesis'
+			exclude group: 'com.amazonaws', module: 'aws-java-sdk-kms'
+			exclude group: 'com.amazonaws', module: 'aws-java-sdk-s3'
+			exclude group: 'com.amazonaws', module: 'aws-java-sdk-sqs'
+		}
+	}
+	rename('log4j_lambda.properties', 'log4j.properties')
 }
 
 // Create web artifacts directory for distribution
 task copyAwsWeb(type: Copy) {
-    from file('src/main/webapp/')
-        include '*.htm'
-    into file("$buildDir/distributions-s3/")
-    doLast{
-        ant.gzip(src: 'src/main/webapp/favicon.ico', destfile: file("$buildDir/distributions-s3/favicon.ico"))
-    }
+	from file('src/main/webapp/')
+		include '*.htm'
+	into file("$buildDir/distributions-s3/")
+	doLast{
+		ant.gzip(src: 'src/main/webapp/favicon.ico', destfile: file("$buildDir/distributions-s3/favicon.ico"))
+	}
 }
 
 // Minify JS
 javascript.source {
-    dev {
-        js {
-            srcDir 'src/main/webapp'
-            include '*.js'
-            exclude '*.min.js'
-        }
-    }
+	dev {
+		js {
+			srcDir 'src/main/webapp'
+			include '*.js'
+			exclude '*.min.js'
+		}
+	}
 }
 
 minifyJs {
-    source = javascript.source.dev.js.files
-    dest = file("$buildDir/distributions-s3/game.js")
-    sourceMap = file("$buildDir/all.sourcemap.json")
-    closure {
-        warningLevel = 'QUIET'
-    }
+	source = javascript.source.dev.js.files
+	dest = file("$buildDir/distributions-s3/game.js")
+	sourceMap = file("$buildDir/all.sourcemap.json")
+	closure {
+		warningLevel = 'QUIET'
+	}
 }
 
 minifyJs.dependsOn copyAwsWeb
 build.dependsOn buildZip, minifyJs
+
+task awsInit  {
+	doFirst {
+		if (!project.hasProperty('region')) {
+			println "WARN: The custom property 'region' was not provided. Defaulting to 'ap-southeast-2'."
+			project.ext.region = 'ap-southeast-2'
+		} else {
+			project.ext.region = region
+		}
+
+		if (region == 'ap-southeast-2') {
+			project.ext.bucket = 'cloudformation-s3-bucket-<region>'
+		} else if (region == 'us-east-1') {
+			project.ext.bucket = 'cloudformation-s3-bucket-<alternate-region>'
+		} else {
+			throw new GradleException("ERROR: the region '" + region + "' isn't supported")
+		}
+
+		if (!project.hasProperty('debug')) {
+			project.ext.debug = 'false'
+		} else {
+			project.ext.debug = debug
+		}
+
+		project.ext.date = new Date().format('yyyy-MM-dd')
+		project.ext.dateTime = new Date().format('yyyy-MM-dd-HHmm')
+
+		println "Using region=" + region + ", bucket=" + bucket + ", and debug=" + debug
+	}
+}
+
+task awsPackage(type: Exec, group: "Custom", description: "CloudFormation package") {
+	dependsOn awsInit
+	executable 'aws'
+	args "cloudformation", "package", "--template-file", "template.yaml", "--output-template-file", "packaged-" + shortName + "-template.yaml", "--s3-prefix", "connect4trainer-releases/$shortName-${->date}", "--force-upload", "--s3-bucket", "${->bucket}", "--region", "${->region}"
+}
+
+
+task awsCpTemplate(type: Exec, group: "Custom", description: "Copy template to S3") {
+	dependsOn awsInit, awsPackage
+	executable 'aws'
+	args "s3", "cp", "packaged-" + shortName + "-template.yaml", "s3://${->bucket}/templates/"
+}
+
+task awsChangeSet(type: Exec, group: "Custom", description: "CloudFormation change-set") {
+	dependsOn awsInit, awsPackage, awsCpTemplate
+	executable 'aws'
+	args "cloudformation", "create-change-set", "--stack-name", project.group + "Stack", "--change-set-name", "Change-${->dateTime}", "--template-url", "https://${->bucket}.s3.${->region}.amazonaws.com/templates/packaged-" + shortName + "-template.yaml", "--capabilities", "CAPABILITY_IAM", "CAPABILITY_NAMED_IAM", "CAPABILITY_AUTO_EXPAND", "--parameters", "ParameterKey=DebugEnabled,ParameterValue=${->debug}", "--tags", "Key=Project,Value=Connect4Trainer", "--region", "${->region}"
+}

@@ -1,4 +1,4 @@
-package connect4.trainer;
+package connect4.api.analysis;
 
 /**
  * Flags a column with a bunch of facts/analysis. Doesn't do scoring. Just facts.
@@ -96,28 +96,66 @@ public class ColumnAnalysis {
 	 * @return the flags that have been set
 	 */
 	public int getFlags() {
-		return flags;
+		return this.flags;
+	}
+
+	/**
+	 * Sets multiple conditions
+	 * @param flags the flags representing conditions
+	 * @see #addCondition(int)
+	 */
+	public void setFlags(final int flags) {
+		this.flags = flags;
 	}
 
 	public boolean hasCondition(final int flag) {
-		return (flags & flag) == flag;
+		return (this.flags & flag) == flag;
+	}
+
+	/**
+	 * Checks if any of the flags are present.
+	 * @param flag XOR'ed flags to check
+	 * @return true if any of the conditions are present, else false
+	 */
+	public boolean hasConditions(final int flag) {
+		return (this.flags & flag) > 0;
 	}
 
 	public void addCondition(final int flag) {
-		flags = flags | flag;
+		this.flags = this.flags | flag;
 	}
 
 	public void removeCondition(final int flag) {
-		flags = flags ^ flag;
+		this.flags = this.flags ^ flag;
 	}
 
 	public int getColumn() {
-		return column;
+		return this.column;
 	}
 
 	@Override
 	public String toString() {
-		return String.format("ColumnAnalysis (col=%d, flags=%d)", column, flags);
+		return String.format("ColumnAnalysis (col=%d, flags=%d)", this.column, this.flags);
+	}
+
+	@Override
+	public boolean equals(final Object obj) {
+		if (this == obj) {
+			return true;
+		} else if (obj instanceof ColumnAnalysis) {
+			final ColumnAnalysis other = (ColumnAnalysis) obj;
+			return this.column == other.column && this.flags == other.flags;
+		}
+		return false;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + this.column;
+		result = prime * result + this.flags;
+		return result;
 	}
 
 	public String toStringDetail() {
@@ -136,6 +174,6 @@ public class ColumnAnalysis {
 		detail.append(
 				hasCondition(FLAG_BLOCK_MAKE_3_DOUBLE_SETUP) ? "\n Block 2x 3-in-a-row stacked ontop of ecah other with a gap below" : "");
 		detail.append(hasCondition(FLAG_BOTTOM_CENTER_FREE) ? "\n Bottom center column is free" : "");
-		return String.format("ColumnAnalysis (col=%d, flags=%d)%s", column, flags, detail.toString());
+		return String.format("ColumnAnalysis (col=%d, flags=%d)%s", this.column, this.flags, detail.toString());
 	}
 }

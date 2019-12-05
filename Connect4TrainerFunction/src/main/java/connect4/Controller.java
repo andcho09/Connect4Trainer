@@ -1,5 +1,10 @@
 package connect4;
 
+import connect4.api.Board;
+import connect4.api.BoardHelper;
+import connect4.api.Disc;
+import connect4.api.IllegalMoveException;
+import connect4.api.Move;
 import connect4.player.Player;
 
 /**

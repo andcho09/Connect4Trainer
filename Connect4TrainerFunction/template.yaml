@@ -3,28 +3,48 @@ Transform: AWS::Serverless-2016-10-31
 Description: Creates Connect 4 Trainer API Gateway, Lambda, and CodeDeploy resources
 
 Parameters:
+  DebugEnabled:
+    Type: String
+    AllowedValues:
+      - true
+      - false
+    Description: Whether to enable Log4j (writes to CloudWatch) debug logging
+    Default: FALSE
   LambdaIamRole:
     Type: String
     Description: ARN of IAM role for Lambda to use
     Default: arn:aws:iam::214602658230:role/service-role/connect4trainer-role
+  StoreLambdaFunctionName:
+    Type: String
+    Description: Name of the Connect4Store function. Can include version/alias here (uses 'live' by default)
+    Default: Connect4Store
+  StoreLambdaFunctionRegion:
+    Type: String
+    Description: Region where the Connect4Store Lambda function lives
+    Default: ap-southeast-2
 
 Resources:
   # Lambda function
   LambdaFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: Connect4TrainerFunction/build/distributions/Connect4Trainer-0.0.1-SNAPSHOT.zip # Relative to location of this CloudFormation template
-      Handler: connect4.aws.AwsLambdaServer::handle
+      CodeUri: build/distributions/Connect4TrainerFunction-0.0.1-SNAPSHOT.zip # Relative to location of this CloudFormation template
+      Handler: connect4.aws.AwsLambdaTrainerHandler::handleRequest
       Runtime: java8
       # Optional properties
       AutoPublishAlias: live
-      Description: Lambda function for Connect 4
+      Description: Lambda function for Connect 4 Trainer (recommend moves, AI)
+      Environment:
+        Variables:
+          DEBUG_ENABLED: !Ref DebugEnabled
+          STORE_LAMBDA_FUNCTION: !Ref StoreLambdaFunctionName
+          STORE_LAMBDA_REGION: !Ref StoreLambdaFunctionRegion
       FunctionName: Connect4Trainer
       MemorySize: 256
       Role: !Ref LambdaIamRole
       Tags:
         Project: Connect4Trainer
-      Timeout: 10
+      Timeout: 30 # This needs to be high in exception cases (Lambda can take 20 seconds here)
       # API Gateway
       Events:
         Api:
@@ -64,7 +84,7 @@ Resources:
                   schema:
                     $ref: "#/definitions/Empty"
               x-amazon-apigateway-integration:
-                uri: 
+                uri:
                   Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaFunction.Arn}:live/invocations"
                 responses:
                   default:
@@ -77,13 +97,18 @@ Resources:
           Empty:
             type: "object"
             title: "Empty Schema"
+      MethodSettings:
+        - HttpMethod: "POST"
+          ResourcePath: /~1game~1play
+          ThrottlingBurstLimit: 3
+          ThrottlingRateLimit: 5
       Tags:
         Project: Connect4Trainer
   # Pre-traffic test hook Lambda function
   TestHookLambdaFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: CodeDeployHook
+      CodeUri: ../CodeDeployHook
       Handler: preTrafficHook.handler
       FunctionName: CodeDeployHook_Connect4TrainerTest # This must begin with 'CodeDeployHook_'
       Runtime: nodejs10.x
@@ -108,3 +133,9 @@ Resources:
               - "lambda:InvokeFunction"
             Resource: !Ref LambdaFunction.Version
       Timeout: 10
+  # CloudWatch log group
+  LambdaLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: /aws/lambda/Connect4Trainer
+      RetentionInDays: 14

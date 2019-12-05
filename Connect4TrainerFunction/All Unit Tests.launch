@@ -2,16 +2,16 @@
 <launchConfiguration type="org.eclipse.jdt.junit.launchconfig">
 <stringAttribute key="org.eclipse.buildship.core.originalclasspathprovider" value="org.eclipse.m2e.launchconfig.classpathProvider"/>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
-<listEntry value="/Connect4Trainer/src/test/java"/>
+<listEntry value="/Connect4TrainerFunction/src/test/java"/>
 </listAttribute>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
 <listEntry value="2"/>
 </listAttribute>
-<stringAttribute key="org.eclipse.jdt.junit.CONTAINER" value="=Connect4Trainer/src\/test\/java=/gradle_scope=/test=/=/gradle_used_by_scope=/test=/=/test=/true=/"/>
+<stringAttribute key="org.eclipse.jdt.junit.CONTAINER" value="=Connect4TrainerFunction/src\/test\/java=/gradle_scope=/test=/=/gradle_used_by_scope=/test=/=/test=/true=/"/>
 <booleanAttribute key="org.eclipse.jdt.junit.KEEPRUNNING_ATTR" value="false"/>
 <stringAttribute key="org.eclipse.jdt.junit.TESTNAME" value=""/>
 <stringAttribute key="org.eclipse.jdt.junit.TEST_KIND" value="org.eclipse.jdt.junit.loader.junit4"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value=""/>
-<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="Connect4Trainer"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="Connect4TrainerFunction"/>
 <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dlog4j.configuration=log4j_debug.properties"/>
 </launchConfiguration>

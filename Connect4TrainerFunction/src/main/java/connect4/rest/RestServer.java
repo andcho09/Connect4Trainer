@@ -14,6 +14,7 @@ import org.eclipse.jetty.http.HttpStatus;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 
+import connect4.forwarder.AwsStoreHandlerForwarder;
 import connect4.web.GameHandler;
 import connect4.web.PlayRequest;
 import connect4.web.PlayResponse;
@@ -25,17 +26,17 @@ import spark.Response;
 import spark.Route;
 
 /**
- * Services REST requests encoded in JSON.
+ * Services REST requests encoded in JSON. Only used when run from Eclipse. See Lambda handlers for invocations into AWS.
  */
 public class RestServer {
 
 	private static final Logger LOGGER = Logger.getLogger(RestServer.class);
 
 	public static void main(final String[] args) {
-		final GameHandler gameHandler = new GameHandler();
-		final JsonStreamingObjectFactory factory = JsonStreamingObjectFactory.getInstance();
+		final GameHandler gameHandler = new GameHandler(new AwsStoreHandlerForwarder());
+		final WebJsonStreamingObjectFactory factory = WebJsonStreamingObjectFactory.getInstance();
 
-		externalStaticFileLocation("src/main/webapp");// TODO this won't work if the build a .war/.jar and not safe for WEB-INF
+		externalStaticFileLocation("src/main/webapp");
 
 		post("/board/recommend", new Route() {
 			@Override
@@ -99,7 +100,7 @@ public class RestServer {
 		});
 
 		// Generic exception handler
-		exception(Exception.class, new ExceptionHandler() {
+		exception(Exception.class, new ExceptionHandler<Exception>() {
 			@Override
 			public void handle(final Exception exception, final Request request, final Response response) {
 				final StringWriter writer = new StringWriter();

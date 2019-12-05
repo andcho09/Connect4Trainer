@@ -1,5 +1,7 @@
 package connect4.trainer;
 
+import connect4.api.analysis.ColumnAnalysis;
+
 /**
  * <p>
  * Scores a column based on analysis. The following scoring algorithm is used:

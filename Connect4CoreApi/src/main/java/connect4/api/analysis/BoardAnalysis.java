@@ -1,4 +1,4 @@
-package connect4.trainer;
+package connect4.api.analysis;
 
 import java.util.AbstractList;
 import java.util.ArrayList;
@@ -14,11 +14,6 @@ public class BoardAnalysis extends AbstractList<ColumnAnalysis> {
 
 	public BoardAnalysis() {
 		this.columnAnalyses = new ArrayList<>();
-
-	}
-
-	public BoardAnalysis(final List<ColumnAnalysis> columnAnalyses) {
-		this.columnAnalyses = columnAnalyses;
 	}
 
 	/**
@@ -30,7 +25,7 @@ public class BoardAnalysis extends AbstractList<ColumnAnalysis> {
 		if (column == null) {
 			return;
 		}
-		for (final ColumnAnalysis original : columnAnalyses) {
+		for (final ColumnAnalysis original : this.columnAnalyses) {
 			if (column == original.getColumn()) {
 				original.addCondition(flag);
 				return;
@@ -62,12 +57,17 @@ public class BoardAnalysis extends AbstractList<ColumnAnalysis> {
 		return this.columnAnalyses.add(analysis);
 	}
 
+	@Override
+	public void add(final int index, final ColumnAnalysis analysis) {
+		this.columnAnalyses.add(index, analysis);
+	}
+
 	/**
 	 * Retrieves the analysis at position index in the list. Could throw {@link IndexOutOfBoundsException}.
 	 */
 	@Override
 	public ColumnAnalysis get(final int index) {
-		return columnAnalyses.get(index);
+		return this.columnAnalyses.get(index);
 	}
 
 	/**
@@ -76,7 +76,7 @@ public class BoardAnalysis extends AbstractList<ColumnAnalysis> {
 	 * @return the {@link ColumnAnalysis} or <code>null</code> if there's no such analysis
 	 */
 	public ColumnAnalysis getAnalysisAtColumn(final int column) {
-		for (final ColumnAnalysis columnAnalysis : columnAnalyses) {
+		for (final ColumnAnalysis columnAnalysis : this.columnAnalyses) {
 			if (column == columnAnalysis.getColumn()) {
 				return columnAnalysis;
 			}
@@ -84,9 +84,27 @@ public class BoardAnalysis extends AbstractList<ColumnAnalysis> {
 		return null;
 	}
 
+	/**
+	 * Reverses the columns within the {@link BoardAnalysis}.
+	 */
+	public void reverse() {
+		for (int i = 0; i < this.columnAnalyses.size() / 2; i++) {
+			final int rightIndex = this.columnAnalyses.size() - 1 - i;
+			final ColumnAnalysis temp = this.columnAnalyses.get(i);
+			this.columnAnalyses.set(i, swapColumns(this.columnAnalyses.get(rightIndex), i));
+			this.columnAnalyses.set(rightIndex, swapColumns(temp, rightIndex));
+		}
+	}
+
+	private ColumnAnalysis swapColumns(final ColumnAnalysis columnAnalysis, final int newColumn) {
+		final ColumnAnalysis result = new ColumnAnalysis(newColumn);
+		result.setFlags(columnAnalysis.getFlags());
+		return result;
+	}
+
 	@Override
 	public int size() {
-		return columnAnalyses.size();
+		return this.columnAnalyses.size();
 	}
 
 	@Override

@@ -1,12 +1,13 @@
 package connect4.web;
 
-import connect4.Board;
-import connect4.BoardHelper;
-import connect4.Disc;
-import connect4.GameException;
-import connect4.GameException.ErrorCode;
-import connect4.IllegalMoveException;
-import connect4.Move;
+import connect4.api.Board;
+import connect4.api.BoardHelper;
+import connect4.api.Disc;
+import connect4.api.GameException;
+import connect4.api.IllegalMoveException;
+import connect4.api.Move;
+import connect4.api.GameException.ErrorCode;
+import connect4.forwarder.AbstractBoardForwarder;
 import connect4.trainer.Trainer;
 
 /**
@@ -18,6 +19,10 @@ public class GameHandler {
 
 	public GameHandler() {
 		this.trainer = new Trainer();
+	}
+
+	public GameHandler(final AbstractBoardForwarder forwarder) {
+		this.trainer = new Trainer(forwarder);
 	}
 
 	/**
@@ -40,7 +45,7 @@ public class GameHandler {
 		}
 
 		final Disc currentPlayer = request.getCurrentPlayer();
-		final int recommendedCol = trainer.recommend(board, currentPlayer);
+		final int recommendedCol = this.trainer.recommend(board, currentPlayer);
 		response.setRecommendColumn(recommendedCol);
 		int recommendedRow;
 		try {
@@ -101,7 +106,7 @@ public class GameHandler {
 			response.setAiBoard(opponentBoard);
 			final Disc opponent = Disc.getOpposite(currentPlayer);
 			response.setState(GameState.getTurnState(opponent));
-			final int aiCol = trainer.recommend(opponentBoard, opponent);
+			final int aiCol = this.trainer.recommend(opponentBoard, opponent);
 			final int aiRow;
 			try {
 				aiRow = opponentBoard.putDisc(aiCol, opponent);

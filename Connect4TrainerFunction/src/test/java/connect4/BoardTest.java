@@ -8,6 +8,9 @@ import java.io.IOException;
 import org.junit.Assert;
 import org.junit.Test;
 
+import connect4.api.Board;
+import connect4.api.Disc;
+import connect4.api.IllegalMoveException;
 import connect4.loader.BoardLoader;
 
 public class BoardTest {
@@ -143,5 +146,17 @@ public class BoardTest {
 		final Board output = BoardLoader.readBoard(new File(RESOURCES_DIR + "BoardTest_swap_output.txt"));
 		Assert.assertEquals(output, input.swap());
 		Assert.assertEquals(input, input.swap().swap());
+	}
+
+	@Test
+	public void testReverseToLeft() throws Exception {
+		final Board expected = BoardLoader.readBoard(new File(RESOURCES_DIR + "BoardTest_reverse1a_input.txt"));
+		Board test = new Board(expected);
+		Assert.assertEquals(false, test.reverseToLeft());
+		Assert.assertEquals(expected, test);
+
+		test = BoardLoader.readBoard(new File(RESOURCES_DIR + "BoardTest_reverse1c_input.txt"));
+		Assert.assertEquals(true, test.reverseToLeft());
+		Assert.assertEquals(expected, test);
 	}
 }

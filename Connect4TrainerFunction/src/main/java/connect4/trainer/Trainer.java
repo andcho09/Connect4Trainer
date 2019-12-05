@@ -3,8 +3,12 @@ package connect4.trainer;
 import java.util.ArrayList;
 import java.util.List;
 
-import connect4.Board;
-import connect4.Disc;
+import connect4.api.Board;
+import connect4.api.Disc;
+import connect4.api.analysis.BoardAnalysis;
+import connect4.api.analysis.ColumnAnalysis;
+import connect4.forwarder.AbstractBoardForwarder;
+import connect4.forwarder.SinkBoardForwader;
 import connect4.trainer.BoardAnalyserFactory.ForcedAnalysisResult;
 
 /**
@@ -13,7 +17,16 @@ import connect4.trainer.BoardAnalyserFactory.ForcedAnalysisResult;
  */
 public class Trainer extends Recommender {
 
+	private final AbstractBoardForwarder boardForwarder;
 	private List<ForcedAnalysisResult> lastForcedAnalysisResults = new ArrayList<>();
+
+	public Trainer() {
+		this(SinkBoardForwader.INSTANCE);
+	}
+
+	public Trainer(final AbstractBoardForwarder boardForwarder) {
+		this.boardForwarder = boardForwarder;
+	}
 
 	/**
 	 * Analyses the board and recommends where to play.
@@ -49,6 +62,7 @@ public class Trainer extends Recommender {
 			}
 		}
 
+		boardForwarder.receive(board, currentPlayer, bestBoardAnalysis);
 		setLastAnalysis(bestBoardAnalysis, boardAnalysis);
 		// TODO this could be a sequence of how we lose if it's for the opponent
 		this.lastForcedAnalysisResults = forcedAnalysisResults;

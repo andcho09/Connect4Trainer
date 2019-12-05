@@ -7,9 +7,11 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import connect4.Board;
-import connect4.Disc;
-import connect4.IllegalMoveException;
+import connect4.api.Board;
+import connect4.api.Disc;
+import connect4.api.IllegalMoveException;
+import connect4.api.analysis.BoardAnalysis;
+import connect4.api.analysis.ColumnAnalysis;
 import connect4.trainer.BoardAnalyserFactory.ForcedAnalysisResult;
 
 public abstract class AbstractForceBoardAnalyser {

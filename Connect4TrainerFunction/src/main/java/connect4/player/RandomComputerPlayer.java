@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import connect4.Board;
-import connect4.Disc;
+import connect4.api.Board;
+import connect4.api.Disc;
 
 /**
  * A computer player that plays purely randomly (i.e. badly).

@@ -7,9 +7,11 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
-import connect4.Board;
-import connect4.Disc;
-import connect4.IllegalMoveException;
+import connect4.api.Board;
+import connect4.api.Disc;
+import connect4.api.IllegalMoveException;
+import connect4.api.analysis.BoardAnalysis;
+import connect4.api.analysis.ColumnAnalysis;
 
 /**
  * A factory for {@link BoardAnalyser}s which look at the playing the entire board. These analysers differ from the ColumnAnalyser in that:

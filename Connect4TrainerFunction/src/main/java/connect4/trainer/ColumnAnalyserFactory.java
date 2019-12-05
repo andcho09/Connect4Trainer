@@ -3,11 +3,12 @@ package connect4.trainer;
 import java.util.LinkedList;
 import java.util.List;
 
-import connect4.Board;
-import connect4.BoardHelper;
-import connect4.Disc;
-import connect4.IllegalMoveException;
-import connect4.Move;
+import connect4.api.Board;
+import connect4.api.BoardHelper;
+import connect4.api.Disc;
+import connect4.api.IllegalMoveException;
+import connect4.api.Move;
+import connect4.api.analysis.ColumnAnalysis;
 
 /**
  * A factory for {@link ColumnAnalyser}s which look at the playing in an individual column. This is very simple and does not evaluate beyond

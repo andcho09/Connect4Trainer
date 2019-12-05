@@ -8,10 +8,10 @@ import org.apache.commons.lang.StringUtils;
 
 import com.fasterxml.jackson.core.JsonParser;
 
-import connect4.Board;
-import connect4.Disc;
-import connect4.IllegalMoveException;
-import connect4.rest.JsonStreamingObjectFactory;
+import connect4.api.Board;
+import connect4.api.Disc;
+import connect4.api.IllegalMoveException;
+import connect4.rest.WebJsonStreamingObjectFactory;
 
 /**
  * Reconstitutes a {@link Board} from some external format.
@@ -44,7 +44,7 @@ public class BoardLoader {
 	 * </p>
 	 * <p>
 	 * <b>JSON format:</b>
-	 * See {@link JsonStreamingObjectFactory#deserializeBoard(JsonParser)}
+	 * See {@link WebJsonStreamingObjectFactory#deserializeBoard(JsonParser)}
 	 * </p>
 	 * @param board in {@link String} plain text or JSON format
 	 * @return the {@link Board}or <code>null</code> if the board
@@ -132,7 +132,7 @@ public class BoardLoader {
 	}
 
 	public static Board readJsonBoard(final String json) {
-		final JsonStreamingObjectFactory factory = JsonStreamingObjectFactory.getInstance();
+		final WebJsonStreamingObjectFactory factory = WebJsonStreamingObjectFactory.getInstance();
 		JsonParser parser;
 		try {
 			parser = factory.getParser(json);

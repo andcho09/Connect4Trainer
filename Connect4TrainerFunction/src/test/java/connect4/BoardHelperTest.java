@@ -6,6 +6,10 @@ import java.io.IOException;
 import org.junit.Assert;
 import org.junit.Test;
 
+import connect4.api.Board;
+import connect4.api.BoardHelper;
+import connect4.api.Disc;
+import connect4.api.Move;
 import connect4.loader.BoardLoader;
 
 public class BoardHelperTest {

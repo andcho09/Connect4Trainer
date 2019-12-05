@@ -1,6 +1,6 @@
 package connect4.memory;
 
-import connect4.Board;
+import connect4.api.Board;
 import connect4.player.Player;
 
 public class BoardMemory {

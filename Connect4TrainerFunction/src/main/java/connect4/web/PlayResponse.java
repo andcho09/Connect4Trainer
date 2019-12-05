@@ -2,8 +2,8 @@ package connect4.web;
 
 import java.io.Serializable;
 
-import connect4.Board;
-import connect4.GameException;
+import connect4.api.Board;
+import connect4.api.GameException;
 
 public class PlayResponse implements Serializable {
 

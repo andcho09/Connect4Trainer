@@ -8,10 +8,10 @@ import java.io.IOException;
 import org.junit.Assert;
 import org.junit.Test;
 
-import connect4.Board;
-import connect4.Disc;
-import connect4.GameException;
-import connect4.IllegalMoveException;
+import connect4.api.Board;
+import connect4.api.Disc;
+import connect4.api.GameException;
+import connect4.api.IllegalMoveException;
 import connect4.loader.BoardLoader;
 
 public class GameHandlerTest {

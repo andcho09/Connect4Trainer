@@ -1,4 +1,4 @@
-package connect4;
+package connect4.api;
 
 /**
  * Represents a move by a player.

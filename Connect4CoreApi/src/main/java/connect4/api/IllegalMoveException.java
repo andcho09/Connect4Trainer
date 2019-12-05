@@ -1,4 +1,4 @@
-package connect4;
+package connect4.api;
 
 /**
  * Represents an illegal move.
@@ -20,13 +20,13 @@ public class IllegalMoveException extends GameException {
 	 * @return the column that was attempted to be played in which created the illegal move
 	 */
 	public int getColumn() {
-		return column;
+		return this.column;
 	}
 
 	/**
 	 * @return the {@link Disc} that created the illegal move
 	 */
 	public Disc getDisc() {
-		return disc;
+		return this.disc;
 	}
 }

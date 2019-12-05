@@ -1,0 +1,65 @@
+AWSTemplateFormatVersion : '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Creates Connect 4 Lambda and DynamoDB to store interesting boards
+
+Parameters:
+  DebugEnabled:
+    Type: String
+    AllowedValues:
+      - true
+      - false
+    Description: Whether to enable Log4j (writes to CloudWatch) debug logging
+    Default: FALSE
+  LambdaIamRole:
+    Type: String
+    Description: ARN of IAM role for Lambda to use
+    Default: arn:aws:iam::214602658230:role/service-role/connect4trainer-role
+
+Resources:
+  # Lambda function
+  LambdaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: build/distributions/Connect4StoreFunction-0.0.1-SNAPSHOT.zip # Relative to location of this CloudFormation template
+      Handler: connect4.store.lambda.AwsLambdaStoreHandler::handleRequest
+      Runtime: java8
+      # Optional properties
+      AutoPublishAlias: live
+      Description: Lambda function for storing interesting Connect 4 boards in DynamoDB
+      Environment:
+        Variables:
+          DEBUG_ENABLED: !Ref DebugEnabled
+      FunctionName: Connect4Store
+      MemorySize: 256
+      Role: !Ref LambdaIamRole
+      Tags:
+        Project: Connect4Trainer
+      Timeout: 30 # This needs to be high in exception cases (Lambda can take 20 seconds here)
+  LambdaLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: /aws/lambda/Connect4Store
+      RetentionInDays: 14
+  DynamoBoardItemTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: hack
+          AttributeType: N
+        - AttributeName: boardhash
+          AttributeType: N
+      KeySchema:
+        - AttributeName: hack
+          KeyType: HASH
+        - AttributeName: boardhash
+          KeyType: RANGE
+      # Optional parameters
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: True
+      ProvisionedThroughput:
+        ReadCapacityUnits: "2"
+        WriteCapacityUnits: "2"
+      TableName: BoardItem
+      Tags:
+        - Key: Project
+          Value: Connect4Trainer

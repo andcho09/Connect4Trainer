@@ -1,4 +1,4 @@
-package connect4;
+package connect4.api;
 
 /**
  * A disc that is placed onto the board. Discs are just bytes. This is really just a helper class.
@@ -16,11 +16,11 @@ public enum Disc {
 	}
 
 	public byte getValue() {
-		return value;
+		return this.value;
 	}
 
 	public char getSymbol() {
-		return symbol;
+		return this.symbol;
 	}
 
 	/**

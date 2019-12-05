@@ -7,6 +7,7 @@ import java.io.File;
 import org.junit.Assert;
 import org.junit.Test;
 
+import connect4.api.Board;
 import connect4.loader.BoardLoader;
 
 // Test normalising boards

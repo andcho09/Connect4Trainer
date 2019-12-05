@@ -2,8 +2,9 @@ package connect4.trainer;
 
 import java.util.Random;
 
-import connect4.Board;
-import connect4.Disc;
+import connect4.api.Board;
+import connect4.api.Disc;
+import connect4.api.analysis.BoardAnalysis;
 
 /**
  * Recommends where to play.

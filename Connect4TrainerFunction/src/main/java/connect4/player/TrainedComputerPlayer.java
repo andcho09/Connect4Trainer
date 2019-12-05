@@ -1,7 +1,7 @@
 package connect4.player;
 
-import connect4.Board;
-import connect4.Disc;
+import connect4.api.Board;
+import connect4.api.Disc;
 import connect4.trainer.Recommender;
 import connect4.trainer.Trainer;
 
