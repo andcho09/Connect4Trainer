@@ -5,6 +5,7 @@ import static spark.Spark.externalStaticFileLocation;
 import static spark.Spark.post;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.io.StringWriter;
 import java.io.Writer;
 
@@ -81,7 +82,7 @@ public class RestServer {
 			public Object handle(final Request req, final Response res) throws Exception {
 
 				final JsonParser parser = factory.getParser(req.raw().getInputStream());
-				final RecommendRequest genericRequest = factory.deserialiseGenericRequest(parser);
+				final Serializable genericRequest = factory.deserialiseGenericRequest(parser);
 				parser.close();
 
 				final Writer writer = new StringWriter();
@@ -90,8 +91,8 @@ public class RestServer {
 				if (genericRequest instanceof PlayRequest) {
 					final PlayResponse response = gameHandler.next((PlayRequest) genericRequest);
 					factory.serialize(g, response);
-				} else {
-					final RecommendResponse response = gameHandler.recommend(genericRequest);
+				} else if (genericRequest instanceof RecommendRequest) {
+					final RecommendResponse response = gameHandler.recommend((RecommendRequest) genericRequest);
 					factory.serialize(g, response);
 				}
 				g.close();
@@ -100,7 +101,7 @@ public class RestServer {
 		});
 
 		// Generic exception handler
-		exception(Exception.class, new ExceptionHandler<Exception>() {
+		exception(Exception.class, new ExceptionHandler<>() {
 			@Override
 			public void handle(final Exception exception, final Request request, final Response response) {
 				final StringWriter writer = new StringWriter();

@@ -3,6 +3,7 @@ package connect4.store.lambda;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.util.stream.Collectors;
 
 import org.apache.log4j.Level;
@@ -13,10 +14,11 @@ import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 
-import connect4.api.json.AbstractBoardRequest;
+import connect4.api.aws.xray.AWSXRay;
 import connect4.api.json.GetRandomBoardRequest;
 import connect4.api.json.JsonStreamingObjectFactory;
 import connect4.api.json.StoreBoardRequest;
+import connect4.api.json.WarmRequest;
 import connect4.store.dynamodb.DynamoDbStore;
 
 /**
@@ -40,7 +42,7 @@ public class AwsLambdaStoreHandler implements RequestStreamHandler {
 		final JsonStreamingObjectFactory factory = JsonStreamingObjectFactory.getInstance();
 		final JsonGenerator g = factory.getGenerator(output);
 		final JsonParser jp = factory.getParser(input);
-		final AbstractBoardRequest request = factory.deserializeAbstractBoardRequest(jp);
+		final Serializable request = factory.deserializeAbstractBoardRequest(jp);
 		g.writeStartObject();
 		if (request instanceof StoreBoardRequest) {
 			final StoreBoardRequest boardRequest = (StoreBoardRequest) request;
@@ -57,6 +59,10 @@ public class AwsLambdaStoreHandler implements RequestStreamHandler {
 			final StoreBoardRequest randomBoard = getRandomBoard();
 			g.writeStringField("status", randomBoard == null ? "empty" : "retrieved");
 			factory.serialize(g, randomBoard, null);
+		} else if (request instanceof WarmRequest) {
+			final long start = System.currentTimeMillis();
+			getRandomBoard();
+			LOGGER.debug("Warm up completed in " + (System.currentTimeMillis() - start) + " ms.");
 		}
 		g.writeEndObject();
 		g.close();
@@ -65,10 +71,14 @@ public class AwsLambdaStoreHandler implements RequestStreamHandler {
 	}
 
 	public void handle(final StoreBoardRequest request) {
-		DynamoDbStore.getInstance().createOrUpdate(request);
+		AWSXRay.createSubsegment("store", (subsegment) -> {
+			DynamoDbStore.getInstance().createOrUpdate(request);
+		});
 	}
 
 	public StoreBoardRequest getRandomBoard() {
-		return DynamoDbStore.getInstance().getRandom();
+		return AWSXRay.createSubsegment("getrandom", (subsegment) -> {
+			return DynamoDbStore.getInstance().getRandom();
+		});
 	}
 }

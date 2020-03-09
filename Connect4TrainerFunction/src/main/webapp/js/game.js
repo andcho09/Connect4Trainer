@@ -384,3 +384,16 @@ function getCol(pointer) {
 function getRow(pointer) {
 	return game.math.snapToFloor(pointer.y - canvasSprite.y, canvasZoom) / canvasZoom;
 }
+
+$(document).ready(function(){
+	// Tell server side to warm up to avoid cold-starts.
+	var data = {
+		"action": "warm"
+	};
+	$.ajax({
+		url: "/game/play",
+		method: "POST",
+		data: JSON.stringify(data),
+		dataType: "json"
+	});
+});

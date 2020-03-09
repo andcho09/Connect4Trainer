@@ -1,5 +1,5 @@
 plugins {
-	id 'com.eriwen.gradle.js' version '2.14.1'
+	id 'org.padler.gradle.minify' version '1.2.1'
 }
 
 group = 'Connect4Trainer'
@@ -9,7 +9,7 @@ ext.shortName = 'trainer'
 jar {
 	manifest {
 		attributes 'Implementation-Title': group,
-				   'Implementation-Version': version
+				   'Implementation-Version': archiveVersion
 	}
 }
 
@@ -19,6 +19,10 @@ dependencies {
 	implementation group: 'commons-lang', name: 'commons-lang', version:'2.6'
 	implementation group: 'com.amazonaws', name: 'aws-java-sdk-lambda', version:'1.11.683'
 	implementation group: 'com.amazonaws', name: 'aws-lambda-java-core', version:'1.2.0'
+	implementation group: 'com.amazonaws', name: 'aws-lambda-java-log4j', version: '1.0.0'
+	implementation group: 'com.amazonaws', name: 'aws-xray-recorder-sdk-aws-sdk', version: '2.4.0'
+	implementation group: 'com.amazonaws', name: 'aws-xray-recorder-sdk-aws-sdk-instrumentor', version: '2.4.0'
+	implementation group: 'com.amazonaws', name: 'aws-xray-recorder-sdk-core', version: '2.4.0'
 	implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version:'2.9.10'
 	implementation group: 'com.sparkjava', name: 'spark-core', version:'2.9.1'
 	implementation group: 'log4j', name: 'log4j', version:'1.2.17'
@@ -28,58 +32,70 @@ dependencies {
 	testImplementation group: 'junit', name: 'junit', version:'4.12'
 }
 
+configurations.create('releaseWithXRay')
+configurations.releaseWithXRay {
+	extendsFrom configurations.runtimeClasspath
+	transitive = true
+	
+	// Remove libraries provided by AWS runtime
+	exclude group: 'com.amazonaws', module: 'aws-lambda-java-core'
+	exclude group: 'com.amazonaws', module: 'aws-lambda-java-events'
+	// AWS Lambda doesn't use Spark/Jetty
+	exclude group: 'com.sparkjava', module: 'spark-core'
+	// Remove unused AWS libraries
+	exclude group: 'com.amazonaws', module: 'aws-java-sdk-cognitoidentity'
+	exclude group: 'com.amazonaws', module: 'aws-java-sdk-dynamodb'
+	exclude group: 'com.amazonaws', module: 'aws-java-sdk-kinesis'
+	exclude group: 'com.amazonaws', module: 'aws-java-sdk-kms'
+	exclude group: 'com.amazonaws', module: 'aws-java-sdk-s3'
+	exclude group: 'com.amazonaws', module: 'aws-java-sdk-sqs'
+}
+
+configurations.create('releaseWithoutXRay')
+configurations.releaseWithoutXRay {
+	extendsFrom configurations.releaseWithXRay
+	transitive = true
+	
+	// Remove X-Ray libraries
+	exclude group: 'com.amazonaws', module: 'aws-java-sdk-xray'
+	exclude group: 'com.amazonaws', module: 'aws-xray-recorder-sdk-aws-sdk'
+	exclude group: 'com.amazonaws', module: 'aws-xray-recorder-sdk-aws-sdk-instrumentor'
+}
+
 task buildZip(type: Zip, group: "Custom", description: "Creates .zip for upload to AWS Lambda") {
 	from compileJava
-	//from processResources
 	from file('src/main/resources/log4j_lambda.properties')
 	into('lib') {
-		from configurations.runtimeClasspath {
-			// Remove libraries provided by AWS runtime
-			exclude group: 'com.amazonaws', module: 'aws-lambda-java-core'
-			exclude group: 'com.amazonaws', module: 'aws-lambda-java-events'
-			// AWS Lambda doesn't use Spark/Jetty
-			exclude group: 'com.sparkjava', module: 'spark-core'
-			// Remove unused AWS libraries
-			exclude group: 'com.amazonaws', module: 'aws-java-sdk-cognitoidentity'
-			exclude group: 'com.amazonaws', module: 'aws-java-sdk-dynamodb'
-			exclude group: 'com.amazonaws', module: 'aws-java-sdk-kinesis'
-			exclude group: 'com.amazonaws', module: 'aws-java-sdk-kms'
-			exclude group: 'com.amazonaws', module: 'aws-java-sdk-s3'
-			exclude group: 'com.amazonaws', module: 'aws-java-sdk-sqs'
-		}
+		from configurations.releaseWithoutXRay
+	}
+	rename('log4j_lambda.properties', 'log4j.properties')
+}
+
+task buildZipWithXRay(type: Zip, group: "Custom", description: "Creates .zip for upload to AWS Lambda with X-Ray debugging") {
+	archiveAppendix = "XRay"
+	from compileJava
+	from file('src/main/resources/log4j_lambda.properties')
+	into('lib') {
+		from configurations.releaseWithXRay
 	}
 	rename('log4j_lambda.properties', 'log4j.properties')
 }
 
 // Create web artifacts directory for distribution
 task copyAwsWeb(type: Copy) {
-	from file('src/main/webapp/')
-		include '*.htm'
+	from file('src/main/webapp/static')
+		exclude '*.ico'
 	into file("$buildDir/distributions-s3/")
 	doLast{
-		ant.gzip(src: 'src/main/webapp/favicon.ico', destfile: file("$buildDir/distributions-s3/favicon.ico"))
+		ant.gzip(src: 'src/main/webapp/static/favicon.ico', destfile: file("$buildDir/distributions-s3/favicon.ico"))
 	}
 }
 
-// Minify JS
-javascript.source {
-	dev {
-		js {
-			srcDir 'src/main/webapp'
-			include '*.js'
-			exclude '*.min.js'
-		}
-	}
+//org.padler.gradle.minify defines a 'minify' task
+minification {
+	jsDstDir = "$buildDir/distributions-s3/"
+	jsSrcDir = "$projectDir/src/main/webapp/js"
 }
 
-minifyJs {
-	source = javascript.source.dev.js.files
-	dest = file("$buildDir/distributions-s3/game.js")
-	sourceMap = file("$buildDir/all.sourcemap.json")
-	closure {
-		warningLevel = 'QUIET'
-	}
-}
-
-minifyJs.dependsOn copyAwsWeb
-build.dependsOn buildZip, minifyJs
+minify.dependsOn copyAwsWeb
+build.dependsOn buildZip, buildZipWithXRay, minify

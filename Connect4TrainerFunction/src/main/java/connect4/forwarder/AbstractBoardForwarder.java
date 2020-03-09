@@ -77,4 +77,10 @@ public abstract class AbstractBoardForwarder {
 	 * Forward the board to the destination.
 	 */
 	protected abstract void forward(final Disc currentPlayer, final Board board, final BoardAnalysis boardAnalysis);
+
+	/**
+	 * Warm up this forwarder to help with cold starts.
+	 */
+	public void warmUp() {
+	}
 }

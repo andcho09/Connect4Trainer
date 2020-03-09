@@ -5,7 +5,7 @@ ext.shortName = 'store'
 jar {
 	manifest {
 		attributes 'Implementation-Title': group,
-				   'Implementation-Version': version
+				   'Implementation-Version': archiveVersion
 	}
 }
 
@@ -15,28 +15,59 @@ dependencies {
 	implementation group: 'com.amazonaws', name: 'aws-java-sdk-dynamodb', version:'1.11.683'
 	implementation group: 'com.amazonaws', name: 'aws-lambda-java-core', version:'1.2.0'
 	implementation group: 'com.amazonaws', name: 'aws-lambda-java-events', version:'1.3.0'
+	implementation group: 'com.amazonaws', name: 'aws-lambda-java-log4j', version: '1.0.0'
+	implementation group: 'com.amazonaws', name: 'aws-xray-recorder-sdk-aws-sdk', version: '2.4.0'
+	implementation group: 'com.amazonaws', name: 'aws-xray-recorder-sdk-aws-sdk-instrumentor', version: '2.4.0'
+	implementation group: 'com.amazonaws', name: 'aws-xray-recorder-sdk-core', version: '2.4.0'
 	implementation group: 'log4j', name: 'log4j', version:'1.2.17'
+}
+
+configurations.create('releaseWithXRay')
+configurations.releaseWithXRay {
+	extendsFrom configurations.runtimeClasspath
+	transitive = true
+	
+	// Remove libraries provided by AWS runtime
+	exclude group: 'com.amazonaws', module: 'aws-lambda-java-core'
+	exclude group: 'com.amazonaws', module: 'aws-lambda-java-events'
+	// Remove unused AWS libraries
+	exclude group: 'com.amazonaws', module: 'aws-java-sdk-cognitoidentity'
+	exclude group: 'com.amazonaws', module: 'aws-java-sdk-kinesis'
+	exclude group: 'com.amazonaws', module: 'aws-java-sdk-kms'
+	exclude group: 'com.amazonaws', module: 'aws-java-sdk-kinesis'
+	exclude group: 'com.amazonaws', module: 'aws-java-sdk-s3'
+	exclude group: 'com.amazonaws', module: 'aws-java-sdk-sns'
+	exclude group: 'com.amazonaws', module: 'aws-java-sdk-sqs'
+}
+
+configurations.create('releaseWithoutXRay')
+configurations.releaseWithoutXRay {
+	extendsFrom configurations.releaseWithXRay
+	transitive = true
+	
+	// Remove X-Ray libraries
+	exclude group: 'com.amazonaws', module: 'aws-java-sdk-xray'
+	exclude group: 'com.amazonaws', module: 'aws-xray-recorder-sdk-aws-sdk'
+	exclude group: 'com.amazonaws', module: 'aws-xray-recorder-sdk-aws-sdk-instrumentor'
 }
 
 task buildZip(type: Zip, group: "Custom", description: "Creates .zip for upload to AWS Lambda") {
 	from compileJava
 	from project(':Connect4TrainerFunction').file('src/main/resources/log4j_lambda.properties')
 	into('lib') {
-		from configurations.runtimeClasspath {
-			// Remove libraries provided by AWS runtime
-			exclude group: 'com.amazonaws', module: 'aws-lambda-java-core'
-			exclude group: 'com.amazonaws', module: 'aws-lambda-java-events'
-			// Remove unused AWS libraries
-			exclude group: 'com.amazonaws', module: 'aws-java-sdk-cognitoidentity'
-			exclude group: 'com.amazonaws', module: 'aws-java-sdk-kinesis'
-			exclude group: 'com.amazonaws', module: 'aws-java-sdk-kms'
-			exclude group: 'com.amazonaws', module: 'aws-java-sdk-kinesis'
-			exclude group: 'com.amazonaws', module: 'aws-java-sdk-s3'
-			exclude group: 'com.amazonaws', module: 'aws-java-sdk-sns'
-			exclude group: 'com.amazonaws', module: 'aws-java-sdk-sqs'
-		}
+		from configurations.releaseWithoutXRay
 	}
 	rename('log4j_lambda.properties', 'log4j.properties')
 }
 
-build.dependsOn buildZip
+task buildZipWithXRay(type: Zip, group: "Custom", description: "Creates .zip for upload to AWS Lambda with X-Ray debugging") {
+	archiveAppendix = "XRay"
+	from compileJava
+	from file('src/main/resources/log4j_lambda.properties')
+	into('lib') {
+		from configurations.releaseWithXRay
+	}
+	rename('log4j_lambda.properties', 'log4j.properties')
+}
+
+build.dependsOn buildZip, buildZipWithXRay

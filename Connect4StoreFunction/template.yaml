@@ -14,6 +14,12 @@ Parameters:
     Type: String
     Description: ARN of IAM role for Lambda to use
     Default: arn:aws:iam::214602658230:role/service-role/connect4trainer-role
+  XRayEnabled:
+    Type: String
+    AllowedValues:
+      - Active
+      - PassThrough
+    Default: PassThrough
 
 Resources:
   # Lambda function
@@ -22,19 +28,21 @@ Resources:
     Properties:
       CodeUri: build/distributions/Connect4StoreFunction-0.0.1-SNAPSHOT.zip # Relative to location of this CloudFormation template
       Handler: connect4.store.lambda.AwsLambdaStoreHandler::handleRequest
-      Runtime: java8
+      Runtime: java11
       # Optional properties
       AutoPublishAlias: live
       Description: Lambda function for storing interesting Connect 4 boards in DynamoDB
       Environment:
         Variables:
           DEBUG_ENABLED: !Ref DebugEnabled
+          XRAY_ENABLED: !Ref XRayEnabled
       FunctionName: Connect4Store
-      MemorySize: 256
+      MemorySize: 512
       Role: !Ref LambdaIamRole
       Tags:
         Project: Connect4Trainer
-      Timeout: 30 # This needs to be high in exception cases (Lambda can take 20 seconds here)
+      Timeout: 30 # This needs to be high in exception cases (cold start is expensive)
+      Tracing: !Ref XRayEnabled
   LambdaLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:

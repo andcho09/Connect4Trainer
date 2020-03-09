@@ -7,6 +7,7 @@ import connect4.api.Board;
 import connect4.api.Disc;
 import connect4.api.analysis.BoardAnalysis;
 import connect4.api.analysis.ColumnAnalysis;
+import connect4.api.aws.xray.AWSXRay;
 import connect4.forwarder.AbstractBoardForwarder;
 import connect4.forwarder.SinkBoardForwader;
 import connect4.trainer.BoardAnalyserFactory.ForcedAnalysisResult;
@@ -36,6 +37,12 @@ public class Trainer extends Recommender {
 	 */
 	@Override
 	public int recommend(final Board board, final Disc currentPlayer) {
+		return AWSXRay.createSubsegment("trainer-recommend", (subsegment) -> {
+			return doRecommend(board, currentPlayer);
+		});
+	}
+
+	private int doRecommend(final Board board, final Disc currentPlayer) {
 		resetLast();
 
 		// Analysis phase
@@ -52,7 +59,7 @@ public class Trainer extends Recommender {
 		final BoardAnalysis bestBoardAnalysis = new BoardAnalysis();
 		int bestScore = Integer.MIN_VALUE;
 		for (final ColumnAnalysis analysis : boardAnalysis) {
-			final int score = scoringAlgorithm.score(analysis);
+			final int score = this.scoringAlgorithm.score(analysis);
 			if (score > bestScore) {
 				bestScore = score;
 				bestBoardAnalysis.clear();
@@ -62,7 +69,7 @@ public class Trainer extends Recommender {
 			}
 		}
 
-		boardForwarder.receive(board, currentPlayer, bestBoardAnalysis);
+		this.boardForwarder.receive(board, currentPlayer, bestBoardAnalysis);
 		setLastAnalysis(bestBoardAnalysis, boardAnalysis);
 		// TODO this could be a sequence of how we lose if it's for the opponent
 		this.lastForcedAnalysisResults = forcedAnalysisResults;
@@ -71,7 +78,7 @@ public class Trainer extends Recommender {
 		if (bestBoardAnalysis.size() == 1) {
 			return bestBoardAnalysis.get(0).getColumn();
 		} else {
-			final int randomInt = random.nextInt(bestBoardAnalysis.size());
+			final int randomInt = this.random.nextInt(bestBoardAnalysis.size());
 			return bestBoardAnalysis.get(randomInt).getColumn();
 		}
 	}
@@ -83,6 +90,10 @@ public class Trainer extends Recommender {
 	}
 
 	List<ForcedAnalysisResult> getLastForcedAnalysisResults() {
-		return lastForcedAnalysisResults;
+		return this.lastForcedAnalysisResults;
+	}
+
+	public void warmUp() {
+		this.boardForwarder.warmUp();
 	}
 }

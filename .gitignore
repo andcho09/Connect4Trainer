@@ -5,5 +5,4 @@
 bin
 build
 gradle
-packaged*template.yaml
 target

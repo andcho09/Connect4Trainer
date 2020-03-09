@@ -20,6 +20,7 @@ import connect4.api.analysis.BoardAnalysis;
 import connect4.api.analysis.ColumnAnalysis;
 import connect4.api.json.GetRandomBoardRequest;
 import connect4.api.json.StoreBoardRequest;
+import connect4.api.json.WarmRequest;
 import connect4.loader.BoardLoader;
 import connect4.web.GameState;
 import connect4.web.PlayRequest;
@@ -152,6 +153,8 @@ public class JsonStreamingObjectFactoryTest {
 		Assert.assertEquals(StoreBoardRequest.class, INSTANCE.deserializeAbstractBoardRequest(INSTANCE.getParser(json)).getClass());
 		json = FileUtils.readFileToString(new File(RESOURCES_DIR + "Rest_GetRandom_Req_1.json"), "UTF-8");
 		Assert.assertEquals(GetRandomBoardRequest.class, INSTANCE.deserializeAbstractBoardRequest(INSTANCE.getParser(json)).getClass());
+		json = FileUtils.readFileToString(new File(RESOURCES_DIR + "Rest_Warm_Req.json"), "UTF-8");
+		Assert.assertEquals(WarmRequest.class, INSTANCE.deserializeAbstractBoardRequest(INSTANCE.getParser(json)).getClass());
 	}
 
 	@Test

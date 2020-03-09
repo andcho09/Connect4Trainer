@@ -1,12 +1,15 @@
 package connect4.web;
 
+import org.apache.log4j.Logger;
+
 import connect4.api.Board;
 import connect4.api.BoardHelper;
 import connect4.api.Disc;
 import connect4.api.GameException;
+import connect4.api.GameException.ErrorCode;
 import connect4.api.IllegalMoveException;
 import connect4.api.Move;
-import connect4.api.GameException.ErrorCode;
+import connect4.api.aws.xray.AWSXRay;
 import connect4.forwarder.AbstractBoardForwarder;
 import connect4.trainer.Trainer;
 
@@ -14,6 +17,8 @@ import connect4.trainer.Trainer;
  * Plays a game of Connect 4 via the Web. The encoding of the request and response are implemented by other classes.
  */
 public class GameHandler {
+
+	private static final Logger LOGGER = Logger.getLogger(GameHandler.class);
 
 	private final Trainer trainer;
 
@@ -31,6 +36,16 @@ public class GameHandler {
 	 * @return the recommendation
 	 */
 	public RecommendResponse recommend(final RecommendRequest request) {
+		return AWSXRay.createSubsegment("recommend", (subsegment) -> {
+			final RecommendResponse response = doRecommend(request);
+			if (response.getException() != null) {
+				subsegment.addException(response.getException());
+			}
+			return response;
+		});
+	}
+
+	private RecommendResponse doRecommend(final RecommendRequest request) {
 		final RecommendResponse response = new RecommendResponse();
 		response.setRecommendColumn(-1);
 		final Board board = request.getBoard();
@@ -73,6 +88,22 @@ public class GameHandler {
 	 * @return the new game state including a move by the AI {@link Trainer}
 	 */
 	public PlayResponse next(final PlayRequest request) {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Starting next (before X-Ray) at " + System.currentTimeMillis());
+		}
+		return AWSXRay.createSubsegment("next", (subsegment) -> {
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Inside next (inside X-Ray) at " + System.currentTimeMillis());
+			}
+			final PlayResponse response = doNext(request);
+			if (response.getException() != null) {
+				subsegment.addException(response.getException());
+			}
+			return response;
+		});
+	}
+
+	public PlayResponse doNext(final PlayRequest request) {
 		final PlayResponse response = new PlayResponse();
 		final Disc currentPlayer = request.getCurrentPlayer();
 		response.setState(GameState.getTurnState(currentPlayer));
@@ -126,5 +157,18 @@ public class GameHandler {
 			}
 		}
 		return response;
+	}
+
+	/**
+	 * Initialise everything, do a warmup.
+	 */
+	public void warmUp() {
+		AWSXRay.createSubsegment("warm", (subsegment) -> {
+			final long start = System.currentTimeMillis();
+			this.trainer.warmUp();
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Warm up completed in " + (System.currentTimeMillis() - start) + " ms.");
+			}
+		});
 	}
 }

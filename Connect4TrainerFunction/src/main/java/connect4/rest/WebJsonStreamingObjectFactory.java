@@ -1,12 +1,14 @@
 package connect4.rest;
 
 import java.io.IOException;
+import java.io.Serializable;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
 import connect4.api.json.JsonStreamingObjectFactory;
+import connect4.api.json.WarmRequest;
 import connect4.web.GameState;
 import connect4.web.PlayRequest;
 import connect4.web.PlayResponse;
@@ -110,7 +112,7 @@ public class WebJsonStreamingObjectFactory extends JsonStreamingObjectFactory {
 		return result;
 	}
 
-	public RecommendRequest deserialiseGenericRequest(final JsonParser jp) throws IOException {
+	public Serializable deserialiseGenericRequest(final JsonParser jp) throws IOException {
 		if (!JsonToken.START_OBJECT.equals(jp.nextToken())) {
 			throw new IOException("Could not parse request. Does not appear to be JSON.");
 		}
@@ -123,6 +125,8 @@ public class WebJsonStreamingObjectFactory extends JsonStreamingObjectFactory {
 					return doDeserializePlayRequest(jp);
 				} else if ("recommend".equals(action)) {
 					return doDeserializeRecommendRequest(jp);
+				} else if ("warm".equals(action)) {
+					return new WarmRequest();
 				}
 			}
 		}

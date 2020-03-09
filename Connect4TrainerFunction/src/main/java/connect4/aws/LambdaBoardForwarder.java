@@ -77,8 +77,22 @@ public class LambdaBoardForwarder extends AbstractBoardForwarder {
 
 	private static synchronized AWSLambdaAsync getLambdaClient(final String region) {
 		if (lambda == null) {
+			final long start = System.currentTimeMillis();
 			lambda = AWSLambdaAsyncClientBuilder.standard().withRegion(region).build();
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Initialised Lambda client in " + (System.currentTimeMillis() - start) + " ms.");
+			}
 		}
 		return lambda;
+	}
+
+	@Override
+	public void warmUp() {
+		LOGGER.debug("Warming up Lambda async client");
+		final InvokeRequest request = new InvokeRequest();
+		request.setFunctionName(this.lambdaFunction);
+		request.setInvocationType(InvocationType.Event); // Event means aysnc
+		request.setPayload("{\"action\":\"warm\"}");
+		getLambdaClient(this.lambdaRegion).invoke(request);
 	}
 }

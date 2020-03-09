@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+## 0.9 (Mar 2020)
+
+* New
+    * Added [AWS X-Ray](https://aws.amazon.com/xray/) tracing which can be enabled during the Gradle build with the ``-Pxray=Active`` option
+    * Added "warm" action to instruct services to initialise expensive objects
+
+## 0.8 (Feb 2020)
+* New
+    * Updated to Java 11
+    * Updated Gradle 6 replacing incompatible JavaScript minify plugin
+
 ## 0.7 (Dec 2019)
 * New
     * Added microservice for storing interesting boards in a DynamoDB table which is fronted by the [Connect4StoreFunction] Lambda function

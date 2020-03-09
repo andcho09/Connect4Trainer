@@ -32,10 +32,11 @@ This is a training tool for the game [Connect 4](https://en.wikipedia.org/wiki/C
 		end if
 	end for
 
-## Analysers 
+## Analysers
 Analysers detect facts about the board
 
 **Implemented**
+
 - win now (in one move)
 - block losing in one move
 - enable opponent win (by opponent playing on top of our move)
@@ -49,33 +50,35 @@ Analysers detect facts about the board
 Forced moves are moves we expect the opponent to play because if they don't they'll lose. Because players have different skill levels, some players may not see the more advanced/obscure moves.
 
 **Easy**
+
 - block losing in one
 
 **Intermediate**
+
 - block trap
 - block generic win on top of forced move
 
 **Algorithm:**
 
 	given freshly simple analysed (but not scored) board b and player p at depth d = 0
-	
+
 	// check end condition, i.e. we won (or can at least execute a trap), or we're forced to play a column
 	if p has won
 		return result: p wins at d
 	end if
-	if p forced 
+	if p forced
 		return (empty response implies we did not win)
 	end if
-	
+
 	// begin forced analysis
 	set forced analysis result
 	for each column c
 		if c unplayable
 			continue
 		end if
-		
+
 		play p into column c to create b'
-		
+
 		analyse board b' as p'
 		if p' forced into c'
 			play p' into c' to create b''
@@ -95,8 +98,8 @@ Forced moves are moves we expect the opponent to play because if they don't they
 
 ## Prerequisites
 
-* Java 8 (not going to higher versions because Lambda [doesn't support](https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html) anything higher currently)
-* [Gradle](https://gradle.org/releases/)
+* Java 11 (note AWS Lambda currently [doesn't support any higher version than this](https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html))
+* [Gradle 6](https://gradle.org/releases/) running on Java 11 (the [JavaScript minify plugin](https://github.com/616slayer616/gradle-minify-plugin/blob/master/src/main/java/org/padler/gradle/minify/minifier/JsMinifier.java#L12) uses a [method](https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/nio/file/Files.html#readString(java.nio.file.Path)) which exists since Java 11)
 * [Eclipse](https://www.eclipse.org/downloads/packages/) with Gradle support (2019-12 which comes with Buildship is good)
 
 ## Setup
@@ -135,8 +138,8 @@ For now, using [SAM](https://docs.aws.amazon.com/serverless-application-model/la
 
 There are two stacks, one for each Lambda function
 
-1. [Connect4TrainerFunction] (Connect 4 game logic and forwards interesting boards to the following Connect4StoreFunction function) is intended to be deployed in multiple regions
-1. [Connect4StoreFunction] (stores interesting boards in DynamoDB) is intended to be deployed into one region only
+1. [Connect4TrainerFunction](Connect4TrainerFunction) (Connect 4 game logic and forwards interesting boards to the following Connect4StoreFunction function) is intended to be deployed in multiple regions
+1. [Connect4StoreFunction](Connect4StoreFunction) (stores interesting boards in DynamoDB) is intended to be deployed into one region only
 
 ### Prerequisites
 
@@ -154,48 +157,56 @@ I.e. first time things set up manually:
 ### Deployment instructions
 
 1. Run Gradle build from the top-level:
+
 	```
 	$ gradle build
 	```
+
 1. Deploy the **Connect4TrainerFunction** CloudFormation template to **each desired region**
 	1. Generate CloudFormation package and change set using the gradle task ``awsChangeSet`` as follows
-		```
-		$ cd Connect4TrainerFunction
-		$ gradle awsChangeSet -Pregion=<us-east-1> -Pdebug=<true>
-		```
+
+			$ cd Connect4TrainerFunction
+			$ gradle awsChangeSet -Pregion=<us-east-1> -Pdebug=<false> -Pxray=<PassThrough>
+
 		where the properties specified by ``-P`` are:
+
 		* ``region`` is the region to deploy to
-		* ``debug`` is either ``true`` or ``false`` and sets whether DEBUG logging in the Lambda function should be enabled
+		* ``debug`` is either ``true`` or ``false`` and sets whether Log4j DEBUG logging is enabled
+		* ``xray`` is either ``Active`` to enable X-Ray tracing or ``PassThrough`` disable X-Ray
+
 	1. Execute the change set from the web console or command line
 	1. Don't forget to deploy to the other region updating the region references in the commands
+
 1. Deploy the **Connect4StoreFunction** CloudFormation template to **ap-southeast-2** using similar steps to the above:
 
 	1. Package the template for deploy (note: this is a **Unix** command):
-		```
-		$ cd Connect4TrainerFunction
-		$ gradle awsChangeSet -Pregion=ap-southeast-2 -Pdebug=false
-		```
+
+			$ cd Connect4StoreFunction
+			$ gradle awsChangeSet -Pregion=ap-southeast-2 -Pdebug=false
+
 	1. Execute the change set from the web console or command line
 1. Upload new static web content update to S3:
-	```
-	$ aws cp Connect4TrainerFunction/build/distributions-s3/* s3://<web-s3-bucket>/
-	$ gradle build
-	```
+
+
+		$ aws cp Connect4TrainerFunction/build/distributions-s3/* s3://<web-s3-bucket>/
+		$ gradle build
+
 	* Note since CloudFront caches, content might need to be [invalidated manually](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/Invalidation.html)
 
-Notes about CloudFormation: 
+Notes about CloudFormation:
+
 * this can be done either through the command line or web console
 * CloudFormation is regional so the ``create-stack``/``update-stack`` commands need to be run in each region
 * S3 references within  the packaged template generated by ``aws cloudformation package``) must be regionally local. Since S3 is setup for cross-region replication, you can _find-replace_ the S3 references in the packaged template instead of running the ``package`` command again for the other region
 * if the stack doesn't exist, you can't create a change set for it. Run something like the following:
-	```
-	$ aws cloudformation package --template-file template.yaml --output-template-file packaged-trainer-template.yaml --s3-prefix connect4trainer-releases/trainer-$(date +%Y-%m-%d) --force-upload --s3-bucket cloudformation-s3-bucket-<region> --region ap-southeast-2
 
-	# Upload template to S3
-	$ aws s3 cp packaged-trainer-template.yaml s3://cloudformation-s3-bucket-<region>/templates/
+		$ aws cloudformation package --template-file template.yaml --output-template-file packaged-trainer-template.yaml --s3-prefix connect4trainer-releases/trainer-$(date +%Y-%m-%d) --force-upload --s3-bucket cloudformation-s3-bucket-<region> --region ap-southeast-2
 
-	# Use web console to create the stack
-	```
+		# Upload template to S3
+		$ aws s3 cp packaged-trainer-template.yaml s3://cloudformation-s3-bucket-<region>/templates/
+
+		# Then use web console to create the stack or "aws cloudformation deploy"
+
 
 ### Testing the deploy
 
@@ -209,11 +220,23 @@ where ``<endpoint>`` is either the friendly domain, CloudFront, or API Gateway, 
 
 * CloudFront:
 
-	``curl -d "@Connect4TrainerFunction/src/test/resources/Rest_Play_Req_1.json" -k --verbose https://d3sz8ye83k6g2v.cloudfront.net.amazonaws.com/BETA/game/play``
-* API Gateway
+	```
+	curl -d "@Connect4TrainerFunction/src/test/resources/Rest_Play_Req_1.json" -k --verbose https://d3sz8ye83k6g2v.cloudfront.net.amazonaws.com/BETA/game/play
+	```
 
-	``curl -d "@Connect4TrainerFunction/src/test/resources/Rest_Play_Req_1.json" -k --verbose https://hvxhcxilw4.execute-api.us-east-1.amazonaws.com/BETA/game/play``
+* API Gateway:
+
+	```
+	curl -d "@Connect4TrainerFunction/src/test/resources/Rest_Play_Req_1.json" -k --verbose https://hvxhcxilw4.execute-api.us-east-1.amazonaws.com/BETA/game/play
+	```
+
+Or for Lambda:
+
+```
+$ aws lambda invoke --function-name Connect4Store --log-type Tail --payload '{"action":"getrandom"}' --region ap-southeast-2 out.json
+```
 
 ### Troubleshooting deployment
 
-* For rollback the Lambda code in S3 must exist which means we shouldn't setup S3 to delete "old" files automatically. If the file is gone, clone a tag/commit, build it with gradle and upload it using the name in CloudFormation
+* For rollback the Lambda code in S3 must exist which means we shouldn't setup S3 to delete "old" files automatically. If the file is gone, clone a tag/commit, build it with gradle and upload it using the name in CloudFormation.
+* In the AWS Console, the _Monitoring_ tab may not show data. Fix by switching _Qualifier_ to ``live``.

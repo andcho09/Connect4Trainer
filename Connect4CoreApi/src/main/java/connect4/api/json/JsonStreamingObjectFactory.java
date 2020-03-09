@@ -3,6 +3,7 @@ package connect4.api.json;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.io.Writer;
 import java.util.LinkedList;
 import java.util.List;
@@ -293,7 +294,7 @@ public class JsonStreamingObjectFactory {
 		return boardAnalysis;
 	}
 
-	public AbstractBoardRequest deserializeAbstractBoardRequest(final JsonParser jp) throws IOException {
+	public Serializable deserializeAbstractBoardRequest(final JsonParser jp) throws IOException {
 		if (!JsonToken.START_OBJECT.equals(jp.nextToken())) {
 			throw new IOException("Could not parse request. Does not appear to be JSON.");
 		}
@@ -306,6 +307,8 @@ public class JsonStreamingObjectFactory {
 					return doDeserializeStoreBoardRequest(jp);
 				} else if ("getrandom".equals(action)) {
 					return new GetRandomBoardRequest();
+				} else if ("warm".equals(action)) {
+					return new WarmRequest();
 				}
 			}
 		}

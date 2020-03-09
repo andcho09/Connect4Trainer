@@ -1,15 +1,22 @@
+plugins {
+	id 'java-library'
+}
+
 group = 'Connect4CoreApi'
 description = 'Connect 4 API library used by other projects'
 
 jar {
 	manifest {
 		attributes 'Implementation-Title': group,
-				   'Implementation-Version': version
+				   'Implementation-Version': archiveVersion
 	}
 }
 
 dependencies {
+	api group: 'com.fasterxml.jackson.core', name: 'jackson-core', version:'2.9.10'
 	implementation group: 'commons-lang', name: 'commons-lang', version:'2.6'
-	implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version:'2.9.10'
+	implementation group: 'com.amazonaws', name: 'aws-xray-recorder-sdk-aws-sdk', version: '2.4.0'
+	implementation group: 'com.amazonaws', name: 'aws-xray-recorder-sdk-core', version: '2.4.0'
 	implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version:'2.9.10.1' //we don't use databind but AWS requires it
+	implementation group: 'log4j', name: 'log4j', version:'1.2.17'
 }

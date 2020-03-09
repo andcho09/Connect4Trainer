@@ -1,17 +1,16 @@
 subprojects {
 	apply plugin: 'java'
-	apply plugin: 'maven'
 
 	repositories {
-		maven { url "http://repo.maven.apache.org/maven2" }
+		mavenCentral()
 	}
 
 	// Shared properties
 	project.version = '0.0.1-SNAPSHOT'
 
 	java {
-		sourceCompatibility = JavaVersion.VERSION_1_8
-		targetCompatibility = JavaVersion.VERSION_1_8
+		sourceCompatibility = JavaVersion.VERSION_11
+		targetCompatibility = JavaVersion.VERSION_11
 	}
 }
 
@@ -39,10 +38,25 @@ configure(subprojects.findAll {it.name != 'Connect4CoreApi'}) { Project project 
 				project.ext.debug = debug
 			}
 
+			if (!project.hasProperty('xray')) {
+				project.ext.xray = 'PassThrough'
+			} else {
+				if (xray == 'Active' || xray == 'active') {
+					project.ext.xray = 'Active'
+				}
+			}
+
 			project.ext.date = new Date().format('yyyy-MM-dd')
 			project.ext.dateTime = new Date().format('yyyy-MM-dd-HHmm')
 
-			println "Using region=" + region + ", bucket=" + bucket + ", and debug=" + debug
+			if (xray == 'Active'){
+				project.ext.template_path = "distributions/${archivesBaseName}-XRay-${version}.zip"
+			} else {
+				project.ext.template_path = "distributions/${archivesBaseName}-${version}.zip"
+			}
+			println template_path
+
+			println "Using region=" + region + ", bucket=" + bucket + ", debug=" + debug + ", and xray=" + xray
 		}
 
 		// Since Exec doesn't do lazy evaluation, we lazily register a task that will do configure the tasks during the execution phase
@@ -52,31 +66,47 @@ configure(subprojects.findAll {it.name != 'Connect4CoreApi'}) { Project project 
 
 		tasks.named("awsTaskConfigure") {
 			doFirst { // Use a doFirst so that the task is configured *after* awsInit has defined all the property values
+				tasks.named("awsMungeTemplate").configure {
+					filter { String line ->
+						String newLine = line.replaceFirst(/CodeUri: build\/distributions\/Connect4.*/, "CodeUri: ${->template_path}")
+						newLine = newLine.replaceFirst(/CodeUri: \.\.\//, "CodeUri: ../../")
+						return newLine
+					}
+				}
 				tasks.named("awsPackage").configure {
-					args "cloudformation", "package", "--template-file", "template.yaml", "--output-template-file", "packaged-${->project.shortName}-template.yaml", "--s3-prefix", "connect4trainer-releases/${->project.shortName}-${->project.date}", "--force-upload", "--s3-bucket", "${->project.bucket}", "--region", "${->project.region}"
+					args "cloudformation", "package", "--template-file", "$buildDir/template.yaml", "--output-template-file", "$buildDir/packaged-${->project.shortName}-template.yaml", "--s3-prefix", "connect4trainer-releases/${->project.shortName}-${->project.date}", "--force-upload", "--s3-bucket", "${->project.bucket}", "--region", "${->project.region}"
 				}
 				tasks.named("awsCpTemplate").configure {
-					args "s3", "cp", "packaged-${->project.shortName}-template.yaml", "s3://${->project.bucket}/templates/"
+					args "s3", "cp", "$buildDir/packaged-${->project.shortName}-template.yaml", "s3://${->project.bucket}/templates/"
 				}
 				tasks.named("awsChangeSet").configure {
-					args "cloudformation", "create-change-set", "--stack-name", "${->project.group}Stack", "--change-set-name", "Change-${->project.dateTime}", "--template-url", "https://${->project.bucket}.s3.${->project.region}.amazonaws.com/templates/packaged-${->project.shortName}-template.yaml", "--capabilities", "CAPABILITY_IAM", "CAPABILITY_NAMED_IAM", "CAPABILITY_AUTO_EXPAND", "--parameters", "ParameterKey=DebugEnabled,ParameterValue=${->project.debug}", "--tags", "Key=Project,Value=Connect4Trainer", "--region", "${->project.region}"
+					args "cloudformation", "create-change-set", "--stack-name", "${->project.group}Stack", "--change-set-name", "Change-${->project.dateTime}", "--template-url", "https://${->project.bucket}.s3.${->project.region}.amazonaws.com/templates/packaged-${->project.shortName}-template.yaml", "--capabilities", "CAPABILITY_IAM", "CAPABILITY_NAMED_IAM", "CAPABILITY_AUTO_EXPAND", "--parameters", "ParameterKey=DebugEnabled,ParameterValue=${->project.debug}", "ParameterKey=XRayEnabled,ParameterValue=${->project.xray}", "--tags", "Key=Project,Value=Connect4Trainer", "--region", "${->project.region}"
 				}
 			}
 		}
 	}
 
-	task awsPackage(type: Exec, group: "Custom", description: "CloudFormation package") {
+	task awsMungeTemplate(type: Copy, group: "Custom", description: "Sets up CloudFormation template file") {
 		dependsOn tasks.named("awsTaskConfigure")
+		from file("template.yaml")
+		into file("$buildDir")
+	}
+
+	task awsPackage(type: Exec, group: "Custom", description: "CloudFormation package") {
+		dependsOn tasks.named("awsTaskConfigure"), awsMungeTemplate
 		executable 'aws'
 	}
 
 	task awsCpTemplate(type: Exec, group: "Custom", description: "Copy template to S3") {
-		dependsOn tasks.named("awsTaskConfigure"), awsPackage
+		dependsOn tasks.named("awsTaskConfigure"), awsMungeTemplate, awsPackage
 		executable 'aws'
 	}
 
 	task awsChangeSet(type: Exec, group: "Custom", description: "CloudFormation change-set") {
-		dependsOn tasks.named("awsTaskConfigure"), awsPackage, awsCpTemplate
+		dependsOn tasks.named("awsTaskConfigure"), awsMungeTemplate, awsPackage, awsCpTemplate
 		executable 'aws'
+		doLast {
+			println "aws command for DEBUG: aws " + args.join(" ")
+		}
 	}
 }
