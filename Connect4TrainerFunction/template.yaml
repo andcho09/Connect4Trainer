@@ -14,6 +14,10 @@ Parameters:
     Type: String
     Description: ARN of IAM role for Lambda to use
     Default: arn:aws:iam::214602658230:role/service-role/connect4trainer-role
+  SnsTopicArn:
+    Type: String
+    Description: ARN of SNS topic to notify on errors
+    Default: arn:aws:sns:ap-southeast-2:214602658230:AlarmTopic-ap-southeast-2
   StoreLambdaFunctionName:
     Type: String
     Description: Name of the Connect4Store function. Can include version/alias here (uses 'live' by default)
@@ -28,6 +32,10 @@ Parameters:
       - Active
       - PassThrough
     Default: PassThrough
+
+Conditions:
+  CreateAlarm:
+    !Equals [!Ref AWS::Region, ap-southeast-2]
 
 Resources:
   # Lambda function
@@ -126,6 +134,7 @@ Resources:
         Variables:
           DEBUG: true
           FUNCTION_TO_TEST: !Ref LambdaFunction.Version
+          SNS_TOPIC_ARN: !Ref SnsTopicArn
       Policies:
         - Version: "2012-10-17"
           Statement:
@@ -140,10 +149,56 @@ Resources:
             Action:
               - "lambda:InvokeFunction"
             Resource: !Ref LambdaFunction.Version
-      Timeout: 10
+          - Effect: "Allow"
+            Action:
+              - "sns:Publish"
+            Resource: !Ref SnsTopicArn
+      Timeout: 30
   # CloudWatch log group
   LambdaLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
       LogGroupName: /aws/lambda/Connect4Trainer
       RetentionInDays: 14
+  # Trigger pre-deploy hook as a hand-cranked synthetic canary (since AWS doesn't allow intervals > 1 hour)
+  EventRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: Hand-cranked canary for Connect4Trainer
+      Name: TriggerConnect4TrainerCanary
+      ScheduleExpression: cron(47 5 * * ? *) # Every Tuesday at 05:47 UTC (17:47 NZST, 18:47 NZDT)
+      State: ENABLED
+      Targets:
+        - Arn: !GetAtt TestHookLambdaFunction.Arn
+          Id: PreDeployHookLambda
+          Input: !Sub |
+            {"forceError": "false" }
+  EventRuleLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref TestHookLambdaFunction
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt EventRule.Arn
+  # CloudWatch Alarms
+  AlarmError:
+    Type: AWS::CloudWatch::Alarm
+    Condition: CreateAlarm
+    Properties:
+      ComparisonOperator: GreaterThanThreshold
+      EvaluationPeriods: 1
+      # Optionals
+      AlarmActions:
+        - !Ref SnsTopicArn
+      AlarmDescription: Connect4Trainer errors
+      AlarmName: !Sub 'Connect4Trainer ${AWS::Region} Errors'
+      DatapointsToAlarm: 1
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref LambdaFunction
+      MetricName: Errors
+      Namespace: AWS/Lambda
+      Period: 86400 # 1 day
+      Statistic: Sum
+      Threshold: 1
+      TreatMissingData: breaching

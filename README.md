@@ -185,11 +185,11 @@ I.e. first time things set up manually:
 			$ gradle awsChangeSet -Pregion=ap-southeast-2 -Pdebug=false
 
 	1. Execute the change set from the web console or command line
+
 1. Upload new static web content update to S3:
 
-
-		$ aws cp Connect4TrainerFunction/build/distributions-s3/* s3://<web-s3-bucket>/
-		$ gradle build
+		$ aws s3 cp --cache-control max-age=31536000 --content-encoding gzip Connect4TrainerFunction/build/distributions-s3/favicon.ico s3://<web-s3-bucket>/
+		$ aws s3 cp --cache-control max-age=2592000 --exclude favicon.ico --recursive Connect4TrainerFunction/build/distributions-s3/ s3://<web-s3-bucket>/
 
 	* Note since CloudFront caches, content might need to be [invalidated manually](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/Invalidation.html)
 

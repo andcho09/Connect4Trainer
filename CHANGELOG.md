@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+## 0.10 (May 2020)
+
+* New
+    * Added hand-cranked canary to test the Connect 4 Trainer function daily (not using CloudWatch Synthetic canary because it's max interval is 1 hour which will be expensive)
+
 ## 0.9 (Mar 2020)
 
 * New
