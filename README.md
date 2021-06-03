@@ -134,6 +134,8 @@ For now, using [SAM](https://docs.aws.amazon.com/serverless-application-model/la
 * SAM doesn't handle static web content
 * SAM takes away flexibility of Gradle and only packages specific artifacts (i.e. minifying static web content)
 
+Note: the proper way to handle this is to split the Lambda deployment to use ``sam`` and the frontend deployment to a separate deploy pipeline (i.e. gradle script)
+
 ### CloudFormation stacks
 
 There are two stacks, one for each Lambda function

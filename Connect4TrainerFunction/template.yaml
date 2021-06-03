@@ -127,7 +127,7 @@ Resources:
       CodeUri: ../CodeDeployHook
       Handler: preTrafficHook.handler
       FunctionName: CodeDeployHook_Connect4TrainerTest # This must begin with 'CodeDeployHook_'
-      Runtime: nodejs10.x
+      Runtime: nodejs14.x
       # Optional parameters
       Description: Tests new Lambda function before cutting over traffic
       Environment:
