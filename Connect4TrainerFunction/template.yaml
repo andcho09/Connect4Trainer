@@ -46,6 +46,8 @@ Resources:
       Handler: connect4.aws.AwsLambdaTrainerHandler::handleRequest
       Runtime: java11
       # Optional properties
+      Architectures:
+        - arm64
       AutoPublishAlias: live
       Description: Lambda function for Connect 4 Trainer (recommend moves, AI)
       Environment:

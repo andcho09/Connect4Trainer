@@ -30,6 +30,8 @@ Resources:
       Handler: connect4.store.lambda.AwsLambdaStoreHandler::handleRequest
       Runtime: java11
       # Optional properties
+      Architectures:
+        - arm64
       AutoPublishAlias: live
       Description: Lambda function for storing interesting Connect 4 boards in DynamoDB
       Environment:
