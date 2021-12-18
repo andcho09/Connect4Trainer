@@ -2,7 +2,8 @@ package connect4.forwarder;
 
 import java.util.stream.Collectors;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import connect4.api.Board;
 import connect4.api.Disc;
@@ -17,7 +18,7 @@ public abstract class AbstractBoardForwarder {
 	static final int INTERESTING_FLAGS = ColumnAnalysis.FLAG_TRAP_MORE_THAN_ONE | ColumnAnalysis.FLAG_BLOCK_TRAP_MORE_THAN_ONE
 			| ColumnAnalysis.FLAG_FORCED_WIN | ColumnAnalysis.FLAG_BLOCK_FORCED_WIN;
 
-	private static final Logger LOGGER = Logger.getLogger(AbstractBoardForwarder.class);
+	private static final Logger LOGGER = LogManager.getLogger();
 
 	/**
 	 * Receive a board and consider forwarding it.

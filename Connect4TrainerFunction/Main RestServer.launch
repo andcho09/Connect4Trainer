@@ -11,9 +11,10 @@
         <mapEntry key="STORE_LAMBDA_FUNCTION" value="Connect4Store"/>
         <mapEntry key="STORE_LAMBDA_REGION" value="ap-southeast-2"/>
     </mapAttribute>
+    <booleanAttribute key="org.eclipse.jdt.launching.ATTR_ATTR_USE_ARGFILE" value="false"/>
     <booleanAttribute key="org.eclipse.jdt.launching.ATTR_USE_CLASSPATH_ONLY_JAR" value="false"/>
     <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="connect4.rest.RestServer"/>
     <stringAttribute key="org.eclipse.jdt.launching.MODULE_NAME" value="Connect4TrainerFunction"/>
     <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="Connect4TrainerFunction"/>
-    <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dlog4j.configuration=log4j_runtime.properties"/>
+    <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dlog4j.configurationFile=log4j_runtime.xml"/>
 </launchConfiguration>

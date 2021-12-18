@@ -9,7 +9,8 @@ import java.io.Serializable;
 import java.io.StringWriter;
 import java.io.Writer;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.http.HttpStatus;
 
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -31,7 +32,7 @@ import spark.Route;
  */
 public class RestServer {
 
-	private static final Logger LOGGER = Logger.getLogger(RestServer.class);
+	private static final Logger LOGGER = LogManager.getLogger();
 
 	public static void main(final String[] args) {
 		final GameHandler gameHandler = new GameHandler(new AwsStoreHandlerForwarder());

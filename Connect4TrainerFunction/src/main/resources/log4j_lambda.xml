@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration name="Log4jLambda" status="INFO" strict="true">
+	<Appenders>
+		<Appender type="Console" name="com.amazonaws.services.lambda.runtime.log4j.LambdaAppender" target="SYSTEM_OUT">
+			<Layout type="PatternLayout" pattern="%d{HH:mm:ss,SSS} [%-5p] %c: %m%n" />
+		</Appender>
+	</Appenders>
+</Configuration>

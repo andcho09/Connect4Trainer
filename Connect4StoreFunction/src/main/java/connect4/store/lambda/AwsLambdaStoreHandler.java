@@ -6,8 +6,10 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.stream.Collectors;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.config.Configurator;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
@@ -27,13 +29,12 @@ import connect4.store.dynamodb.DynamoDbStore;
 public class AwsLambdaStoreHandler implements RequestStreamHandler {
 
 	private static final String ENV_DEBUG_ENABLED = "DEBUG_ENABLED";
-	private static final Logger LOGGER = Logger.getLogger(AwsLambdaStoreHandler.class);
+	private static final Logger LOGGER = LogManager.getLogger();
 
 	public AwsLambdaStoreHandler() {
 		final boolean isDebugEnabled = Boolean.valueOf(System.getenv(ENV_DEBUG_ENABLED));
-		final Logger rootLogger = Logger.getRootLogger();
 		if (isDebugEnabled) {
-			rootLogger.setLevel(Level.DEBUG);
+			Configurator.setRootLevel(Level.DEBUG);
 		}
 	}
 

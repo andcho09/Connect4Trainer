@@ -13,7 +13,7 @@ Parameters:
   LambdaIamRole:
     Type: String
     Description: ARN of IAM role for Lambda to use
-    Default: arn:aws:iam::214602658230:role/service-role/connect4trainer-role
+    Default: arn:aws:iam::123456789012:role/service-role/connect4trainer-role
   XRayEnabled:
     Type: String
     AllowedValues:

@@ -7,8 +7,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
@@ -32,7 +33,7 @@ import connect4.api.json.StoreBoardRequest;
  */
 public class DynamoDbStore {
 
-	private static final Logger LOGGER = Logger.getLogger(DynamoDbStore.class);
+	private static final Logger LOGGER = LogManager.getLogger();
 	private static final Random RANDOM = new Random();
 	private static final String ENV_REGION = "DYNAMODB_REGION";
 	private static DynamoDbStore INSTANCE;

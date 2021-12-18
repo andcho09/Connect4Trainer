@@ -13,11 +13,11 @@ Parameters:
   LambdaIamRole:
     Type: String
     Description: ARN of IAM role for Lambda to use
-    Default: arn:aws:iam::214602658230:role/service-role/connect4trainer-role
+    Default: arn:aws:iam::123456789012:role/service-role/connect4trainer-role
   SnsTopicArn:
     Type: String
     Description: ARN of SNS topic to notify on errors
-    Default: arn:aws:sns:ap-southeast-2:214602658230:AlarmTopic-ap-southeast-2
+    Default: arn:aws:sns:ap-southeast-2:123456789012:AlarmTopic-ap-southeast-2
   StoreLambdaFunctionName:
     Type: String
     Description: Name of the Connect4Store function. Can include version/alias here (uses 'live' by default)

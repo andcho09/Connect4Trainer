@@ -1,6 +1,7 @@
 package connect4.web;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import connect4.api.Board;
 import connect4.api.BoardHelper;
@@ -18,7 +19,7 @@ import connect4.trainer.Trainer;
  */
 public class GameHandler {
 
-	private static final Logger LOGGER = Logger.getLogger(GameHandler.class);
+	private static final Logger LOGGER = LogManager.getLogger();
 
 	private final Trainer trainer;
 

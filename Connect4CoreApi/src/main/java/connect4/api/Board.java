@@ -2,7 +2,7 @@ package connect4.api;
 
 import java.util.Arrays;
 
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import connect4.api.GameException.ErrorCode;
 

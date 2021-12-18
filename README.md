@@ -172,16 +172,16 @@ I.e. first time things set up manually:
 
 		where the properties specified by ``-P`` are:
 
-		* ``region`` is the region to deploy to
-		* ``debug`` is either ``true`` or ``false`` and sets whether Log4j DEBUG logging is enabled
-		* ``xray`` is either ``Active`` to enable X-Ray tracing or ``PassThrough`` disable X-Ray
+		* ``region`` is the region to deploy to (default is ap-southeast-2)
+		* ``debug`` is either ``true`` or ``false`` (default) and sets whether Log4j DEBUG logging is enabled
+		* ``xray`` is either ``Active`` to enable X-Ray tracing or ``PassThrough`` (default) disable X-Ray
 
 	1. Execute the change set from the web console or command line
 	1. Don't forget to deploy to the other region updating the region references in the commands
 
 1. Deploy the **Connect4StoreFunction** CloudFormation template to **ap-southeast-2** using similar steps to the above:
 
-	1. Package the template for deploy (note: this is a **Unix** command):
+	1. Package the template for deploy:
 
 			$ cd Connect4StoreFunction
 			$ gradle awsChangeSet -Pregion=ap-southeast-2 -Pdebug=false

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration name="Log4jEclipse" status="INFO" strict="true">
+	<Appenders>
+		<Appender type="Console" name="ConsoleAppender" target="SYSTEM_OUT">
+			<Layout type="PatternLayout" pattern="%d{HH:mm:ss,SSS} [%-5p] %c: %m%n" />
+		</Appender>
+	</Appenders>
+	<Loggers>
+		<Root level="info">
+			<AppenderRef ref="ConsoleAppender" />
+		</Root>
+	</Loggers>
+</Configuration>

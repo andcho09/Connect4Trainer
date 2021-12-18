@@ -3,8 +3,9 @@ package connect4.aws;
 import java.io.IOException;
 import java.io.StringWriter;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.amazonaws.services.lambda.AWSLambdaAsync;
 import com.amazonaws.services.lambda.AWSLambdaAsyncClientBuilder;
@@ -27,7 +28,7 @@ public class LambdaBoardForwarder extends AbstractBoardForwarder {
 	public static final String ENV_LAMBDA_REGION = "STORE_LAMBDA_REGION";
 	public static final String ENV_LAMBDA_FUNCTION = "STORE_LAMBDA_FUNCTION";
 
-	private static final Logger LOGGER = Logger.getLogger(LambdaBoardForwarder.class);
+	private static final Logger LOGGER = LogManager.getLogger();
 
 	private static AWSLambdaAsync lambda;
 	private final String lambdaFunction;

@@ -3,9 +3,9 @@ package connect4.api.aws.xray;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-import com.amazonaws.xray.entities.DummySubsegment;
 import com.amazonaws.xray.entities.Subsegment;
 
 /**
@@ -13,7 +13,7 @@ import com.amazonaws.xray.entities.Subsegment;
  */
 public class AWSXRay {
 
-	private static final Logger LOGGER = Logger.getLogger(AWSXRay.class);
+	private static final Logger LOGGER = LogManager.getLogger();
 
 	/**
 	 * Creates an X-Ray subsegment if X-Ray is enabled, otherwise just invokes the function.
@@ -26,7 +26,10 @@ public class AWSXRay {
 		if (isXRayEnabled()) {
 			return com.amazonaws.xray.AWSXRay.createSubsegment(name, function);
 		} else {
-			return function.apply(new DummySubsegment(null));
+			if (com.amazonaws.xray.AWSXRay.getCurrentSegmentOptional().isEmpty()) {
+				com.amazonaws.xray.AWSXRay.getGlobalRecorder().beginNoOpSegment();
+			}
+			return function.apply(Subsegment.noOp(com.amazonaws.xray.AWSXRay.getGlobalRecorder(), false));
 		}
 	}
 
@@ -39,7 +42,10 @@ public class AWSXRay {
 		if (isXRayEnabled()) {
 			com.amazonaws.xray.AWSXRay.createSubsegment(name, consumer);
 		} else {
-			consumer.accept(new DummySubsegment(null));
+			if (com.amazonaws.xray.AWSXRay.getCurrentSegmentOptional().isEmpty()) {
+				com.amazonaws.xray.AWSXRay.getGlobalRecorder().beginNoOpSegment();
+			}
+			consumer.accept(Subsegment.noOp(com.amazonaws.xray.AWSXRay.getGlobalRecorder(), false));
 		}
 	}
 

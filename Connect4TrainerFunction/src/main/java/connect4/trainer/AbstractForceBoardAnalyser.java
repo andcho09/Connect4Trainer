@@ -4,8 +4,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import connect4.api.Board;
 import connect4.api.Disc;
@@ -16,7 +17,7 @@ import connect4.trainer.BoardAnalyserFactory.ForcedAnalysisResult;
 
 public abstract class AbstractForceBoardAnalyser {
 
-	final Logger LOGGER = Logger.getLogger(getClass());
+	static final Logger LOGGER = LogManager.getLogger();
 
 	public abstract List<ForcedAnalysisResult> analyse(final BoardAnalysis boardAnalysis, final Board board, final Disc currentPlayer);
 
