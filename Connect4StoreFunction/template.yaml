@@ -28,7 +28,7 @@ Resources:
     Properties:
       CodeUri: build/distributions/Connect4StoreFunction-0.0.1-SNAPSHOT.zip # Relative to location of this CloudFormation template
       Handler: connect4.store.lambda.AwsLambdaStoreHandler::handleRequest
-      Runtime: java11
+      Runtime: java17
       # Optional properties
       Architectures:
         - arm64

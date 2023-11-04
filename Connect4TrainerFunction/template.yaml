@@ -9,14 +9,14 @@ Parameters:
       - true
       - false
     Description: Whether to enable Log4j (writes to CloudWatch) debug logging
-    Default: FALSE
+    Default: false
   LambdaIamRole:
     Type: String
     Description: ARN of IAM role for Lambda to use
     Default: arn:aws:iam::123456789012:role/service-role/connect4trainer-role
   SnsTopicArn:
     Type: String
-    Description: ARN of SNS topic to notify on errors
+    Description: ARN of SNS topic to notify on errors. Must be same region as the deploy region.
     Default: arn:aws:sns:ap-southeast-2:123456789012:AlarmTopic-ap-southeast-2
   StoreLambdaFunctionName:
     Type: String
@@ -44,7 +44,7 @@ Resources:
     Properties:
       CodeUri: build/distributions/Connect4TrainerFunction-0.0.1-SNAPSHOT.zip # Relative to location of this CloudFormation template
       Handler: connect4.aws.AwsLambdaTrainerHandler::handleRequest
-      Runtime: java11
+      Runtime: java17
       # Optional properties
       Architectures:
         - arm64
@@ -129,8 +129,10 @@ Resources:
       CodeUri: ../CodeDeployHook
       Handler: preTrafficHook.handler
       FunctionName: CodeDeployHook_Connect4TrainerTest # This must begin with 'CodeDeployHook_'
-      Runtime: nodejs14.x
+      Runtime: python3.11
       # Optional parameters
+      Architectures:
+        - arm64
       Description: Tests new Lambda function before cutting over traffic
       Environment:
         Variables:

@@ -2,6 +2,23 @@
 
 ## Unreleased
 
+## 0.13 (Nov 2023)
+
+* Changed
+    * Updated to Java 17 since that is the latest LTS
+    * Changed CodeDeploy hook to Python since the AWS Javascript SDK V3 which is required for Node 18.x has horrible documentation
+
+## 0.12 (Dec 2021)
+
+* Changed
+    * Switched Lambdas to ARM64 architecture
+* Security
+    * Updated Log4J 1 to 2
+
+## 0.11 (Jun 2021)
+* Changed
+    * CodeDeploy hook from Node 10.x to 14.x
+
 ## 0.10 (May 2020)
 
 * New

@@ -170,7 +170,7 @@ I.e. first time things set up manually:
 			$ cd Connect4TrainerFunction
 			$ gradle awsChangeSet -Pregion=<us-east-1> -Pdebug=<false> -Pxray=<PassThrough>
 
-		where the properties specified by ``-P`` are:
+	where the properties specified by ``-P`` are:
 
 		* ``region`` is the region to deploy to (default is ap-southeast-2)
 		* ``debug`` is either ``true`` or ``false`` (default) and sets whether Log4j DEBUG logging is enabled
